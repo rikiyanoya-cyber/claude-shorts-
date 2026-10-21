@@ -30,6 +30,9 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `car_alarm_distant.mp3` | 4.0s | distant car alarm going off in an empty city street | Distractions |
 | `vending_slam.mp3` | 1.9s | hand slamming an empty metal vending machine once, loud bang echoing in a hallway | Sound in the first 0.6s |
 | `faucet_air.mp3` | 1.9s | faucet handle squeaking, only air sputters out, no water | No water |
+| `zombie_breath_close.mp3` | 3.4s | zombie breathing slowly right in front of you, low wet growl, very close | Face-to-face moments |
+| `run_dirt_breath.mp3` | 3.4s | fast footsteps running on a dirt schoolyard, out of breath | Running outside. Cut with len |
+| `shed_door_slide.mp3` | 2.2s | heavy metal storage shed door sliding open, rusty | Heavy doors, shutters |
 
 ## School / objects
 
@@ -41,6 +44,8 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `door_slide_close_lock.mp3` | 1.9s | classroom sliding door closing firmly, then a lock clicks | Door shut and locked |
 | `knock_x4.mp3` | 1.8s | three soft knocks on a wooden door | 4 knocks at about 0.10, 0.36, 0.63, 0.92s. Cut single knocks (0.08-0.25, 0.34-0.51, 0.61-0.78s) |
 | `desk_drag.mp3` | 2.9s | school desk dragged across wooden floor, scraping | Furniture moving |
+| `pa_mic_hum.mp3` | 2.2s | school PA microphone switched on, click and low electrical hum | Broadcast room, mic on |
+| `grab_supplies.mp3` | 3.1s | plastic water bottles and packaged crackers being grabbed quickly, rustling | Quiet file (peak -16 dB). Normalize before use |
 
 ## Comedy / light (だってよ。)
 
