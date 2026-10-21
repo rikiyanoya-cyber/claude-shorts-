@@ -1,0 +1,250 @@
+<html><head><meta charset="utf-8"><style>
+@font-face{font-family:NS;src:url(NSJP900.ttf);font-weight:900}
+@font-face{font-family:NS7;src:url(NSJP700.ttf);font-weight:700}
+body{margin:0;background:#000;overflow:hidden}svg{display:block}
+</style></head><body>
+<svg id=s width=1080 height=1920 viewBox="0 0 1080 1920"></svg>
+<script>
+const W=1080,H=1920;
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)),lerp=(a,b,u)=>a+(b-a)*u,ease=u=>u<0?0:u>1?1:u*u*(3-2*u),ramp=(t,a,b)=>ease((t-a)/(b-a));
+function rnd(i){const x=Math.sin(i*127.1+11.3)*43758.5453;return x-Math.floor(x);}
+let CAPS=[],SCENES=[],RULES=[],DAY=1,TITLE_T=[0,2.5],TIMESTR='2:47 PM.',IRIS=null;
+const DEFS=`<defs>
+<filter id=glow x=-50% y=-50% width=200% height=200%><feGaussianBlur stdDeviation=12 /></filter>
+<filter id=glow2 x=-100% y=-100% width=300% height=300%><feGaussianBlur stdDeviation=36 /></filter>
+<filter id=blur6><feGaussianBlur stdDeviation=6 /></filter>
+<filter id=blur18><feGaussianBlur stdDeviation=18 /></filter>
+<filter id=ts x=-20% y=-20% width=140% height=140%><feDropShadow dx=0 dy=4 stdDeviation=6 flood-color="#000" flood-opacity=.9 /></filter>
+<radialGradient id=vig cx=50% cy=45% r=75%><stop offset=55% stop-color="#000" stop-opacity=0 /><stop offset=100% stop-color="#000" stop-opacity=.8 /></radialGradient>
+<linearGradient id=sky x1=0 y1=0 x2=0 y2=1><stop offset=0 stop-color="#9cc3e6"/><stop offset=1 stop-color="#f3dcb0"/></linearGradient>
+<linearGradient id=skyw x1=0 y1=0 x2=0 y2=1><stop offset=0 stop-color="#cfe6f7"/><stop offset=1 stop-color="#fff4dc"/></linearGradient>
+<linearGradient id=wallg x1=0 y1=0 x2=0 y2=1><stop offset=0 stop-color="#efe9dc"/><stop offset=1 stop-color="#d9d1c0"/></linearGradient>
+<linearGradient id=sidew x1=0 y1=0 x2=1 y2=0><stop offset=0 stop-color="#d8cfbd"/><stop offset=1 stop-color="#c4baa5"/></linearGradient>
+<linearGradient id=sidewr x1=1 y1=0 x2=0 y2=0><stop offset=0 stop-color="#d8cfbd"/><stop offset=1 stop-color="#c4baa5"/></linearGradient>
+<linearGradient id=floorg x1=0 y1=1 x2=0 y2=0><stop offset=0 stop-color="#a87c4f"/><stop offset=1 stop-color="#c79c6b"/></linearGradient>
+<linearGradient id=ceilg x1=0 y1=0 x2=0 y2=1><stop offset=0 stop-color="#f3f1ec"/><stop offset=1 stop-color="#dcd7cc"/></linearGradient>
+<linearGradient id=dirt x1=0 y1=0 x2=0 y2=1><stop offset=0 stop-color="#cdb48a"/><stop offset=1 stop-color="#b39468"/></linearGradient>
+<linearGradient id=frost x1=0 y1=0 x2=0 y2=1><stop offset=0 stop-color="#e8eef2"/><stop offset=1 stop-color="#b9c6cf"/></linearGradient>
+<radialGradient id=head cx=40% cy=35% r=70%><stop offset=0 stop-color="#f3f3f3"/><stop offset=1 stop-color="#c6c6c6"/></radialGradient>
+<radialGradient id=zhead cx=40% cy=35% r=70%><stop offset=0 stop-color="#b9c2ad"/><stop offset=1 stop-color="#7f8a72"/></radialGradient>
+<radialGradient id=redw cx=50% cy=40% r=70%><stop offset=0 stop-color="#ff2a1a" stop-opacity=.7 /><stop offset=1 stop-color="#5a0000" stop-opacity=.9 /></radialGradient>
+<filter id=grain><feTurbulence type=fractalNoise baseFrequency=.9 numOctaves=2 seed=SEED /><feColorMatrix type=saturate values=0 /></filter>
+</defs>`;
+const P=pts=>pts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' ');
+const poly=(pts,f,ex='')=>`<polygon points="${P(pts)}" fill="${f}" ${ex} />`;
+const txt=(x,y,s,size,fill='#fff',font='NS',ex='')=>`<text x=${x} y=${y} font-family="${font}" font-weight=900 font-size=${size} fill="${fill}" text-anchor=middle ${ex}>${s}</text>`;
+// ---------------- stick figure ----------------
+// joints relative; o: {pose:'stand'|'sit'|'floor'|'run'|'zombie', ph, face, hair, rot, behind, armUp}
+function fig(x,fy,h,o={}){const r=h*.14,sw=Math.max(2,h*.035),c=o.col||'#151515';let hy=fy-h+r,hip=fy-h*.42,sh=hy+r+h*.07;
+ let legs='',arms='',tilt=o.tilt||0;
+ const L=(a,b,c2,d)=>`<line x1=${a.toFixed(1)} y1=${b.toFixed(1)} x2=${c2.toFixed(1)} y2=${d.toFixed(1)} />`;
+ if(o.pose==='sit'){hip=fy-h*.18;sh=hip-h*.36;hy=sh-h*.07-r;legs=L(x,hip,x-h*.08,hip)+L(x,hip,x+h*.08,hip);arms=L(x,sh,x-h*.16,sh+h*.18)+L(x,sh,x+h*.16,sh+h*.18);}
+ else if(o.pose==='floor'){hip=fy-h*.05;sh=hip-h*.34;hy=sh-h*.07-r;legs=L(x,hip,x-h*.22,fy-h*.02)+L(x-h*.22,fy-h*.02,x-h*.12,fy-h*.2)+L(x,hip,x+h*.22,fy-h*.02)+L(x+h*.22,fy-h*.02,x+h*.12,fy-h*.2);arms=L(x,sh,x-h*.13,fy-h*.2)+L(x,sh,x+h*.13,fy-h*.2);}
+ else if(o.pose==='run'){const p=o.ph||0,a=Math.sin(p)*.5;legs=L(x,hip,x+Math.sin(a)*h*.4,hip+Math.cos(a)*h*.4)+L(x,hip,x-Math.sin(a)*h*.4,hip+Math.cos(a)*h*.4);arms=L(x,sh,x-Math.sin(a)*h*.28,sh+h*.22)+L(x,sh,x+Math.sin(a)*h*.28,sh+h*.22);}
+ else if(o.pose==='zombie'){const p=o.ph||0;legs=L(x,hip,x-h*.1+Math.sin(p)*h*.05,fy)+L(x,hip,x+h*.12-Math.sin(p)*h*.05,fy);const dir=o.dir||1;arms=L(x,sh,x+dir*h*.34,sh+h*.04)+L(x,sh+h*.02,x+dir*h*.3,sh+h*.12);tilt=tilt||22*dir;}
+ else {legs=L(x,hip,x-h*.11,fy)+L(x,hip,x+h*.11,fy);
+   const al=o.armL||[-.12,.24],ar=o.armR||[.12,.24];arms=L(x,sh,x+al[0]*h,sh+al[1]*h)+L(x,sh,x+ar[0]*h,sh+ar[1]*h);}
+ let g=`<g transform="rotate(${o.rot||0} ${x} ${fy})"><g stroke="${c}" stroke-width=${sw.toFixed(1)} stroke-linecap=round fill=none>${L(x,hy+r,x,hip)}${legs}${arms}</g>`;
+ const hf=o.pose==='zombie'||o.z?'url(#zhead)':(o.headCol||'url(#head)');
+ g+=`<g transform="rotate(${tilt} ${x} ${hy+r})">`;
+ if(o.hair==='aoi')g+=`<path d="M${x-r*1.08} ${hy+r*.55} Q${x-r*1.25} ${hy-r*1.2} ${x} ${hy-r*1.08} Q${x+r*1.25} ${hy-r*1.2} ${x+r*1.08} ${hy+r*.55} Z" fill="#1d1d24" />`;
+ g+=`<circle cx=${x} cy=${hy} r=${r.toFixed(1)} fill="${hf}" stroke="${c}" stroke-width=${(sw*.8).toFixed(1)} />`;
+ if(o.hair==='aoi')g+=`<path d="M${x-r*1.02} ${hy-r*.1} Q${x-r*.9} ${hy-r*1.05} ${x} ${hy-r*1.02} Q${x+r*.9} ${hy-r*1.05} ${x+r*1.02} ${hy-r*.1} Q${x+r*.5} ${hy-r*.55} ${x} ${hy-r*.45} Q${x-r*.6} ${hy-r*.6} ${x-r*1.02} ${hy-r*.1}Z" fill="#1d1d24" />`;
+ if(o.hair==='kenta'){let d=`M${x-r*1.02} ${hy-r*.05} Q${x-r*1.05} ${hy-r*1.2} ${x} ${hy-r*1.12} Q${x+r*1.05} ${hy-r*1.2} ${x+r*1.02} ${hy-r*.05}`;for(let i=0;i<5;i++){const xx=x+r*(.8-i*.4);d+=` L${xx-r*.2} ${hy-r*.42} L${xx-r*.4} ${hy-r*.1}`;}g+=`<path d="${d}Z" fill="#1d1d24" />`;}
+ if(o.hair==='teacher')g+=`<path d="M${x-r*.98} ${hy-r*.15} Q${x-r*.6} ${hy-r*1.15} ${x+r*.3} ${hy-r*1.02} Q${x+r*.95} ${hy-r*.8} ${x+r*.98} ${hy-r*.2} Q${x+r*.2} ${hy-r*.7} ${x-r*.98} ${hy-r*.15}Z" fill="#3a3530" />`;
+ const f=o.face||'n';
+ if(f==='blank'){g+=`<circle cx=${x-r*.33} cy=${hy} r=${r*.13} fill="#f4f4ea" /><circle cx=${x+r*.33} cy=${hy} r=${r*.13} fill="#f4f4ea" />`;}
+ else if(f==='wide'){g+=`<circle cx=${x-r*.33} cy=${hy} r=${r*.15} fill="#fff" stroke="#151515" stroke-width=${sw*.4} /><circle cx=${x+r*.33} cy=${hy} r=${r*.15} fill="#fff" stroke="#151515" stroke-width=${sw*.4} /><circle cx=${x-r*.33} cy=${hy} r=${r*.06} fill="#151515" /><circle cx=${x+r*.33} cy=${hy} r=${r*.06} fill="#151515" />`;}
+ else if(f!=='none'){g+=`<circle cx=${x-r*.33} cy=${hy} r=${r*.09} fill="#151515" /><circle cx=${x+r*.33} cy=${hy} r=${r*.09} fill="#151515" />`;}
+ if(o.sweat)g+=`<path d="M${x+r*.95} ${hy-r*.3} q${-r*.12} ${r*.25} 0 ${r*.35} q${r*.12} ${-r*.1} 0 ${-r*.35}Z" fill="#9fd0ff" />`;
+ g+=`</g></g>`;return {g,hy,r,sh,hip};}
+// ---------------- classroom perspective ----------------
+const VPx=540,VPy=780,K=1140,ZB=4.385,XW=1.4618;
+const pr=(X,hgt,z)=>[VPx+X*K/z,VPy+(1-hgt)*K/z];
+function quadW(X0,X1,h0,h1,z0,z1,f,ex=''){return poly([pr(X0,h0,z0),pr(X1,h0,z0),pr(X1,h1,z1),pr(X0,h1,z1)],f,ex);}
+function classroom(o={}){let s='';const dim=o.dim||0;
+ // ceiling, walls, floor
+ s+=poly([[0,0],[W,0],pr(XW,2,ZB),pr(-XW,2,ZB)],'url(#ceilg)');
+ s+=poly([pr(-XW,2,ZB),pr(XW,2,ZB),pr(XW,0,ZB),pr(-XW,0,ZB)],'url(#wallg)');
+ s+=poly([[0,0],pr(-XW,2,ZB),pr(-XW,0,ZB),[0,H]],'url(#sidew)');
+ s+=poly([[W,0],pr(XW,2,ZB),pr(XW,0,ZB),[W,H]],'url(#sidewr)');
+ s+=poly([[0,H],[W,H],pr(XW,0,ZB),pr(-XW,0,ZB)],'url(#floorg)');
+ for(let i=1;i<9;i++){const X=-XW+i*XW*2/9;s+=`<line x1=${pr(X,0,ZB)[0]} y1=${pr(X,0,ZB)[1]} x2=${pr(X,0,0.6)[0]} y2=${pr(X,0,0.6)[1]} stroke="#8f6a42" stroke-width=2 opacity=.5 />`;}
+ // blackboard + clock + speaker on back wall
+ s+=quadW(-.95,.95,1.55,.75,ZB,ZB,'#2f5a46','stroke="#6b4f2e" stroke-width=6');
+ s+=quadW(-.95,.95,.75,.72,ZB,ZB,'#8a6a42');
+ const ck=pr(0,1.78,ZB);s+=`<circle cx=${ck[0]} cy=${ck[1]} r=24 fill="#fff" stroke="#333" stroke-width=4 /><line x1=${ck[0]} y1=${ck[1]} x2=${ck[0]+7} y2=${ck[1]+9} stroke="#222" stroke-width=3 /><line x1=${ck[0]} y1=${ck[1]} x2=${ck[0]+10} y2=${ck[1]+15} stroke="#222" stroke-width=2 />`;
+ const sp=pr(.75,1.8,ZB);s+=`<rect x=${sp[0]-22} y=${sp[1]-16} width=44 height=32 rx=5 fill="#efe6d2" stroke="#666" stroke-width=3 />`;for(let i=0;i<3;i++)s+=`<line x1=${sp[0]-14} y1=${sp[1]-7+i*7} x2=${sp[0]+14} y2=${sp[1]-7+i*7} stroke="#777" stroke-width=2 />`;
+ if(o.waves){for(let i=0;i<3;i++){const k=((o.waves*1.2+i/3)%1);s+=`<circle cx=${sp[0]} cy=${sp[1]} r=${20+k*120} fill=none stroke="${o.waveCol||'#fff'}" stroke-width=4 opacity=${(1-k)*.8} />`;}}
+ // left windows
+ for(let i=0;i<4;i++){const z0=1.0+i*.85,z1=z0+.7;s+=quadW(-XW,-XW,1.75,.85,z0,z1,o.night?'#1b2742':'url(#skyw)','stroke="#9aa0a6" stroke-width=5');if(!o.night)s+=poly([pr(-XW,1.75,z0),pr(-XW,1.75,z1),pr(-XW,.85,z1),pr(-XW,.85,z0)],'#fff','opacity=.25 filter="url(#glow)"');}
+ // right wall: door + frosted transoms
+ s+=quadW(XW,XW,1.75,0,1.6,2.35,'#cdb592','stroke="#6b4f2e" stroke-width=6');s+=quadW(XW,XW,1.6,1.15,1.7,2.25,'url(#frost)','stroke="#6b4f2e" stroke-width=4');
+ for(let i=0;i<3;i++){const z0=2.6+i*.55;s+=quadW(XW,XW,1.75,1.4,z0,z0+.45,o.hallLight===0?'#3a4250':'url(#frost)','stroke="#8a7a62" stroke-width=3');}
+ // ceiling lights
+ if(!o.lightsOff)for(const X of [-.6,.6])for(let i=0;i<3;i++){const z0=1.6+i*1.0;s+=quadW(X-.06,X+.06,2,2,z0,z0+.6,'#fff','filter="url(#glow)"')+quadW(X-.04,X+.04,2,2,z0,z0+.6,'#fff');}
+ // desks & students far->near
+ const rows=o.rows||[4.0,3.3,2.7,2.2],cols=o.cols||[-1.05,-.35,.35,1.05];let items=[];
+ rows.forEach((z,ri)=>cols.forEach((X,ci)=>items.push({z,X,ri,ci})));
+ if(o.under)s+=o.under;
+ if(o.deskShift)items.forEach(it=>{const s2=o.deskShift(it);if(s2){it.X+=s2[0];it.z+=s2[1];}});
+ items.sort((a,b)=>b.z-a.z);
+ for(const it of items){const {z,X}=it;
+   if(o.students!==false){const sz=z+.42;const hp=pr(X,.42,sz),hh=K/sz;const f=fig(hp[0],pr(X,0,sz)[1],hh*.8,{pose:'sit',face:o.face||'n',col:'#151515',hair:(it.ri===1&&it.ci===1)?'aoi':null,tilt:o.look?o.look(it):0});s+=f.g;}
+   if(o.desks!==false){s+=quadW(X-.24,X+.24,.54,.54,z,z+.34,'#d9b98c','stroke="#7a5a36" stroke-width=2');s+=poly([pr(X-.24,.54,z),pr(X+.24,.54,z),pr(X+.24,.38,z),pr(X-.24,.38,z)],'#b48b5b','stroke="#7a5a36" stroke-width=2');
+     for(const dx of [-.22,.22])s+=`<line x1=${pr(X+dx,.38,z)[0]} y1=${pr(X+dx,.38,z)[1]} x2=${pr(X+dx,0,z)[0]} y2=${pr(X+dx,0,z)[1]} stroke="#555" stroke-width=${Math.max(2,6/z)} />`;}}
+ if(o.extra)s+=o.extra;
+ if(dim)s+=`<rect width=${W} height=${H} fill="#050a18" opacity=${dim} />`;
+ return s;}
+// ---------------- scenes ----------------
+function sExterior(t){let s=`<rect width=${W} height=${H} fill="url(#sky)"/>`;
+ s+=`<circle cx=820 cy=360 r=90 fill="#fff3c4" opacity=.8 filter="url(#glow2)"/>`;
+ // building
+ s+=`<rect x=-40 y=620 width=1160 height=640 fill="#ece6d8" stroke="#9c9486" stroke-width=4 />`;s+=`<rect x=-40 y=600 width=1160 height=30 fill="#cfc7b6"/>`;
+ s+=`<rect x=430 y=470 width=220 height=170 fill="#e4ddcd" stroke="#9c9486" stroke-width=4 /><circle cx=540 cy=550 r=56 fill="#fff" stroke="#555" stroke-width=6 /><line x1=540 y1=550 x2=556 y2=566 stroke="#222" stroke-width=5 /><line x1=540 y1=550 x2=566 y2=576 stroke="#222" stroke-width=3 />`;
+ for(let f=0;f<4;f++)for(let i=0;i<9;i++){const x=10+i*120,y=660+f*145;s+=`<rect x=${x} y=${y} width=96 height=90 fill="#a9c9e2" stroke="#8b949c" stroke-width=3 /><line x1=${x+48} y1=${y} x2=${x+48} y2=${y+90} stroke="#8b949c" stroke-width=2 />`;}
+ s+=`<rect x=-40 y=1260 width=1160 height=660 fill="url(#dirt)"/>`;
+ s+=`<ellipse cx=540 cy=1560 rx=620 ry=200 fill=none stroke="#f4efe4" stroke-width=8 opacity=.8 />`;
+ for(let i=0;i<5;i++)s+=`<circle cx=${60+i*240} cy=1250 r=70 fill="#5f8f4e" /><rect x=${54+i*240} y=1250 width=12 height=40 fill="#6b4a2b"/>`;
+ return s;}
+function sClassWide(t,T){const tp=pr(0,0,4.2);const teacher=fig(tp[0]-170,tp[1]-2,K/4.2*1.75,{hair:'teacher',armR:[.15,-.2],face:T>3.4?'wide':'n'}).g;return classroom({under:teacher,waves:T>=3.0&&T<5.3?T:0,look:it=>T>3.4?(it.ci<2?-14:14)*ramp(T,3.4,4):0});}
+function sSpeaker(t,T){let s=`<rect width=${W} height=${H} fill="url(#wallg)"/>`;
+ const sx=540,sy=760,dead=T>=16.19,scream=T>=14.25&&T<16.19,shake=(T>=12.37?(scream?14:5):0)*(dead?0:1);
+ const jx=Math.sin(T*70)*shake,jy=Math.cos(T*83)*shake;
+ s+=`<g transform="translate(${jx} ${jy})">`;
+ s+=`<rect x=${sx-230} y=${sy-170} width=460 height=340 rx=30 fill="#efe6d2" stroke="#6b6b6b" stroke-width=10 />`;
+ for(let i=0;i<7;i++)s+=`<rect x=${sx-170} y=${sy-120+i*36} width=340 height=14 rx=7 fill="#7a7a7a" />`;
+ s+=`<circle cx=${sx+200} cy=${sy+140} r=10 fill="${dead?'#333':(scream?'#ff3b2f':'#5fd35f')}" />`;
+ if(!dead){const amp=scream?1.8:(T>=12.37?1.1:.8);for(let i=0;i<4;i++){const k=((T*1.6*amp+i/4)%1);s+=`<path d="M${sx+250+k*160} ${sy-120-k*60} Q${sx+300+k*200} ${sy} ${sx+250+k*160} ${sy+120+k*60}" fill=none stroke="${scream?'#ff4a3a':'#ffffff'}" stroke-width=${8} opacity=${(1-k)*.9} /><path d="M${sx-250-k*160} ${sy-120-k*60} Q${sx-300-k*200} ${sy} ${sx-250-k*160} ${sy+120+k*60}" fill=none stroke="${scream?'#ff4a3a':'#ffffff'}" stroke-width=8 opacity=${(1-k)*.9} />`;}}
+ // crackle sparks before speech
+ if(T<8.6&&!dead)for(let i=0;i<6;i++){if(rnd(Math.floor(T*12)+i)>.5)continue;const a=rnd(i+Math.floor(T*12))*6.28;s+=`<line x1=${sx+Math.cos(a)*240} y1=${sy+Math.sin(a)*180} x2=${sx+Math.cos(a)*290} y2=${sy+Math.sin(a)*220} stroke="#fff" stroke-width=4 />`;}
+ // clock
+ s+=`<circle cx=540 cy=330 r=110 fill="#fff" stroke="#444" stroke-width=10 />`;for(let i=0;i<12;i++){const a=i/12*6.283;s+=`<line x1=${540+Math.sin(a)*88} y1=${330-Math.cos(a)*88} x2=${540+Math.sin(a)*100} y2=${330-Math.cos(a)*100} stroke="#444" stroke-width=5 />`;}
+ const mA=(47/60)*6.283,hA=((2+47/60)/12)*6.283;s+=`<line x1=540 y1=330 x2=${540+Math.sin(hA)*55} y2=${330-Math.cos(hA)*55} stroke="#222" stroke-width=10 stroke-linecap=round /><line x1=540 y1=330 x2=${540+Math.sin(mA)*85} y2=${330-Math.cos(mA)*85} stroke="#222" stroke-width=6 stroke-linecap=round />`;
+ s+=`</g>`;
+ if(scream)s+=`<rect width=${W} height=${H} fill="url(#redw)" opacity=${.35+.25*Math.sin(T*30)} />`;
+ if(dead)s+=`<rect width=${W} height=${H} fill="#000" opacity=${.35+(rnd(Math.floor(T*15))>.8?.3:0)} />`;
+ return s;}
+function sWindow(t,T){let s=`<rect width=${W} height=${H} fill="url(#skyw)"/>`;
+ // across-street buildings
+ for(let i=0;i<6;i++)s+=`<rect x=${i*190-20} y=${300+((i*53)%120)} width=170 height=500 fill="#b9bec6" /><g fill="#9aa4b0">${[0,1,2,3].map(j=>`<rect x=${i*190} y=${340+((i*53)%120)+j*90} width=130 height=40 />`).join('')}</g>`;
+ s+=`<rect x=0 y=760 width=${W} height=1160 fill="url(#dirt)"/>`;s+=`<ellipse cx=540 cy=1250 rx=760 ry=330 fill=none stroke="#f4efe4" stroke-width=6 opacity=.8 />`;
+ s+=`<rect x=0 y=740 width=${W} height=26 fill="#6f7b84"/>`;for(let i=0;i<40;i++)s+=`<line x1=${i*28} y1=700 x2=${i*28} y2=760 stroke="#6f7b84" stroke-width=3 />`;
+ // runners
+ for(let i=0;i<9;i++){const y=900+i*95,sc=.6+i*.08,sp=180+rnd(i)*120,x=((T-17.9)*sp*(i%2?1:-1)+rnd(i+3)*1300)%1300;const xx=(x+1300)%1300-110;
+   if(i===4)continue;s+=fig(xx,y,110*sc,{pose:'run',ph:T*12+i}).g;}
+ // the one who falls
+ const fx=300,fy=1230;
+ if(T<21.87){s+=fig(fx+(T-17.9)*60,fy,300,{pose:'run',ph:T*12}).g;}
+ else if(T<23.55){s+=fig(fx+240,fy,300,{rot:-85*ramp(T,21.87,22.2)}).g;}
+ else{const u=ramp(T,23.55,24.4),j=(rnd(Math.floor(T*10))-.5)*10*(1-u);s+=fig(fx+240+j,fy,300,{pose:'zombie',dir:1,ph:T*3,rot:-85*(1-u)+(T>24.4?Math.sin(T*2)*4:0),z:true,face:'blank',tilt:35*u}).g;}
+ // window frame
+ s+=`<rect x=0 y=0 width=${W} height=110 fill="#c9c0ae"/><rect x=0 y=1700 width=${W} height=220 fill="#c9c0ae"/><rect x=0 y=0 width=70 height=${H} fill="#d8cfbd"/><rect x=1010 y=0 width=70 height=${H} fill="#d8cfbd"/>`;
+ s+=`<rect x=70 y=110 width=940 height=1590 fill=none stroke="#9aa0a6" stroke-width=18 /><line x1=540 y1=110 x2=540 y2=1700 stroke="#9aa0a6" stroke-width=22 />`;
+ return s;}
+function sWrong(t,T){ // push-in to zombie face
+ const u=ramp(T,25.18,25.9);let s=`<rect width=${W} height=${H} fill="url(#dirt)"/>`;
+ s+=`<g transform="translate(540 1000) scale(${2.6+u*.6}) translate(-540 -1000)">`+fig(540,1250,260,{pose:'zombie',z:true,face:'blank',tilt:35,ph:0}).g+`</g>`;
+ return s;}
+function doorClose(o={}){let s=`<rect width=${W} height=${H} fill="${o.bg||'#cdbfa5'}"/>`;
+ s+=`<rect x=160 y=120 width=760 height=1800 fill="${o.door||'#d4b98f'}" stroke="#6b4f2e" stroke-width=16 />`;
+ s+=`<rect x=300 y=300 width=480 height=420 fill="${o.glass||'url(#frost)'}" stroke="#6b4f2e" stroke-width=12 />`;
+ for(let i=0;i<6;i++)s+=`<line x1=180 y1=${900+i*160} x2=900 y2=${900+i*160} stroke="#b89a6c" stroke-width=3 opacity=.6 />`;
+ return s;}
+function sLock(t,T){let s=doorClose();const u=ramp(T,26.6,27.3);
+ s+=`<rect x=820 y=980 width=70 height=170 rx=12 fill="#bbb" stroke="#555" stroke-width=6 />`;
+ s+=`<g transform="rotate(${-90*u} 855 1065)"><rect x=842 y=990 width=26 height=80 rx=10 fill="#888" stroke="#444" stroke-width=4 /></g>`;
+ const hx=lerp(1100,890,ramp(T,26.03,26.6));s+=`<line x1=1150 y1=1300 x2=${hx} y2=1080 stroke="#151515" stroke-width=26 stroke-linecap=round /><circle cx=${hx} cy=1070 r=40 fill="url(#head)" stroke="#151515" stroke-width=10 />`;
+ if(T>27.3)s+=txt(560,1500,'click',0);
+ return s;}
+function sDesks(t,T){const stop=T>=30.4,push=ramp(T,28.04,30.4)*(stop?1:1);
+ let s=`<rect width=${W} height=${H} fill="url(#wallg)"/><rect x=0 y=1250 width=${W} height=670 fill="url(#floorg)"/>`;
+ s+=`<rect x=820 y=420 width=240 height=840 fill="#cdb592" stroke="#6b4f2e" stroke-width=10 /><rect x=860 y=480 width=160 height=200 fill="url(#frost)" stroke="#6b4f2e" stroke-width=6 />`;
+ s+=`<rect x=60 y=420 width=520 height=300 fill="#2f5a46" stroke="#6b4f2e" stroke-width=10 />`;
+ const desk=(x,y,k)=>`<rect x=${x-90*k} y=${y-150*k} width=${180*k} height=${24*k} fill="#d9b98c" stroke="#7a5a36" stroke-width=4 /><rect x=${x-80*k} y=${y-126*k} width=${160*k} height=${50*k} fill="#b48b5b" stroke="#7a5a36" stroke-width=3 /><line x1=${x-75*k} y1=${y-76*k} x2=${x-75*k} y2=${y} stroke="#555" stroke-width=${6*k} /><line x1=${x+75*k} y1=${y-76*k} x2=${x+75*k} y2=${y} stroke="#555" stroke-width=${6*k} />`;
+ for(let i=0;i<3;i++){const dx=push*110+(stop?Math.sin(T*20)*0:0),x0=120+i*230+dx;s+=desk(x0+150,1330+i*10,1.15);s+=fig(x0,1340+i*10,520,{armR:[.32,-.02],armL:[.3,.06],face:stop&&T>30.9?'wide':'n',tilt:stop&&T>30.9?18:0}).g;}
+ if(stop){const a=ramp(T,30.4,30.9);s+=fig(lerp(1200,980,a),1420,640,{hair:'aoi',armL:[-.38,-.25],armR:[.1,.26]}).g;}
+ if(T>=33.22){for(let j=0;j<3;j++){const k=((T-33.22)*1.3+j/3)%1;s+=`<circle cx=520 cy=1330 r=${30+k*330} fill=none stroke="#ff4a3a" stroke-width=7 opacity=${(1-k)*.7} />`;}}
+ return s;}
+function sRule(t,T){let s=classroom({lightsOff:true,dim:.7})+`<rect width=${W} height=${H} fill="#000" opacity=.35 />`;
+ const a=ramp(T,36.45,36.6),sc=1.25-.25*a;
+ s+=`<g opacity=${a} transform="translate(540 700) scale(${sc}) translate(-540 -700)"><rect x=330 y=610 width=420 height=120 rx=14 fill="#d6261c"/>${txt(540,698,'RULE #1',84,'#fff')}</g>`;
+ if(T>=37.76)s+=txt(540,900,'LOCK THE DOOR.',96,'#fff','NS',`filter="url(#ts)" opacity=${ramp(T,37.76,37.9)}`);
+ if(T>=38.94)s+=txt(540,1030,'THEN BE SILENT.',96,'#fff','NS',`filter="url(#ts)" opacity=${ramp(T,38.94,39.1)}`);
+ return s;}
+function sFloor(t,T){let extra='';const z0=[2.2,2.6,3.0,3.5];
+ const rows=[[1.4,-1.0],[1.4,-.3],[1.4,.4],[1.4,1.0],[1.8,-.75],[1.8,0],[1.8,.75],[2.4,-1.1],[2.4,-.4],[2.4,.3],[2.4,1.0],[3.2,-.8],[3.2,0],[3.2,.8]].sort((a,b)=>b[0]-a[0]);
+ for(const [z,X] of rows){const p=pr(X,0,z);extra+=fig(p[0],p[1],K/z*.95,{pose:'floor',face:'wide',hair:(z===1.8&&X===0)?'aoi':null}).g;}
+ return classroom({lightsOff:true,students:false,rows:[4.0,3.6],dim:0,extra,night:false})+`<rect width=${W} height=${H} fill="#0a1430" opacity=.62 />`;}
+function sShadows(t,T){let s=doorClose({bg:'#1a1f2a',door:'#5a4a36'});
+ s=s.replace('url(#frost)','#cfd8de');
+ // hallway shadows passing behind frosted glass (clip)
+ s+=`<clipPath id=gl><rect x=300 y=300 width=480 height=420 /></clipPath><g clip-path="url(#gl)" filter="url(#blur6)">`;
+ if(T<47.9)for(let i=0;i<3;i++){const x=lerp(120,980,((T-43.9)/5.6+i*.33)%1);s+=fig(x,900,560,{pose:'zombie',dir:1,ph:T*2+i,col:'#2a2f38',headCol:'#2a2f38',face:'none'}).g;}
+ s+=`</g>`;
+ s+=`<rect width=${W} height=${H} fill="#000" opacity=.45 />`;
+ return s;}
+function sKnock(t,T){let s=doorClose({bg:'#141820',door:'#4a3d2c',glass:'#3a4450'})+`<rect width=${W} height=${H} fill="#000" opacity=.4 />`;
+ for(const kt of [50.1,50.6,51.1]){if(T<kt)continue;const k=cl((T-kt)/.6);s+=`<circle cx=540 cy=1100 r=${40+k*360} fill=none stroke="#fff" stroke-width=${10*(1-k)+2} opacity=${1-k} />`;}
+ return s;}
+function sKenta(t,T){let s=doorClose({bg:'#141820',door:'#4a3d2c',glass:'#6d7a88'});
+ s+=`<clipPath id=gl2><rect x=300 y=300 width=480 height=420 /></clipPath><g clip-path="url(#gl2)">`;
+ const a=ramp(T,52.6,53.6);s+=`<g transform="translate(0 ${(1-a)*200})">`+fig(540,1294,900,{hair:'kenta',face:T>56.7?'wide':'n',sweat:T>56.7}).g+`</g>`;
+ if(T>57.4){for(let i=0;i<2;i++){const k=((T-57.4)*1.3+i/2)%1;s+=`<ellipse cx=560 cy=${640-k*20} rx=${60+k*60} ry=${30+k*25} fill="#fff" opacity=${(1-k)*.35} />`;}}
+ s+=`<rect x=300 y=300 width=480 height=420 fill="#cfe0ff" opacity=.12 /></g>`;
+ s+=`<rect width=${W} height=${H} fill="#000" opacity=.3 />`;
+ return s;}
+function sHall(t,T){let s=`<rect width=${W} height=${H} fill="#20242c"/><rect x=0 y=1400 width=${W} height=520 fill="#2e3138"/>`;
+ s+=`<rect x=560 y=260 width=440 height=1160 fill="#4a3d2c" stroke="#2a2016" stroke-width=12 /><rect x=640 y=360 width=280 height=260 fill="#c9b27a" opacity=.85 />`;
+ s+=`<rect x=0 y=200 width=${W} height=40 fill="#e8e4d8" opacity=${.5+(rnd(Math.floor(T*9))>.85?.4:0)} filter="url(#glow)"/>`;
+ const f=fig(330,1460,1050,{hair:'kenta',face:'wide',sweat:true,armL:[.02,.3],armR:[.18,.24]});s+=f.g;
+ // hidden hand drip
+ const dy=((T-58.7)*260)%380;s+=`<circle cx=322 cy=${1190+dy} r=10 fill="#8a1010" opacity=${T>59.5?1:0} /><ellipse cx=322 cy=1462 rx=30 ry=8 fill="#5a0a0a" opacity=${ramp(T,60.2,61)} />`;
+ s+=`<rect width=${W} height=${H} fill="url(#vig)"/>`;
+ return s;}
+// ---------------- HUD / captions ----------------
+function title(T){if(T>2.6)return '';const k=ramp(T,.15,.45),out=1-ramp(T,2.3,2.6),sc=1.15-.15*k;
+ return `<g opacity=${k*out} transform="translate(540 760) scale(${sc}) translate(-540 -760)">${txt(540,760,'DAY '+DAY,210,'#fff','NS','filter="url(#ts)"')}<rect x=440 y=800 width=200 height=10 fill="#d6261c"/>${txt(540,885,'OF 10',64,'#d8d8d8','NS7','filter="url(#ts)"')}</g>`+(T>1.0?txt(540,1420,TIMESTR,84,'#fff','NS',`filter="url(#ts)" opacity=${ramp(T,1.0,1.2)*out}`):'');}
+function hud(T){if(T<2.6)return '';let s=`<g opacity=${ramp(T,2.6,2.9)}><rect x=40 y=120 width=270 height=84 rx=16 fill="#000" opacity=.45 /><text x=68 y=178 font-family=NS font-size=48 fill="#fff">DAY ${DAY}</text><text x=210 y=178 font-family=NS7 font-size=34 fill="#bbb">/ 10</text></g>`;
+ RULES.forEach((r,i)=>{if(T>=r[0])s+=`<g opacity=${ramp(T,r[0],r[0]+.3)}><rect x=40 y=${222+i*58} width=${r[1].length*24+40} height=46 rx=10 fill="#d6261c" opacity=.9 /><text x=60 y=${255+i*58} font-family=NS font-size=28 fill="#fff">${r[1]}</text></g>`;});
+ return s;}
+function caption(T){for(const [a,b,c] of CAPS)if(T>=a&&T<b){const ls=c.split('|');const k=ramp(T,a,a+.08);return ls.map((l,i)=>txt(540,1430+i*88-(ls.length-1)*44,l,70,'#fff','NS',`filter="url(#ts)" opacity=${k}`)).join('');}return '';}
+const SF={sExterior,sClassWide,sSpeaker,sWindow,sWrong,sLock,sDesks,sRule,sFloor,sShadows,sKnock,sKenta,sHall};
+
+window.drawCover=function(c){let o=DEFS.replace('SEED',3);
+ o+=sKenta(0,57.0);
+ o+=`<rect width=${W} height=${H} fill="url(#vig)"/>`;
+ o+=`<rect x=0 y=860 width=${W} height=760 fill="#000" opacity=.55 />`;
+ o+=`<rect x=300 y=300 width=480 height=420 fill=none stroke="#d6261c" stroke-width=10 />`;
+ o+=txt(540,960,'ZOMBIE OUTBREAK',62,'#d6261c','NS','letter-spacing=4');
+ o+=txt(540,1200,'DAY '+c.day,260,'#fff','NS','filter="url(#ts)"');
+ o+=`<rect x=390 y=1240 width=300 height=12 fill="#d6261c"/>`;
+ o+=txt(540,1340,c.place,62,'#fff','NS','filter="url(#ts)"');
+ o+=txt(540,1430,c.time,56,'#d8d8d8','NS7','filter="url(#ts)"');
+ o+=txt(540,1560,'ZERO HOUR',44,'#9aa0aa','NS','letter-spacing=10');
+ o+=`<rect width=${W} height=${H} filter="url(#grain)" opacity=.07 />`;
+ document.getElementById('s').innerHTML=o.replace(/([^\s"])\/>/g,'$1 />');};
+
+
+window.drawCover2=function(c){let o=DEFS.replace('SEED',3);
+ o+=`<g transform="translate(540 960) scale(1.04) translate(-540 -960)">${sExterior(0,0)}</g>`;
+ o+=`<rect width=${W} height=${H} fill="#000" opacity=.28 /><rect width=${W} height=${H} fill="url(#vig)"/>`;
+ o+=`<rect x=0 y=330 width=${W} height=230 fill="#000" opacity=.55 />`;
+ o+=txt(540,425,c.l1,64,'#fff','NS','filter="url(#ts)"')+txt(540,515,c.l2,64,'#d6261c','NS','filter="url(#ts)"');
+ o+=txt(540,860,'DAY '+c.day,230,'#fff','NS','filter="url(#ts)"');
+ o+=`<rect x=420 y=900 width=240 height=12 fill="#d6261c"/>`+txt(540,990,'OF 10',66,'#e8e8e8','NS7','filter="url(#ts)"');
+ o+=txt(540,1560,'ZERO HOUR',48,'#fff','NS','filter="url(#ts)" letter-spacing=12');
+ o+=`<rect width=${W} height=${H} filter="url(#grain)" opacity=.07 />`;
+ document.getElementById('s').innerHTML=o.replace(/([^\s"])\/>/g,'$1 />');};
+
+window.setup=(cfg)=>{CAPS=cfg.caps;SCENES=cfg.scenes;RULES=cfg.rules;DAY=cfg.day;TIMESTR=cfg.time;IRIS=cfg.iris||null;};
+window.draw=function(T,frame){let o=DEFS.replace('SEED',frame%50);
+ let sc=SCENES[0];for(const x of SCENES)if(T>=x[0])sc=x;
+ const t=T-sc[0];const zoom=1+0.04*cl(t/6);
+ o+=`<g transform="translate(540 960) scale(${zoom}) translate(-540 -960)">${SF[sc[1]](t,T)}</g>`;
+ o+=`<rect width=${W} height=${H} fill="url(#vig)"/>`;
+ o+=title(T)+hud(T)+caption(T);
+ o+=`<rect width=${W} height=${H} filter="url(#grain)" opacity=.07 />`;
+ if(IRIS&&T>=IRIS[0]){const u=ease((T-IRIS[0])/(IRIS[1]-IRIS[0])),r=Math.max(0,lerp(1500,0,u)),cx=IRIS[2],cy=IRIS[3];o+=r>0.5?`<path fill-rule=evenodd fill="#000" d="M-10 -10H1090V1930H-10Z M${cx-r} ${cy} a${r} ${r} 0 1 0 ${2*r} 0 a${r} ${r} 0 1 0 ${-2*r} 0Z" />`:`<rect width=${W} height=${H} fill="#000" />`;}
+ document.getElementById('s').innerHTML=o.replace(/([^\s"])\/>/g,'$1 />');};
+</script></body></html>
