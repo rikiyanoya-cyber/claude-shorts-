@@ -34,6 +34,15 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `run_dirt_breath.mp3` | 3.4s | fast footsteps running on a dirt schoolyard, out of breath | Running outside. Cut with len |
 | `shed_door_slide.mp3` | 2.2s | heavy metal storage shed door sliding open, rusty | Heavy doors, shutters |
 | `piano_distant_eerie.mp3` | 10.4s | distant piano playing a slow eerie melody, heard through the floors of an empty school | Quiet file (peak -19 dB). Normalize before use |
+| `crickets_night.mp3` | 10.0s | autumn crickets chirping at night in an empty schoolyard, quiet, distant city silence | Night ambience. Quiet file (peak -21 dB) |
+| `cough_weak.mp3` | 3.6s | teenage boy coughing weakly under a blanket at night, trying to stay quiet | Sickness |
+| `hose_climb_wall.mp3` | 5.9s | climbing down a fire hose against a concrete school wall at night, sneakers scraping, hose creaking under weight, heavy breathing | Climbing. Quiet file (peak -22 dB) |
+| `zombies_door_pile.mp3` | 8.1s | many zombies pressing against a wooden door, scratching and thumping, low muffled groans, door creaking under weight | Crowd at a door |
+| `radio_static_broadcast.mp3` | 5.0s | old battery radio static, a faint muffled announcer voice, unintelligible, emergency broadcast | Radio |
+| `helicopter_distant.mp3` | 7.9s | helicopter passing far away in the night sky over a silent city | Rescue. Quiet file (peak -23 dB) |
+| `piano_through_window.mp3` | 9.9s | grand piano playing a slow melancholy melody inside a school music room, heard through a closed window | Quiet file (peak -19 dB) |
+| `piano_loud_desperate.mp3` | 10.2s | grand piano played loudly and fast, dramatic and desperate, echoing through an empty school at night | |
+| `piano_cutoff_slam.mp3` | 4.2s | piano music cut off mid-note with one hard dissonant key slam, then dead silence | Endings |
 
 ## School / objects
 
@@ -51,6 +60,10 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `bucket_knock_splash.mp3` | 2.9s | bucket knocked out of hands, water splashing onto a classroom floor | Spills, sudden stops |
 | `match_lamp_ignite.mp3` | 3.3s | match striking, then an alcohol lamp wick catching fire, small soft flame, quiet dark room | Quiet file (peak -25 dB). Normalize before use |
 | `beaker_boil.mp3` | 10.4s | water boiling softly in a glass beaker, small bubbles, quiet | Bed. Loop with crossfades |
+| `balcony_land.mp3` | 2.4s | sneakers landing softly on a concrete balcony at night | Landings |
+| `glass_tap.mp3` | 2.4s | fingertips tapping softly on a window glass, three quiet taps | Signals. Quiet file (peak -20 dB) |
+| `paper_glass.mp3` | 2.4s | sheet of paper pressed flat against window glass, soft paper rustle | Very quiet file (peak -27 dB). Normalize before use |
+| `line_cart_run.mp3` | 6.2s | chalk line marker cart pushed fast across a dirt schoolyard, wheels crunching, powder hissing, running footsteps | Schoolyard |
 
 ## Comedy / light (だってよ。)
 
