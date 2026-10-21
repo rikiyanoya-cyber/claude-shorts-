@@ -46,6 +46,9 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `piano_one_hand.mp3` | 10.4s | slow piano played with one hand, missing notes, faltering, heard through the floor of a school | Injured player |
 | `helicopter_low_overhead.mp3` | 7.9s | helicopter flying low overhead, loud rotor blades, passing over and fading away | Close flyover |
 | `rope_tug_railing.mp3` | 3.8s | rope pulled taut against a metal balcony railing, creaking, a sudden tug | Tugs, ropes |
+| `rain_heavy_night.mp3` | 8.2s | heavy rain pouring at night on a school building and schoolyard, steady downpour | Rain bed. Loop with crossfades |
+| `desk_fall_stairs.mp3` | 4.7s | metal school desk falling and crashing down concrete stairs, loud clattering echo in a stairwell | Big accidental noise |
+| `desk_set_roof.mp3` | 4.7s | school desk set down carefully on a concrete rooftop, soft metal clunk, light wind | Quiet placing |
 
 ## School / objects
 
