@@ -1,0 +1,133 @@
+<html><head><meta charset="utf-8"><style>
+@font-face{font-family:NS;src:url(NSJP900.ttf);font-weight:900}
+@font-face{font-family:NS7;src:url(NSJP700.ttf);font-weight:700}
+body{margin:0;background:#000}svg{display:block}
+</style></head><body><div id=root></div>
+<script>
+const q=new URLSearchParams(location.search),mode=q.get('m');
+const DEF=`<defs>
+<filter id=glow x=-50% y=-50% width=200% height=200%><feGaussianBlur stdDeviation=10 /></filter>
+<filter id=glow2 x=-100% y=-100% width=300% height=300%><feGaussianBlur stdDeviation=40 /></filter>
+<filter id=ts><feDropShadow dx=0 dy=6 stdDeviation=10 flood-color="#000" flood-opacity=.9 /></filter>
+<radialGradient id=head cx=40% cy=35% r=70%><stop offset=0 stop-color="#f3f3f3"/><stop offset=1 stop-color="#c6c6c6"/></radialGradient>
+<radialGradient id=zhead cx=40% cy=35% r=70%><stop offset=0 stop-color="#b9c2ad"/><stop offset=1 stop-color="#7f8a72"/></radialGradient>
+<radialGradient id=bgr cx=50% cy=40% r=70%><stop offset=0 stop-color="#2a3550"/><stop offset=1 stop-color="#090c14"/></radialGradient>
+<radialGradient id=redg cx=50% cy=50% r=60%><stop offset=0 stop-color="#ff2a1a" stop-opacity=.55 /><stop offset=1 stop-color="#ff2a1a" stop-opacity=0 /></radialGradient>
+<linearGradient id=night x1=0 y1=0 x2=0 y2=1><stop offset=0 stop-color="#05070d"/><stop offset=.7 stop-color="#1a2338"/><stop offset=1 stop-color="#2b2232"/></linearGradient>
+<linearGradient id=frost x1=0 y1=0 x2=0 y2=1><stop offset=0 stop-color="#dfe7ec"/><stop offset=1 stop-color="#9fb0bc"/></linearGradient>
+<filter id=grain><feTurbulence type=fractalNoise baseFrequency=.9 numOctaves=2 seed=3 /><feColorMatrix type=saturate values=0 /></filter>
+</defs>`;
+const T=(x,y,s,size,fill='#fff',font='NS',ex='')=>`<text x=${x} y=${y} font-family="${font}" font-weight=900 font-size=${size} fill="${fill}" text-anchor=middle ${ex}>${s}</text>`;
+function head(x,y,r,o={}){let s=`<circle cx=${x} cy=${y} r=${r} fill="${o.z?'url(#zhead)':'url(#head)'}" stroke="#111" stroke-width=${r*.09} />`;
+ if(o.blank)s+=`<circle cx=${x-r*.33} cy=${y} r=${r*.13} fill="#f4f4ea"/><circle cx=${x+r*.33} cy=${y} r=${r*.13} fill="#f4f4ea"/>`;
+ else s+=`<circle cx=${x-r*.33} cy=${y} r=${r*.09} fill="#111"/><circle cx=${x+r*.33} cy=${y} r=${r*.09} fill="#111"/>`;
+ return s;}
+function iconA(){ // face in classroom door window, red DAY ring
+ let s=`<rect width=1080 height=1080 fill="url(#bgr)"/>`;
+ s+=`<rect x=250 y=230 width=580 height=620 rx=20 fill="#3a2f22" stroke="#1a140d" stroke-width=24 />`;
+ s+=`<clipPath id=w><rect x=310 y=290 width=460 height=500 /></clipPath><rect x=310 y=290 width=460 height=500 fill="#5d6b78"/>`;
+ s+=`<g clip-path="url(#w)">${head(540,560,230,{})}<path d="M310 900 L540 760 L770 900Z" fill="#111"/></g>`;
+ s+=`<rect x=310 y=290 width=460 height=500 fill="#cfe0ff" opacity=.12 />`;
+ s+=`<circle cx=540 cy=540 r=520 fill=none stroke="#d6261c" stroke-width=26 />`;
+ s+=`<rect width=1080 height=1080 filter="url(#grain)" opacity=.08 />`;return s;}
+function iconB(){ // big head + red bell, minimal
+ let s=`<rect width=1080 height=1080 fill="#0d1018"/><circle cx=540 cy=540 r=420 fill="url(#redg)"/>`;
+ s+=head(540,560,300,{});
+ s+=`<g transform="translate(790 300) rotate(18)"><path d="M-70 40 Q-70 -70 0 -80 Q70 -70 70 40 L90 70 L-90 70Z" fill="#d6261c" stroke="#111" stroke-width=14 /><circle cx=0 cy=90 r=22 fill="#d6261c" stroke="#111" stroke-width=10 /><rect x=-12 y=-110 width=24 height=34 rx=8 fill="#111"/></g>`;
+ s+=`<rect width=1080 height=1080 filter="url(#grain)" opacity=.08 />`;return s;}
+function iconC(){ // text mark
+ let s=`<rect width=1080 height=1080 fill="#0b0d13"/>`;
+ s+=T(540,520,'LAST',240,'#fff')+T(540,760,'BELL',240,'#d6261c');
+ s+=`<rect x=300 y=800 width=480 height=16 fill="#fff" opacity=.85 />`;
+ s+=`<rect width=1080 height=1080 filter="url(#grain)" opacity=.08 />`;return s;}
+function school(x,base,w,lit){let s=`<rect x=${x-w/2} y=${base-300} width=${w} height=300 fill="#141a28" stroke="#283149" stroke-width=4 /><rect x=${x-110} y=${base-400} width=220 height=110 fill="#141a28" stroke="#283149" stroke-width=4 /><circle cx=${x} cy=${base-345} r=38 fill="#e9e3cf" opacity=.85 />`;
+ for(let f=0;f<3;f++)for(let i=0;i<Math.floor(w/110);i++){const on=lit.includes(f*20+i);s+=`<rect x=${x-w/2+25+i*110} y=${base-270+f*95} width=70 height=55 fill="${on?'#f2c46a':'#1f2840'}" ${on?'':''}/>`;}
+ return s;}
+function banner(){ // 2560x1440, safe 1546x423 centered
+ let s=`<rect width=2560 height=1440 fill="url(#night)"/>`;
+ for(let i=0;i<90;i++)s+=`<circle cx=${(i*397)%2560} cy=${(i*211)%560} r=${2+(i%3)} fill="#fff" opacity=${.25+((i*7)%10)/20} />`;
+ s+=`<circle cx=2050 cy=330 r=110 fill="#f1ead2" opacity=.9 /><circle cx=2050 cy=330 r=260 fill="#f1ead2" opacity=.12 filter="url(#glow2)"/>`;
+ s+=`<rect x=0 y=1000 width=2560 height=440 fill="#232a3c"/>`;
+ s+=school(360,1000,700,[1,4,22,25,43])+school(2200,1000,700,[2,23,41]);
+ // roof SOS desks on center building
+ 
+ // helicopter silhouette
+ s+=`<g transform="translate(2280 180)" fill="#05070c"><ellipse cx=0 cy=0 rx=70 ry=30 /><rect x=40 y=-8 width=120 height=14 /><rect x=-120 y=-40 width=240 height=6 /><path d="M160 -10 l20 -20 l6 4 l-14 26z"/></g>`;
+ s+=`<path d="M2280 210 L2160 1000 L2400 1000 Z" fill="#fff6d0" opacity=.06 />`;
+ // zombies silhouettes on ground
+ for(let i=0;i<14;i++){const x=120+i*180+((i*37)%60),y=1150+((i*53)%120),k=.7+((i*13)%5)/10;s+=`<g stroke="#05070c" stroke-width=${10*k} stroke-linecap=round transform="rotate(${(i%2?14:-10)} ${x} ${y})"><line x1=${x} y1=${y-150*k} x2=${x} y2=${y-60*k}/><line x1=${x} y1=${y-60*k} x2=${x-25*k} y2=${y}/><line x1=${x} y1=${y-60*k} x2=${x+25*k} y2=${y}/><line x1=${x} y1=${y-130*k} x2=${x+70*k} y2=${y-125*k}/></g><circle cx=${x} cy=${y-190*k} r=${40*k} fill="#05070c"/>`;}
+ // title in safe area (center 1546x423 -> x 507..2053, y 508..931)
+ s+=T(1280,760,'LAST BELL',230,'#fff','NS','filter="url(#ts)" letter-spacing=12');
+ s+=`<rect x=980 y=800 width=600 height=12 fill="#d6261c"/>`;
+ s+=T(1280,880,'Survival stories from Japan. One day at a time.',58,'#d8dbe2','NS7','filter="url(#ts)"');
+ s+=`<rect width=2560 height=1440 filter="url(#grain)" opacity=.07 />`;
+ return s;}
+
+function clockFace(x,y,r,hh,mm,o={}){let s=`<circle cx=${x} cy=${y} r=${r} fill="${o.fill||'url(#head)'}" stroke="#111" stroke-width=${r*.08} />`;
+ for(let i=0;i<12;i++){const a=i/12*6.283;s+=`<line x1=${x+Math.sin(a)*r*.78} y1=${y-Math.cos(a)*r*.78} x2=${x+Math.sin(a)*r*.9} y2=${y-Math.cos(a)*r*.9} stroke="#111" stroke-width=${r*(i%3?.03:.06)} stroke-linecap=round />`;}
+ const ma=mm/60*6.283,ha=((hh%12)+mm/60)/12*6.283;
+ s+=`<line x1=${x} y1=${y} x2=${x+Math.sin(ha)*r*.5} y2=${y-Math.cos(ha)*r*.5} stroke="#111" stroke-width=${r*.09} stroke-linecap=round /><line x1=${x} y1=${y} x2=${x+Math.sin(ma)*r*.74} y2=${y-Math.cos(ma)*r*.74} stroke="${o.min||'#d6261c'}" stroke-width=${r*.06} stroke-linecap=round /><circle cx=${x} cy=${y} r=${r*.06} fill="#111"/>`;
+ return s;}
+function zA(){ // stick head = clock, hands at 12:00, eyes
+ let s=`<rect width=1080 height=1080 fill="#0d1018"/><circle cx=540 cy=540 r=440 fill="url(#redg)"/>`;
+ s+=`<circle cx=540 cy=560 r=330 fill="url(#head)" stroke="#111" stroke-width=26 />`;
+ for(let i=0;i<12;i++){const a=i/12*6.283;s+=`<line x1=${540+Math.sin(a)*270} y1=${560-Math.cos(a)*270} x2=${540+Math.sin(a)*300} y2=${560-Math.cos(a)*300} stroke="#111" stroke-width=${i%3?8:16} stroke-linecap=round />`;}
+ s+=`<circle cx=430 cy=600 r=30 fill="#111"/><circle cx=650 cy=600 r=30 fill="#111"/>`;
+ s+=`<line x1=540 y1=560 x2=540 y2=330 stroke="#d6261c" stroke-width=24 stroke-linecap=round /><line x1=540 y1=560 x2=540 y2=400 stroke="#111" stroke-width=30 stroke-linecap=round /><circle cx=540 cy=560 r=26 fill="#111"/>`;
+ s+=`<rect width=1080 height=1080 filter="url(#grain)" opacity=.08 />`;return s;}
+function zB(){ // big red 0 with head inside
+ let s=`<rect width=1080 height=1080 fill="#0b0d13"/>`;
+ s+=`<ellipse cx=540 cy=540 rx=330 ry=430 fill=none stroke="#d6261c" stroke-width=90 />`;
+ s+=head(540,560,190,{});
+ s+=`<rect width=1080 height=1080 filter="url(#grain)" opacity=.08 />`;return s;}
+function zC(){ // wordmark
+ let s=`<rect width=1080 height=1080 fill="#0b0d13"/>`;
+ s+=T(540,500,'ZERO',250,'#fff')+T(540,760,'HOUR',250,'#d6261c');
+ s+=`<rect width=1080 height=1080 filter="url(#grain)" opacity=.08 />`;return s;}
+function zBanner(){let s=`<rect width=2560 height=1440 fill="#06080e"/>`;
+ // dotted world (simple continents blobs as dots)
+ const land=[[300,380,260,170],[520,620,160,220],[1180,360,190,170],[1240,640,170,230],[1700,420,380,200],[2050,760,170,110],[1500,520,120,90]];
+ for(let x=60;x<2560;x+=34)for(let y=150;y<1100;y+=34){let inn=false;for(const [cx,cy,rx,ry] of land)if(((x-cx)/rx)**2+((y-cy)/ry)**2<1)inn=true;if(inn)s+=`<circle cx=${x} cy=${y} r=7 fill="#2a3346"/>`;}
+ // red pulse points at cities
+ const C=[[2180,470,'TOKYO','2:47 PM'],[1230,330,'LONDON','6:47 AM'],[640,420,'NEW YORK','1:47 AM'],[360,460,'LOS ANGELES','10:47 PM']];
+ for(const [x,y] of C)s+=`<circle cx=${x} cy=${y} r=60 fill="#d6261c" opacity=.25 filter="url(#glow)"/><circle cx=${x} cy=${y} r=14 fill="#ff3b2f"/>`;
+ s+=`<rect width=2560 height=1440 fill="#06080e" opacity=.35 />`;
+ s+=T(1280,760,'ZERO HOUR',230,'#fff','NS','filter="url(#ts)" letter-spacing=14');
+ s+=`<rect x=1030 y=800 width=500 height=12 fill="#d6261c"/>`;
+ s+=T(1280,880,'It started everywhere. At the same minute.',58,'#d8dbe2','NS7','filter="url(#ts)"');
+ // clocks row (desktop/TV area)
+ C.slice().sort((a,b)=>a[0]-b[0]).forEach(([x,y,n,tm],i)=>{const cx=380+i*600,cy=1170;const [h,m]=tm.split(' ')[0].split(':').map(Number);s+=clockFace(cx-120,cy,62,h,m,{})+`<text x=${cx-30} y=${cy-8} font-family=NS font-size=44 fill="#fff">${n}</text><text x=${cx-30} y=${cy+46} font-family=NS7 font-size=40 fill="#d6261c">${tm}</text>`;});
+ s+=`<rect width=2560 height=1440 filter="url(#grain)" opacity=.07 />`;return s;}
+
+
+function nA(){ // zombie head, tilted, red glow
+ let s=`<rect width=1080 height=1080 fill="#0b0d13"/><circle cx=540 cy=540 r=480 fill="url(#redg)"/>`;
+ s+=`<g transform="rotate(-14 540 560)"><circle cx=540 cy=560 r=330 fill="url(#zhead)" stroke="#111" stroke-width=26 /><circle cx=430 cy=560 r=44 fill="#f4f4ea"/><circle cx=650 cy=560 r=44 fill="#f4f4ea"/><path d="M470 720 Q540 690 610 730" stroke="#2a2f25" stroke-width=14 fill=none stroke-linecap=round /></g>`;
+ s+=`<rect width=1080 height=1080 filter="url(#grain)" opacity=.08 />`;return s;}
+function nB(){ // half human half zombie
+ let s=`<rect width=1080 height=1080 fill="#0b0d13"/><circle cx=540 cy=540 r=470 fill="url(#redg)"/>`;
+ s+=`<clipPath id=L><rect x=0 y=0 width=540 height=1080 /></clipPath><clipPath id=R><rect x=540 y=0 width=540 height=1080 /></clipPath>`;
+ s+=`<g clip-path="url(#L)"><circle cx=540 cy=540 r=340 fill="url(#head)" stroke="#111" stroke-width=26 /><circle cx=425 cy=540 r=34 fill="#111"/></g>`;
+ s+=`<g clip-path="url(#R)"><circle cx=540 cy=540 r=340 fill="url(#zhead)" stroke="#111" stroke-width=26 /><circle cx=655 cy=540 r=44 fill="#f4f4ea"/><path d="M600 300 l30 60 l-25 50 l35 70" stroke="#2a2f25" stroke-width=10 fill=none /></g>`;
+ s+=`<path d="M540 200 L520 300 L560 380 L515 470 L560 560 L520 650 L555 740 L530 880" stroke="#d6261c" stroke-width=14 fill=none />`;
+ s+=`<rect width=1080 height=1080 filter="url(#grain)" opacity=.08 />`;return s;}
+function nC(){ // zombie peeking in door window
+ let s=`<rect width=1080 height=1080 fill="#0b0d13"/>`;
+ s+=`<rect x=200 y=170 width=680 height=740 rx=20 fill="#3a2f22" stroke="#1a140d" stroke-width=26 /><clipPath id=w2><rect x=270 y=240 width=540 height=600 /></clipPath><rect x=270 y=240 width=540 height=600 fill="#2b3442"/>`;
+ s+=`<g clip-path="url(#w2)"><g transform="rotate(-12 540 600)"><circle cx=540 cy=600 r=250 fill="url(#zhead)" stroke="#111" stroke-width=20 /><circle cx=460 cy=590 r=34 fill="#f4f4ea"/><circle cx=620 cy=590 r=34 fill="#f4f4ea"/></g><path d="M300 900 L540 760 L780 900Z" fill="#111"/></g>`;
+ s+=`<rect x=270 y=240 width=540 height=600 fill="#d6261c" opacity=.12 /><circle cx=540 cy=540 r=520 fill=none stroke="#d6261c" stroke-width=22 />`;
+ s+=`<rect width=1080 height=1080 filter="url(#grain)" opacity=.08 />`;return s;}
+
+
+function nB2(){
+ let s=`<rect width=1080 height=1080 fill="#0b0d13"/>`;
+ s+=`<clipPath id=L><rect x=0 y=0 width=540 height=1080 /></clipPath><clipPath id=R><rect x=540 y=0 width=540 height=1080 /></clipPath>`;
+ s+=`<g clip-path="url(#L)"><circle cx=540 cy=540 r=380 fill="url(#head)" stroke="#111" stroke-width=28 /><circle cx=410 cy=500 r=38 fill="#111"/><path d="M400 700 Q470 735 545 715" stroke="#111" stroke-width=16 fill=none stroke-linecap=round /></g>`;
+ s+=`<g clip-path="url(#R)"><circle cx=540 cy=540 r=380 fill="url(#zhead)" stroke="#111" stroke-width=28 /><circle cx=670 cy=500 r=50 fill="#f4f4ea"/><path d="M610 260 l30 60 l-25 50 l35 70" stroke="#2a2f25" stroke-width=10 fill=none />`;
+ s+=`<path d="M535 700 Q600 690 650 730 Q690 760 700 800 Q640 790 600 770 Q560 750 535 750Z" fill="#2a1414" stroke="#111" stroke-width=10 /><path d="M560 712 l12 22 l12 -18 l12 24 l12 -18 l14 26" stroke="#e8e6d8" stroke-width=8 fill=none /></g>`;
+ s+=`<path d="M540 160 L518 270 L562 360 L515 460 L562 560 L518 660 L558 760 L530 920" stroke="#d6261c" stroke-width=14 fill=none />`;
+ s+=`<rect width=1080 height=1080 filter="url(#grain)" opacity=.07 />`;return s;}
+
+const M={nB2:[1080,1080,nB2],nA:[1080,1080,nA],nB:[1080,1080,nB],nC:[1080,1080,nC],zA:[1080,1080,zA],zB:[1080,1080,zB],zC:[1080,1080,zC],zBanner:[2560,1440,zBanner],iconA:[1080,1080,iconA],iconB:[1080,1080,iconB],iconC:[1080,1080,iconC],banner:[2560,1440,banner]};
+const [w,h,f]=M[mode];document.getElementById('root').innerHTML=`<svg width=${w} height=${h} viewBox="0 0 ${w} ${h}">${DEF}${f()}</svg>`.replace(/([^\s"])\/>/g,'$1 />');
+</script></body></html>
