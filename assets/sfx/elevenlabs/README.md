@@ -43,6 +43,9 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `piano_through_window.mp3` | 9.9s | grand piano playing a slow melancholy melody inside a school music room, heard through a closed window | Quiet file (peak -19 dB) |
 | `piano_loud_desperate.mp3` | 10.2s | grand piano played loudly and fast, dramatic and desperate, echoing through an empty school at night | |
 | `piano_cutoff_slam.mp3` | 4.2s | piano music cut off mid-note with one hard dissonant key slam, then dead silence | Endings |
+| `piano_one_hand.mp3` | 10.4s | slow piano played with one hand, missing notes, faltering, heard through the floor of a school | Injured player |
+| `helicopter_low_overhead.mp3` | 7.9s | helicopter flying low overhead, loud rotor blades, passing over and fading away | Close flyover |
+| `rope_tug_railing.mp3` | 3.8s | rope pulled taut against a metal balcony railing, creaking, a sudden tug | Tugs, ropes |
 
 ## School / objects
 
