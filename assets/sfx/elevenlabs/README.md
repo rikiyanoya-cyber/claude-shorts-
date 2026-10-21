@@ -25,6 +25,11 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `whisper_classroom.mp3` | 3.8s | classroom of teenagers whispering nervously, tense murmuring | Very quiet file (peak -32 dB). Normalize before use |
 | `crows_dawn.mp3` | 4.9s | crows cawing at dawn outside an empty school, distant | Morning after |
 | `clock_tick.mp3` | 9.9s | wall clock ticking loudly in a dark silent room | Time passing. Loop with crossfades |
+| `zombie_crowd_groan.mp3` | 6.0s | crowd of zombies groaning and shuffling in a schoolyard, distant | Crowd bed. Loop with crossfades |
+| `wind_eerie_quiet.mp3` | 6.0s | eerie quiet wind outside a school, total silence of a dead city | Very quiet file (peak -40 dB). Load without silence trimming, then normalize |
+| `car_alarm_distant.mp3` | 4.0s | distant car alarm going off in an empty city street | Distractions |
+| `vending_slam.mp3` | 1.9s | hand slamming an empty metal vending machine once, loud bang echoing in a hallway | Sound in the first 0.6s |
+| `faucet_air.mp3` | 1.9s | faucet handle squeaking, only air sputters out, no water | No water |
 
 ## School / objects
 
