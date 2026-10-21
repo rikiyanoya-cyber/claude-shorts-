@@ -33,6 +33,7 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `zombie_breath_close.mp3` | 3.4s | zombie breathing slowly right in front of you, low wet growl, very close | Face-to-face moments |
 | `run_dirt_breath.mp3` | 3.4s | fast footsteps running on a dirt schoolyard, out of breath | Running outside. Cut with len |
 | `shed_door_slide.mp3` | 2.2s | heavy metal storage shed door sliding open, rusty | Heavy doors, shutters |
+| `piano_distant_eerie.mp3` | 10.4s | distant piano playing a slow eerie melody, heard through the floors of an empty school | Quiet file (peak -19 dB). Normalize before use |
 
 ## School / objects
 
@@ -46,6 +47,10 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `desk_drag.mp3` | 2.9s | school desk dragged across wooden floor, scraping | Furniture moving |
 | `pa_mic_hum.mp3` | 2.2s | school PA microphone switched on, click and low electrical hum | Broadcast room, mic on |
 | `grab_supplies.mp3` | 3.1s | plastic water bottles and packaged crackers being grabbed quickly, rustling | Quiet file (peak -16 dB). Normalize before use |
+| `bucket_rope_pool.mp3` | 4.9s | plastic bucket on a rope splashing into a swimming pool far below, then water sloshing as it is pulled up | Water fetching |
+| `bucket_knock_splash.mp3` | 2.9s | bucket knocked out of hands, water splashing onto a classroom floor | Spills, sudden stops |
+| `match_lamp_ignite.mp3` | 3.3s | match striking, then an alcohol lamp wick catching fire, small soft flame, quiet dark room | Quiet file (peak -25 dB). Normalize before use |
+| `beaker_boil.mp3` | 10.4s | water boiling softly in a glass beaker, small bubbles, quiet | Bed. Loop with crossfades |
 
 ## Comedy / light (だってよ。)
 
