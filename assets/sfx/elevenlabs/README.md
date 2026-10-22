@@ -49,6 +49,11 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `rain_heavy_night.mp3` | 8.2s | heavy rain pouring at night on a school building and schoolyard, steady downpour | Rain bed. Loop with crossfades |
 | `desk_fall_stairs.mp3` | 4.7s | metal school desk falling and crashing down concrete stairs, loud clattering echo in a stairwell | Big accidental noise |
 | `desk_set_roof.mp3` | 4.7s | school desk set down carefully on a concrete rooftop, soft metal clunk, light wind | Quiet placing |
+| `barricade_collapse.mp3` | 4.1s | pile of school desks and chairs collapsing down a concrete stairwell, loud crash | Crash starts at 0.4s |
+| `students_run_hallway.mp3` | 4.5s | group of teenagers running fast down a school hallway, panicked footsteps, echo | Quiet file (peak -16 dB) |
+| `fire_shutter_stop.mp3` | 4.5s | heavy steel fire shutter rolling down fast from the ceiling, then stopping abruptly halfway with a loud mechanical clunk | Rolling 0-2.7s |
+| `fists_steel_shutter.mp3` | 4.5s | many fists pounding on a steel shutter from the other side, metallic booming, muffled groans | One big hit at 0.3s then decay. Cut 0.3-1.3s and repeat for pounding |
+| `knock_wall_soft.mp3` | 4.5s | three soft knocks on a classroom wall from the other side, quiet, slow | Knocks at about 0.75, 1.05, 1.35s |
 
 ## School / objects
 
