@@ -59,6 +59,7 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `door_splinter.mp3` | 4.9s | wooden door being pounded and splintering, cracking wood, about to break | Doors breaking |
 | `helicopters_three_approach.mp3` | 8.2s | three helicopters approaching at dawn, rotor sounds layering and growing louder, epic and hopeful | Big arrival |
 | `radio_foreign_voice.mp3` | 4.4s | crackling aviation radio, a distorted foreign voice calling for help, unintelligible words, urgent | Cliffhanger |
+| `cello_mournful.mp3` | 7.5s | low mournful cello note with a soft wind, sorrowful and slow, cinematic | Farewells |
 
 ## School / objects
 
