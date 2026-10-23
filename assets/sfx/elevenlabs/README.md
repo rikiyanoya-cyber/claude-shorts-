@@ -54,6 +54,11 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `fire_shutter_stop.mp3` | 4.5s | heavy steel fire shutter rolling down fast from the ceiling, then stopping abruptly halfway with a loud mechanical clunk | Rolling 0-2.7s |
 | `fists_steel_shutter.mp3` | 4.5s | many fists pounding on a steel shutter from the other side, metallic booming, muffled groans | One big hit at 0.3s then decay. Cut 0.3-1.3s and repeat for pounding |
 | `knock_wall_soft.mp3` | 4.5s | three soft knocks on a classroom wall from the other side, quiet, slow | Knocks at about 0.75, 1.05, 1.35s |
+| `rope_ladder_drop.mp3` | 3.6s | rope ladder unrolling and dropping from a hovering helicopter, rattling, strong rotor wind | Rescue |
+| `window_slide_open.mp3` | 3.6s | old school window sliding open fast, rattling glass, wind rushing in | Quiet file (peak -20 dB). Normalize |
+| `door_splinter.mp3` | 4.9s | wooden door being pounded and splintering, cracking wood, about to break | Doors breaking |
+| `helicopters_three_approach.mp3` | 8.2s | three helicopters approaching at dawn, rotor sounds layering and growing louder, epic and hopeful | Big arrival |
+| `radio_foreign_voice.mp3` | 4.4s | crackling aviation radio, a distorted foreign voice calling for help, unintelligible words, urgent | Cliffhanger |
 
 ## School / objects
 
