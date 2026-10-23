@@ -71,6 +71,10 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `door_slide_close_lock.mp3` | 1.9s | classroom sliding door closing firmly, then a lock clicks | Door shut and locked |
 | `knock_x4.mp3` | 1.8s | three soft knocks on a wooden door | 4 knocks at about 0.10, 0.36, 0.63, 0.92s. Cut single knocks (0.08-0.25, 0.34-0.51, 0.61-0.78s) |
 | `desk_drag.mp3` | 2.9s | school desk dragged across wooden floor, scraping | Furniture moving |
+| `tatami_lift.mp3` | 4.1s | old tatami mat being lifted from a wooden floor, creaking wood, dust | 床下の10億円 |
+| `floorboard_pry.mp3` | 4.1s | old wooden floorboard being pried up, creaking and cracking | 床下の10億円 |
+| `banknotes_riffle.mp3` | 4.1s | thick stack of paper banknotes being riffled and flipped, crisp paper sound | 床下の10億円 |
+| `newspaper_fall.mp3` | 2.9s | old yellowed newspaper sliding and falling to a wooden floor, soft paper rustle | 床下の10億円 |
 | `pa_mic_hum.mp3` | 2.2s | school PA microphone switched on, click and low electrical hum | Broadcast room, mic on |
 | `grab_supplies.mp3` | 3.1s | plastic water bottles and packaged crackers being grabbed quickly, rustling | Quiet file (peak -16 dB). Normalize before use |
 | `bucket_rope_pool.mp3` | 4.9s | plastic bucket on a rope splashing into a swimming pool far below, then water sloshing as it is pulled up | Water fetching |
