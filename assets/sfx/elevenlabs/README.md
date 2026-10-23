@@ -104,6 +104,13 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `car_brake_horn.mp3` | 1.1s | car brakes screeching and horn honking | Near misses, crashes |
 | `bats_swarm.mp3` | 2.9s | swarm of bats flapping wings | Bats, swarms |
 | `fire_burst.mp3` | 2.9s | fire bursting into flames and crackling | Fire |
+| `notification_ping.mp3` | 3.5s | smartphone bank app notification chime | UI / Phone |
+| `number_counter_rise.mp3` | 3.5s | digital numbers counting up fast, ending ding | UI / Phone |
+| `screen_tap_refresh.mp3` | 3.5s | rapid finger taps + pull-to-refresh swoosh | UI / Phone |
+| `handcuffs_click.mp3` | 2.2s | metal handcuffs closing, ratchet clicks (quiet; use norm) | Props |
+| `phone_vibrate_text.mp3` | 2.2s | phone vibrating on wooden table, double buzz | UI / Phone |
+| `car_idle_night.mp3` | 4.6s | car idling outside at night, muffled (very quiet; use norm) | Ambience |
+| `suspense_bed.mp3` | 19.4s | low tense thriller underscore, pulsing, loopable | Music bed |
 
 ## Making more
 
