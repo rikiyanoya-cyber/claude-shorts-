@@ -111,6 +111,10 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `phone_vibrate_text.mp3` | 2.2s | phone vibrating on wooden table, double buzz | UI / Phone |
 | `car_idle_night.mp3` | 4.6s | car idling outside at night, muffled (very quiet; use norm) | Ambience |
 | `suspense_bed.mp3` | 19.4s | low tense thriller underscore, pulsing, loopable | Music bed |
+| `midnight_over_delhi.mp3` | 10.0s | slow-building Indian cinematic cue (tabla, drone), quiet; use norm | Music |
+| `tense_indian_score.mp3` | 11.8s | tense Indian score, two big hits with decay (use first hit as sting) | Music |
+| `radio_hindi.mp3` | 11.8s | distorted emergency radio, man speaking urgently in Hindi | Radio |
+| `delhi_street_night.mp3` | 8.0s | New Delhi street at night, horns, rickshaws, crowd, then silence (very quiet; use norm) | Ambience |
 
 ## Making more
 
