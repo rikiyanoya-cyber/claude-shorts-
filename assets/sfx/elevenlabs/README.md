@@ -115,6 +115,13 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `tense_indian_score.mp3` | 11.8s | tense Indian score, two big hits with decay (use first hit as sting) | Music |
 | `radio_hindi.mp3` | 11.8s | distorted emergency radio, man speaking urgently in Hindi | Radio |
 | `delhi_street_night.mp3` | 8.0s | New Delhi street at night, horns, rickshaws, crowd, then silence (very quiet; use norm) | Ambience |
+| `camera_shutter_distant.mp3` | 2.5s | single faint smartphone shutter heard through a window at night; use norm | Foley |
+| `cash_counting_machine.mp3` | 2.9s | bank cash counter whirring through a stack of bills, then stopping | Foley |
+| `keys_door_unlock.mp3` | 4.5s | keys jingling, key turning in an apartment lock, door opening slowly | Foley |
+| `phone_ringing_desk.mp3` | 4.5s | smartphone ringtone on a wooden desk, slightly muffled, two rings | Phone |
+| `floorboard_creak.mp3` | 2.9s | single slow wooden floor creak in an empty dark apartment (pan it for presence) | Foley |
+| `light_switch_fluorescent.mp3` | 2.9s | light switch click, then a fluorescent light flickering on with a buzz | Foley |
+| `reverse_cymbal_silence.mp3` | 2.9s | reverse cymbal swell into sudden silence; end it right before a key line | Sting |
 
 ## Making more
 
