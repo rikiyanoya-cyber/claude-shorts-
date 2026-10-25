@@ -115,6 +115,10 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `tense_indian_score.mp3` | 11.8s | tense Indian score, two big hits with decay (use first hit as sting) | Music |
 | `radio_hindi.mp3` | 11.8s | distorted emergency radio, man speaking urgently in Hindi | Radio |
 | `delhi_street_night.mp3` | 8.0s | New Delhi street at night, horns, rickshaws, crowd, then silence (very quiet; use norm) | Ambience |
+| `old_delhi_market_day.mp3` | 20.2s | busy Old Delhi market street by day: crowd chatter, auto-rickshaw horns, cycle rickshaw bells, vendors calling | Ambience. Gain about 0.45 under narration |
+| `roller_shutter_slam.mp3` | 3.4s | heavy metal roller shutter pulled down fast and slammed shut, final clang | Foley |
+| `glass_bottle_shatter_street.mp3` | 2.3s | glass bottle falling from a height and shattering on a stone street, quiet surroundings | Foley |
+| `monkeys_shriek_scatter.mp3` | 3.6s | troop of monkeys shrieking and scattering across a tin rooftop | Animals |
 | `camera_shutter_distant.mp3` | 2.5s | single faint smartphone shutter heard through a window at night; use norm | Foley |
 | `cash_counting_machine.mp3` | 2.9s | bank cash counter whirring through a stack of bills, then stopping | Foley |
 | `keys_door_unlock.mp3` | 4.5s | keys jingling, key turning in an apartment lock, door opening slowly | Foley |
