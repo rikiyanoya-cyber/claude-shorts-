@@ -126,6 +126,10 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `floorboard_creak.mp3` | 2.9s | single slow wooden floor creak in an empty dark apartment (pan it for presence) | Foley |
 | `light_switch_fluorescent.mp3` | 2.9s | light switch click, then a fluorescent light flickering on with a buzz | Foley |
 | `reverse_cymbal_silence.mp3` | 2.9s | reverse cymbal swell into sudden silence; end it right before a key line | Sting |
+| `cafe_ambience_busy.mp3` | 19.9s | busy daytime café, soft crowd murmur, cups clinking, distant espresso hiss, no music (loop it) | Ambience |
+| `chair_scrape_sit.mp3` | 3.3s | wooden café chair dragged across tile, then a heavy man sitting down | Foley |
+| `badge_table_thud.mp3` | 1.5s | leather police badge wallet set down on a wooden table, thud with a small metal clink | Foley |
+| `photo_slide_table.mp3` | 1.5s | one glossy photo slid slowly across a wooden table by fingertips | Foley |
 
 ## Making more
 
