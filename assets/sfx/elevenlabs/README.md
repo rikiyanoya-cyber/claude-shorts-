@@ -130,6 +130,11 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `chair_scrape_sit.mp3` | 3.3s | wooden café chair dragged across tile, then a heavy man sitting down | Foley |
 | `badge_table_thud.mp3` | 1.5s | leather police badge wallet set down on a wooden table, thud with a small metal clink | Foley |
 | `photo_slide_table.mp3` | 1.5s | one glossy photo slid slowly across a wooden table by fingertips | Foley |
+| `metal_door_bang_alley.mp3` | 2.6s | heavy metal push-bar back door slammed open into an alley, bang and echo | Foley |
+| `car_door_drive_away.mp3` | 4.9s | car door shuts from inside, engine revs, car pulls away (driver's seat) | Vehicle |
+| `car_interior_driving.mp3` | 20.0s | inside a moving car in the city, engine hum and road noise, windows closed (loop it) | Ambience |
+| `envelope_tear_open.mp3` | 2.6s | paper envelope torn open by hand, then a card slid out | Foley |
+| `turn_signal_click.mp3` | 5.2s | car turn signal clicking inside the car, steady rhythm (loop it) | Vehicle |
 
 ## Making more
 
