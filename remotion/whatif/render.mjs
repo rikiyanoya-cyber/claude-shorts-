@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Render the WhatIfLong composition (or a slice of it).
+ * Render the AnotherStory composition (or a slice of it).
  *
  *   node whatif/render.mjs out.mp4                # full video
  *   node whatif/render.mjs out.mp4 1800 2400      # frame range
@@ -19,7 +19,7 @@ const args = process.argv.slice(2);
 const browserExecutable = process.env.REMOTION_BROWSER || null;
 
 const serveUrl = await bundle({ entryPoint: path.join(__dirname, "..", "src", "index.ts") });
-const composition = await selectComposition({ serveUrl, id: "WhatIfLong", inputProps: {}, browserExecutable });
+const composition = await selectComposition({ serveUrl, id: "AnotherStory", inputProps: {}, browserExecutable });
 
 if (args[0] === "--stills") {
   const dir = args[1];

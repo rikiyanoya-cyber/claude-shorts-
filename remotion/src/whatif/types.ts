@@ -1,31 +1,24 @@
-export type SegKind =
-  | "opening"
-  | "part"
-  | "result"
-  | "rewind"
-  | "title"
-  | "other"
-  | "ending"
-  | "back"
-  | "outro";
+export type SegKind = "ff" | "bridge" | "rewind" | "title" | "eptitle" | "ep" | "awins" | "outro";
 
 export type Segment = {
   kind: SegKind;
   n?: number;
   src?: string | null;
-  img?: string;
+  img?: string | null;
   voice?: string | null;
-  chapter?: string;
+  title?: string;
   from: number;
   frames: number;
 };
 
+export type Choice = { a: string; b: string };
+
 export type Timeline = {
-  choices: { a: string; b: string }[];
-  endings: string[];
+  realChoices: Choice[];
+  altChoices: Choice[];
   segments: Segment[];
   totalFrames: number;
 };
 
-// Whether a segment belongs to THE OTHER PATH (red treatment, "Not canon" label).
-export const isOther = (k: SegKind) => k === "rewind" || k === "title" || k === "other" || k === "ending";
+// Segments shown in the ANOTHER STORY world (red treatment, "Not canon" label).
+export const isAlt = (k: SegKind) => k !== "ff" && k !== "bridge" && k !== "rewind";
