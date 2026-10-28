@@ -1,9 +1,62 @@
 {
  "ffSpeed": 24,
- "realParts": [{"src": "/path/to/Part1.mp4", "cut": 75.3}],
+ "labels": {
+  "brand": "My Channel",
+  "series": "My Series",
+  "alt": "Other Path",
+  "continuesAfter": "Part 10.",
+  "realWhere": "continues on the main channel",
+  "handle": "@mychannel"
+ },
+ "realParts": [
+  {
+   "src": "/path/to/Part1.mp4",
+   "cut": 75.3
+  }
+ ],
  "bridgeVoice": "/path/to/bridge.mp3",
- "ep1": {"src": "/path/to/Part1.mp4", "title": "The Transfer", "keep": [[0, 32.4], [40.36, 48.4], [58.4, 64.5], [64.58, 68.4], [73.84, 75.3]]},
- "episodes": [{"src": "/path/to/another2.mp4", "title": "The Call"}],
- "realChoices": [{"a": "Call the bank", "b": "Wait 7 days"}],
- "altChoices": [{"a": "Call the bank", "b": "Wait 7 days"}, {"a": "Tell Hale", "b": "Keep it secret"}]
+ "ep1": {
+  "src": "/path/to/Part1.mp4",
+  "title": "Episode One",
+  "keep": [
+   [
+    0,
+    32.4
+   ],
+   [
+    40.36,
+    48.4
+   ],
+   [
+    58.4,
+    68.4
+   ],
+   [
+    73.84,
+    75.3
+   ]
+  ]
+ },
+ "episodes": [
+  {
+   "src": "/path/to/alt2.mp4",
+   "title": "Episode Two"
+  }
+ ],
+ "realChoices": [
+  {
+   "a": "Option A",
+   "b": "Option B"
+  }
+ ],
+ "altChoices": [
+  {
+   "a": "Option A",
+   "b": "Option B"
+  },
+  {
+   "a": "Option A",
+   "b": "Option B"
+  }
+ ]
 }

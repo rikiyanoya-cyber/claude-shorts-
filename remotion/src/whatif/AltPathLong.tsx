@@ -29,7 +29,7 @@ const SFX: Partial<Record<Segment["kind"], [string, number, number, number?][]>>
   outro: [["lib_cinematic_impact", 0.3, 0.5]],
 };
 
-export const AnotherStory: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
+export const AltPathLong: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
   loadFonts();
   const frame = useCurrentFrame();
   const t = frame / FPS;
@@ -56,7 +56,7 @@ export const AnotherStory: React.FC<{ timeline: Timeline }> = ({ timeline }) => 
   } else {
     rows = timeline.altChoices;
     lit = "A";
-    mapTitle = "ANOTHER STORY";
+    mapTitle = timeline.labels.alt.toUpperCase();
     const n = cur.n ?? 0;
     reached = cur.kind === "title" ? 0 : cur.kind === "outro" ? rows.length : cur.kind === "awins" ? n - 1 + ramp(lt, 0.3, 1.0) : n - 1;
     current = cur.kind === "outro" || cur.kind === "title" ? 0 : n;
@@ -187,6 +187,8 @@ const Centre: React.FC<{ seg: Segment; timeline: Timeline }> = ({ seg, timeline 
   const f = useCurrentFrame();
   const lt = f / FPS;
   const end = seg.frames / FPS;
+  const lb = timeline.labels;
+  const [w1, ...wr] = lb.alt.toUpperCase().split(" ");
   switch (seg.kind) {
     case "ff":
       return (
@@ -233,13 +235,13 @@ const Centre: React.FC<{ seg: Segment; timeline: Timeline }> = ({ seg, timeline 
         <Col style={{ background: "#0e0507" }}>
           <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(255,74,58,.28), rgba(0,0,0,0) 65%)" }} />
           <Line y={360} size={26} color="#ffb0a6" font={F.bold} spacing={8} style={pop(lt, 0.1)}>
-            THE WRONG TRANSFER
+            {lb.series.toUpperCase()}
           </Line>
           <Line y={480} size={98} color="#fff" style={{ ...pop(lt, 0.15, 0.12), textShadow: lt < 0.4 ? "6px 0 #ff4a3a, -6px 0 #4aa0ff" : "0 6px 30px rgba(255,74,58,.6)" }}>
-            ANOTHER
+            {w1}
           </Line>
           <Line y={590} size={112} color={C.red} style={pop(lt, 0.3, 0.12)}>
-            STORY
+            {wr.join(" ")}
           </Line>
           <div style={{ position: "absolute", left: 64, right: 64, top: 640, height: 4, background: C.red, transform: `scaleX(${ramp(lt, 0.5, 0.9)})` }} />
           <Line y={730} size={36} color="#fff" font={F.bold} style={pop(lt, 0.9)}>
@@ -254,7 +256,7 @@ const Centre: React.FC<{ seg: Segment; timeline: Timeline }> = ({ seg, timeline 
       return (
         <Col style={{ background: "#0e0507" }}>
           <Line y={430} size={28} color="#ffb0a6" font={F.bold} spacing={8} style={pop(lt, 0.05)}>
-            ANOTHER STORY {seg.n}
+            {lb.alt.toUpperCase()} {seg.n}
           </Line>
           <Line y={540} size={76} color="#fff" style={pop(lt, 0.15)}>
             {(seg.title ?? "").toUpperCase()}
@@ -269,7 +271,7 @@ const Centre: React.FC<{ seg: Segment; timeline: Timeline }> = ({ seg, timeline 
           ) : (
             <div style={{ position: "absolute", inset: 0, background: "#120708" }}>
               <Line y={520} size={34} color={C.red}>
-                ANOTHER STORY {seg.n}
+                {lb.alt.toUpperCase()} {seg.n}
               </Line>
               <Line y={580} size={26} color={C.sub} font={F.bold}>
                 (rendering)
@@ -299,23 +301,23 @@ const Centre: React.FC<{ seg: Segment; timeline: Timeline }> = ({ seg, timeline 
       return (
         <Col style={{ background: "#07080c" }}>
           <Line y={300} size={26} color="#ffb0a6" font={F.bold} spacing={6} style={pop(lt, 0.2)}>
-            ANOTHER STORY
+            {lb.alt.toUpperCase()}
           </Line>
           <Line y={380} size={46} color="#fff" style={pop(lt, 0.4)}>
             continues after
           </Line>
           <Line y={450} size={60} color={C.red} style={pop(lt, 0.6)}>
-            Part 10.
+            {lb.continuesAfter}
           </Line>
           <div style={{ position: "absolute", left: 120, right: 120, top: 520, height: 2, background: C.line, opacity: ramp(lt, 1.4, 1.8) }} />
           <Line y={620} size={34} color="#cfd3dc" font={F.bold} style={pop(lt, 1.8)}>
             The real story
           </Line>
           <Line y={666} size={34} color="#cfd3dc" font={F.bold} style={pop(lt, 2.0)}>
-            continues on Instagram
+            {lb.realWhere}
           </Line>
           <Line y={750} size={42} color={C.gold} style={pop(lt, 2.6)}>
-            @yourvotelife
+            {lb.handle}
           </Line>
         </Col>
       );
@@ -339,6 +341,7 @@ const RightPanel: React.FC<{ seg: Segment; timeline: Timeline; alt: boolean; u: 
   const X = VX + VW + 60;
   const n = seg.n ?? 0;
   const total = timeline.altChoices.length;
+  const lb = timeline.labels;
   let kicker = "";
   let title = "";
   let tag = "";
@@ -352,18 +355,18 @@ const RightPanel: React.FC<{ seg: Segment; timeline: Timeline; alt: boolean; u: 
     title = "What if A had won?";
     tag = "REWIND";
   } else if (seg.kind === "title" || seg.kind === "outro") {
-    kicker = "THE WRONG TRANSFER";
-    title = "Another Story";
-    tag = "ANOTHER STORY";
+    kicker = lb.series.toUpperCase();
+    title = lb.alt;
+    tag = lb.alt.toUpperCase();
   } else {
-    kicker = n === 1 ? "PART 1 · WHERE IT STARTS" : `ANOTHER STORY ${n} OF ${total}`;
+    kicker = n === 1 ? "PART 1 · WHERE IT STARTS" : `${lb.alt.toUpperCase()} ${n} OF ${total}`;
     title = seg.title ?? timeline.segments.find((s) => s.kind === "ep" && s.n === n)?.title ?? "";
-    tag = n === 1 && seg.kind === "ep" ? "BOTH STORIES START HERE" : "ANOTHER STORY";
+    tag = n === 1 && seg.kind === "ep" ? "BOTH STORIES START HERE" : lb.alt.toUpperCase();
   }
   const showNotCanon = alt && !(seg.kind === "ep" && n === 1);
   return (
     <div style={{ position: "absolute", left: X, top: 0, width: W - X - 50, height: H }}>
-      <div style={{ position: "absolute", top: 70, fontFamily: F.bold, fontSize: 20, color: C.sub, letterSpacing: 6 }}>YOUR VOTE, YOUR LIFE</div>
+      <div style={{ position: "absolute", top: 70, fontFamily: F.bold, fontSize: 20, color: C.sub, letterSpacing: 6 }}>{lb.brand.toUpperCase()}</div>
       <div style={{ position: "absolute", top: 104, width: 60, height: 4, background: alt ? C.red : C.gold }} />
       <div style={{ position: "absolute", top: 180, fontFamily: F.bold, fontSize: 24, color: alt ? "#ffb0a6" : C.gold, letterSpacing: 5 }}>{kicker}</div>
       <div style={{ position: "absolute", top: 220, fontFamily: F.black, fontSize: 58, color: "#fff", lineHeight: 1.08, width: 540 }}>{title}</div>

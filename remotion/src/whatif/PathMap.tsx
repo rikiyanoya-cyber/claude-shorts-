@@ -3,7 +3,7 @@ import { C, F } from "./theme";
 
 // Left panel: every choice as a row with an A node and a B node.
 // The lit column is the path being shown: B (blue/gold) for the voted story,
-// A (red) for ANOTHER STORY.
+// A (red) for the alternate path.
 type Props = {
   rows: { a: string; b: string }[];
   lit: "A" | "B";

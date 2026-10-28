@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Prepare media + timeline for the AnotherStory composition.
+"""Prepare media + timeline for the AltPathLong composition.
 
 Config (see whatif/config.example.json):
   realParts   : [{src, cut}]  voted episodes, fast-forwarded in the opening
   bridgeVoice : narration over the freeze after the fast-forward
   ep1         : {src, keep: [[a, b], ...]}  episode 1, condensed to the kept ranges
-  episodes    : [{src, title}]  ANOTHER STORY episodes 2..N (finished vertical videos)
+  episodes    : [{src, title}]  alternate-path episodes 2..N (finished vertical videos)
+  labels      : on-screen names (brand, series, alt, continuesAfter, realWhere, handle)
   realChoices / altChoices : [{a, b}]  for the path map
 Writes trimmed/scaled media into remotion/public/whatif/ and timeline.json.
 
@@ -65,7 +66,7 @@ def main(cfg_path, force=False):
         fc.append(f"{labels}concat=n={len(e1['keep'])}:v=1:a=1[v][a]")
         ff("-i", e1["src"], "-filter_complex", ";".join(fc), "-map", "[v]", "-map", "[a]", *ENC,
            "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", o("ep1.mp4"))
-    # 3. ANOTHER STORY episodes
+    # 3. alternate-path episodes
     eps = [{"src": "whatif/ep1.mp4", "title": e1.get("title", "The Transfer"), "n": 1}]
     for i, e in enumerate(cfg["episodes"], 2):
         name = f"ep{i}.mp4"
@@ -100,7 +101,7 @@ def main(cfg_path, force=False):
         s["from"] = t
         s["frames"] = round(s.pop("dur") * FPS)
         t += s["frames"]
-    tl = {"realChoices": cfg["realChoices"], "altChoices": cfg["altChoices"], "segments": segs, "totalFrames": t}
+    tl = {"labels": cfg["labels"], "realChoices": cfg["realChoices"], "altChoices": cfg["altChoices"], "segments": segs, "totalFrames": t}
     json.dump(tl, open(o("timeline.json"), "w"), indent=1)
     print(f"timeline: {len(segs)} segments, {t / FPS / 60:.1f} min")
 

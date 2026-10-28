@@ -1,7 +1,7 @@
 import { Composition, staticFile } from "remotion";
 import { ShortVideo } from "./ShortVideo";
 import { ShortVideoPropsSchema } from "./types";
-import { AnotherStory } from "./whatif/AnotherStory";
+import { AltPathLong } from "./whatif/AltPathLong";
 import { Timeline } from "./whatif/types";
 
 export const Root: React.FC = () => {
@@ -38,13 +38,13 @@ export const Root: React.FC = () => {
         }}
       />
       <Composition
-        id="AnotherStory"
-        component={AnotherStory}
+        id="AltPathLong"
+        component={AltPathLong}
         width={1920}
         height={1080}
         fps={30}
         durationInFrames={300}
-        defaultProps={{ timeline: { realChoices: [], altChoices: [], segments: [], totalFrames: 300 } as Timeline }}
+        defaultProps={{ timeline: { labels: { brand: "", series: "", alt: "", continuesAfter: "", realWhere: "", handle: "" }, realChoices: [], altChoices: [], segments: [], totalFrames: 300 } as Timeline }}
         calculateMetadata={async ({ props }) => {
           // timeline.json is written by whatif/prep.py
           const timeline: Timeline = props.timeline.segments.length
