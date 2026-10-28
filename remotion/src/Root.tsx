@@ -1,6 +1,8 @@
-import { Composition } from "remotion";
+import { Composition, staticFile } from "remotion";
 import { ShortVideo } from "./ShortVideo";
 import { ShortVideoPropsSchema } from "./types";
+import { WhatIfLong } from "./whatif/WhatIfLong";
+import { Timeline } from "./whatif/types";
 
 export const Root: React.FC = () => {
   return (
@@ -33,6 +35,22 @@ export const Root: React.FC = () => {
             width: 1080,
             height: 1920,
           };
+        }}
+      />
+      <Composition
+        id="WhatIfLong"
+        component={WhatIfLong}
+        width={1920}
+        height={1080}
+        fps={30}
+        durationInFrames={300}
+        defaultProps={{ timeline: { choices: [], endings: [], segments: [], totalFrames: 300 } as Timeline }}
+        calculateMetadata={async ({ props }) => {
+          // timeline.json is written by whatif/prep.py
+          const timeline: Timeline = props.timeline.segments.length
+            ? props.timeline
+            : await fetch(staticFile("whatif/timeline.json")).then((r) => r.json());
+          return { durationInFrames: timeline.totalFrames, props: { timeline } };
         }}
       />
     </>

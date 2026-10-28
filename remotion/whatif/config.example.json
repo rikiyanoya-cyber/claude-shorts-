@@ -1,0 +1,8 @@
+{
+ "openingVoice": null,
+ "parts": [
+  {"src": "/path/to/Part1.mp4", "cut": 75.6, "chapter": "The Transfer", "other": "/path/to/other1.mp4"}
+ ],
+ "choices": [{"a": "Call the bank", "b": "Wait 7 days"}],
+ "endings": ["CLEAN HANDS.|EMPTY POCKETS."]
+}
