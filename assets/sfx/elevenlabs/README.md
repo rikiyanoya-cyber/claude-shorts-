@@ -60,6 +60,9 @@ When a new sound is generated, add the file here with a short snake_case name an
 | `helicopters_three_approach.mp3` | 8.2s | three helicopters approaching at dawn, rotor sounds layering and growing louder, epic and hopeful | Big arrival |
 | `radio_foreign_voice.mp3` | 4.4s | crackling aviation radio, a distorted foreign voice calling for help, unintelligible words, urgent | Cliffhanger |
 | `cello_mournful.mp3` | 7.5s | low mournful cello note with a soft wind, sorrowful and slow, cinematic | Farewells |
+| `radio_squelch.mp3` | 2.9s | handheld two-way radio squelch burst, loud crackle breaking open, then hiss | A radio coming alive |
+| `thunder_distant.mp3` | 5.2s | distant low thunder rumble over a city, no rain, slow fade | Storm coming, rain not yet |
+| `water_bottles_set.mp3` | 3.1s | four plastic water bottles set down one by one on a metal floor | Counting supplies |
 
 ## School / objects
 
