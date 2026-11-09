@@ -4,6 +4,7 @@ import { ShortVideoPropsSchema } from "./types";
 import { AltPathLong } from "./whatif/AltPathLong";
 import { Timeline } from "./whatif/types";
 import { CameraReel, CAMERA_REEL_FRAMES } from "./camera/CameraReel";
+import { SamuraiHug, SamuraiHugCover, HUG_FRAMES } from "./samurai/SamuraiHug";
 
 export const Root: React.FC = () => {
   return (
@@ -54,6 +55,8 @@ export const Root: React.FC = () => {
           return { durationInFrames: timeline.totalFrames, props: { timeline } };
         }}
       />
+      <Composition id="SamuraiHug" component={SamuraiHug} width={1080} height={1920} fps={30} durationInFrames={HUG_FRAMES} />
+      <Composition id="SamuraiHugCover" component={SamuraiHugCover} width={1080} height={1920} fps={30} durationInFrames={1} />
       <Composition id="CameraReel" component={CameraReel} width={1920} height={1080} fps={30} durationInFrames={CAMERA_REEL_FRAMES} />
     </>
   );
