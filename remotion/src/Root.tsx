@@ -3,6 +3,7 @@ import { ShortVideo } from "./ShortVideo";
 import { ShortVideoPropsSchema } from "./types";
 import { AltPathLong } from "./whatif/AltPathLong";
 import { Timeline } from "./whatif/types";
+import { CameraReel, CAMERA_REEL_FRAMES } from "./camera/CameraReel";
 
 export const Root: React.FC = () => {
   return (
@@ -53,6 +54,7 @@ export const Root: React.FC = () => {
           return { durationInFrames: timeline.totalFrames, props: { timeline } };
         }}
       />
+      <Composition id="CameraReel" component={CameraReel} width={1920} height={1080} fps={30} durationInFrames={CAMERA_REEL_FRAMES} />
     </>
   );
 };
