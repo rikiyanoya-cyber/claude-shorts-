@@ -34,7 +34,20 @@ export const ONCE_PER_VIDEO: Move[] = ["bullet time", "dolly zoom", "tiny planet
 // Follow these with static or a gentle move (motion sickness).
 export const HARSH: Move[] = ["camera roll", "FPV shot", "crash zoom", "whip pan"];
 
-export type CameraSpec = { move: Move; duration_frames: number; intensity: number; target?: string; seed?: number };
+// Other names people use for the same move (from the reference videos).
+export const ALIASES: Record<string, Move> = {
+  "crane shot": "crane up", "クレーンショット": "crane up", "vertigo shot": "dolly zoom", "めまいショット": "dolly zoom",
+  "pan": "pan right", "tilt": "tilt up", "tracking": "tracking shot", "dolly": "dolly in", "zoom": "zoom in",
+};
+export const toMove = (name: string): Move => {
+  const k = name.trim(); if ((MOVES as readonly string[]).includes(k)) return k as Move;
+  const a = ALIASES[k] ?? ALIASES[k.toLowerCase()]; if (a) return a; throw new Error(`unknown camera move: ${name}`);
+};
+// One scene may combine at most two moves: the main move plus one helper ("with"),
+// e.g. tracking shot + tilt up = walking alongside while looking up. Keep the helper gentle.
+export const HELPER_MAX_INTENSITY = 0.5;
+export type CameraSpec = { move: Move; duration_frames: number; intensity: number; target?: string; seed?: number;
+  with?: { move: Move; intensity: number } };
 
 export type Xf = { x: number; y: number; s: number; r: number; blur: number; sx?: number };
 export type CamFrame = {
@@ -58,11 +71,27 @@ const noise = (t: number, seed: number) => {
 
 // depth factors: how strongly each layer reacts to camera travel (far = small)
 const DEPTH = { bg: 0.08, mid: 0.35, subject: 0.65, fg: 1.3 } as const;
+// Distances (m) used for dolly in / dolly out / zoom in, from the reference demo:
+// subject at 14.0 m; DOLLY IN moves the camera to 10.4 m (lens 39 mm), ZOOM stays at 14.0 m (lens 106 mm).
+export const DIST = { bg: 120, mid: 40, subject: 14.0, fg: 6.5 } as const;
+export const DOLLY_TRAVEL_M = 14.0 - 10.4;
+/** image scale of a layer after the camera travels `m` metres toward it (pinhole: size ~ 1/distance) */
+export const dollyScale = (layer: keyof typeof DIST, m: number) => DIST[layer] / Math.max(0.5, DIST[layer] - m);
 type L = keyof typeof DEPTH;
 const LAYERS: L[] = ["bg", "mid", "subject", "fg"];
 
 /** Camera state for one frame of a shot. `frame` is relative to the start of the shot. */
+/** Camera state for one frame; combines the main move with an optional helper move. */
 export function cameraAt(spec: CameraSpec, frame: number, W = 1920, H = 1080): CamFrame {
+  const a = moveAt(spec, frame, W, H);
+  if (!spec.with) return a;
+  const b = moveAt({ ...spec, move: spec.with.move, intensity: Math.min(spec.with.intensity, HELPER_MAX_INTENSITY), with: undefined }, frame, W, H);
+  const mix = (p: Xf, q: Xf): Xf => ({ x: p.x + q.x, y: p.y + q.y, s: p.s * q.s, r: p.r + q.r, blur: Math.max(p.blur, q.blur), sx: (p.sx ?? 1) * (q.sx ?? 1) });
+  const persp = [a.frame.persp, b.frame.persp].filter(Boolean).join(" ") || undefined;
+  return { frame: { ...mix(a.frame, b.frame), persp }, bg: mix(a.bg, b.bg), mid: mix(a.mid, b.mid), subject: mix(a.subject, b.subject), fg: mix(a.fg, b.fg),
+    holdSubject: a.holdSubject || b.holdSubject, planet: a.planet ?? b.planet };
+}
+function moveAt(spec: CameraSpec, frame: number, W: number, H: number): CamFrame {
   const D = Math.max(1, spec.duration_frames), I = clamp(spec.intensity);
   const t = frame / 30, u = clamp(frame / D), e = easeInOut(u);
   const c: CamFrame = { frame: I0(), bg: I0(), mid: I0(), subject: I0(), fg: I0() };
@@ -71,9 +100,9 @@ export function cameraAt(spec: CameraSpec, frame: number, W = 1920, H = 1080): C
     case "static shot": break;
     case "pan right": c.frame.x = -0.18 * W * I * e; break;                       // camera turns: no parallax
     case "tilt up": c.frame.y = 0.25 * H * I * e; break;
-    case "dolly in": each((_, d) => ({ s: 1 + 0.45 * I * d * e })); break;      // parallax: near grows faster
-    case "zoom in": c.frame.s = 1 + 0.45 * I * e; break;                          // lens: uniform
-    case "dolly out": each((_, d) => ({ s: 1 + 0.45 * I * d * (1 - e) })); break;
+    case "dolly in": each((l) => ({ s: dollyScale(l, DOLLY_TRAVEL_M * I * e) })); break;         // parallax: near grows faster
+    case "zoom in": c.frame.s = dollyScale("subject", DOLLY_TRAVEL_M * I * e); break;           // lens: same subject size, no parallax
+    case "dolly out": each((l) => ({ s: dollyScale(l, DOLLY_TRAVEL_M * I * (1 - e)) })); break;
     case "truck right": each((_, d) => ({ x: -0.35 * W * I * d * e })); break;
     case "pedestal up": each((_, d) => ({ y: 0.35 * H * I * d * e })); break;
     case "orbit": {                                                               // in front and behind the subject move opposite ways
@@ -157,6 +186,11 @@ export function checkCameraPlan(scenes: { camera?: CameraSpec; captionHeavy?: bo
     const p = moves[i - 1], m = moves[i];
     if (p && HARSH.includes(p) && m && m !== "static shot" && (HARSH.includes(m) || SHOWY.includes(m))) out.push(`scene ${i + 1}: ${m} right after ${p} (use static or a gentle move)`);
   }
+  scenes.forEach((s, i) => { const h = s.camera?.with; if (!h) return;
+    if (h.move === s.camera!.move) out.push(`scene ${i + 1}: helper move repeats the main move`);
+    if (h.intensity > HELPER_MAX_INTENSITY) out.push(`scene ${i + 1}: helper ${h.move} intensity ${h.intensity} (max ${HELPER_MAX_INTENSITY})`);
+    if (s.camera!.intensity > 0.7) out.push(`scene ${i + 1}: combined moves, keep the main intensity at 0.7 or less`);
+    if (HARSH.includes(h.move) || ONCE_PER_VIDEO.includes(h.move)) out.push(`scene ${i + 1}: ${h.move} cannot be a helper move`); });
   scenes.forEach((s, i) => { const m = s.camera?.move; if (s.captionHeavy && m && (HARSH.includes(m) || m === "FPV shot" || m === "dive")) out.push(`scene ${i + 1}: caption-heavy scene with ${m}`); });
   return out;
 }
