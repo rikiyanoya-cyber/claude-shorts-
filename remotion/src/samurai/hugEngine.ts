@@ -120,9 +120,9 @@ function morning(ox, t) {   // home front: wall with the front door they leave f
 }
 function evening(ox, t) {   // the way home: city silhouettes, a street lamp
   let s = `<g filter="url(#wob)">`;
-  for (let i = 0; i < 7; i++) { const x = ox + i * 82 - 20, h = 260 + ((i * 97) % 200); s += `<rect x="${x}" y="${FLOOR - h}" width="76" height="${h}" fill="#283058"/>`;
+  for (let i = 0; i < 9; i++) { const x = ox + i * 82 - 20, h = 260 + ((i * 97) % 200); s += `<rect x="${x}" y="${FLOOR - h}" width="76" height="${h}" fill="#283058"/>`;
     for (let r = 0; r < 4; r++) if ((i + r) % 3) s += `<rect x="${x + 16 + (r % 2) * 28}" y="${FLOOR - h + 24 + r * 46}" width="14" height="18" fill="#3d4680"/>`; }
-  s += `</g><g filter="url(#wob)"><rect x="${ox + 470}" y="1220" width="12" height="380" fill="#3a4478"/><path d="M${ox + 476} 1222 q-40 -14 -60 6" stroke="#3a4478" stroke-width="10" fill="none"/></g><circle cx="${ox + 416}" cy="1236" r="12" fill="${BONE}" opacity=".85"/><path d="M${ox + 416} 1240 L${ox + 360} ${FLOOR} L${ox + 472} ${FLOOR}Z" fill="${BONE}" opacity=".06"/>`;
+  s += `</g><g filter="url(#wob)"><rect x="${ox + 560}" y="1220" width="12" height="380" fill="#3a4478"/><path d="M${ox + 566} 1222 q-40 -14 -60 6" stroke="#3a4478" stroke-width="10" fill="none"/></g><circle cx="${ox + 506}" cy="1236" r="12" fill="${BONE}" opacity=".85"/><path d="M${ox + 506} 1240 L${ox + 450} ${FLOOR} L${ox + 562} ${FLOOR}Z" fill="${BONE}" opacity=".06"/>`;
   s += `<circle cx="${ox + 120}" cy="820" r="30" fill="${BONE}" opacity=".6"/><circle cx="${ox + 132}" cy="812" r="28" fill="#1e244a"/>`;
   return s;
 }
@@ -164,19 +164,33 @@ function battery(cx, cy, pct, t, side) {
 }
 
 // ---------- one half ----------
+// scene boundaries per side (the left goes inside right after the door; the right stays in the hug until 8 s)
+const BOUNDS = side => [S.evening, S.door, side === 'L' ? S.turn + .35 : S.inside];
+const SCENES = ['morning', 'evening', 'door', 'inside'];
+const sceneOf = (t, side) => SCENES[BOUNDS(side).filter(b => t >= b).length];
+const XF = .45;   // cross-dissolve length (s): the outgoing scene drifts left, the incoming one settles in from the right
 function half(ox, t, side) {
+  for (const [i, b] of BOUNDS(side).entries()) {
+    const u = (t - (b - XF / 2)) / XF;
+    if (u > 0 && u < 1) { const e = io(u);
+      return `<g>${halfScene(ox, t, side, SCENES[i])}</g>` +
+        `<g opacity="${f(e)}">${halfScene(ox, t, side, SCENES[i + 1])}</g>`; }
+  }
+  return halfScene(ox, t, side, sceneOf(t, side));
+}
+function halfScene(ox, t, side, sc) {
   const R = side === 'R'; let s = '';
   const x0 = ox + 270;
-  if (t < S.evening) {                                     // MORNING: leave home with the bag
-    s += morning(ox, t) + ground(ox);
-    const u = sw(t, .2, 1.9), x = ox + lerp(150, 330, u), pose = walk(t * 9, .9, 4);
+  if (sc === 'morning') {                                  // MORNING: leave home with the bag
+    const u = sw(t, .2, 2.2), x = ox + 230, pose = walk(t * 9, .9, 4);   // tracking shot: he stays put, home slides away behind him
+    s += `<g transform="translate(${f(-150 * u)} 0)">` + morning(ox, t) + `</g>` + ground(ox);
     s += shadowK(x) + man(x, FLOOR, pose, { face: 'normal', bag: 1, bagDrop: 0 });
-  } else if (t < S.door) {                                // EVENING: the way home, shoulders down
-    s += evening(ox, t) + ground(ox);
-    const u = sw(t, S.evening + .1, S.door - .1), x = ox + lerp(120, 300, u), p = walk(t * 6, .55, 14);
+  } else if (sc === 'evening') {                          // EVENING: the way home, shoulders down
+    const u = sw(t, S.evening - .3, S.door + .2), x = ox + 230, p = walk(t * 6, .55, 14);
+    s += `<g transform="translate(${f(-130 * u)} 0)">` + evening(ox, t) + `</g>` + ground(ox);
     for (const k of ['head', 'neck', 'sh']) { p[k][1] += 16; p[k][0] += 6; }
     s += shadowK(x) + man(x, FLOOR, p, { face: 'tired', bag: 1, bagDrop: 16 });
-  } else if (!R && t >= S.turn + .35 || R && t >= S.inside) { // inside
+  } else if (sc === 'inside') {                           // inside
     if (!R) {                                            // LEFT: dark room, alone on the sofa
       s += room(ox, t, true) + ground(ox);
       const x = ox + 290, y = 1500;
