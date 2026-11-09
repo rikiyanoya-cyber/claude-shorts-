@@ -30,10 +30,13 @@ const Chip: React.FC<{ u: number; value: number; prefix: string; suffix: string 
 );
 const ImgShot: React.FC<{ s: Shot; u: number }> = ({ s, u }) => {
   const k = s.kb, p = interpolate(u, [0, s.dur + XF], [0, 1], { ...cl, easing: Easing.inOut(Easing.sin) });
-  const z = k.z0 + (k.z1 - k.z0) * p, x = k.x0 + (k.x1 - k.x0) * p, y = k.y0 + (k.y1 - k.y0) * p;
+  const z = k.z0 + (k.z1 - k.z0) * p;
+  // keep the pan inside the picture: at zoom z the image can move at most (z-1)/(2z) of its size before an edge shows
+  const lim = Math.max(0, ((z - 1) / (2 * z)) * 100 - 0.15), clampP = (v: number) => Math.max(-lim, Math.min(lim, v));
+  const x = clampP(k.x0 + (k.x1 - k.x0) * p), y = clampP(k.y0 + (k.y1 - k.y0) * p);
   return (
     <AbsoluteFill style={{ overflow: "hidden", background: "#111" }}>
-      <Img src={staticFile(`mcd/${s.src}`)} style={{ width: 1920, height: 1080, objectFit: "cover", transform: `scale(${z}) translate(${x}%, ${y}%)` }} />
+      <Img src={staticFile(`mcd/${s.src}`)} style={{ width: 1920, height: 1080, objectFit: "cover", transformOrigin: "50% 50%", transform: `scale(${z}) translate(${x}%, ${y}%)` }} />
       {s.counter && <Chip u={u} value={s.counter[0]} prefix={s.counter[1]} suffix={s.counter[2]} />}
     </AbsoluteFill>
   );
