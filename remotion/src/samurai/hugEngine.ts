@@ -1,6 +1,6 @@
 // @ts-nocheck
 // Samurai Stillness episode engine (SVG strings), shared by the Remotion compositions.
-// Built from the house style of #3/#4 (indigo stage, bone tube figures) + the episode file ep05_hug.ts.
+// House style of #3/#4 (indigo stage, bone tube figures, gold glow) + the episode file ep05_hug.ts.
 export function makeHugEpisode(EP) {
 // ===== Samurai Stillness #3 v4 "Discipline vs Motivation" — indigo stage, split screen, filled mountains + trail =====
 const W=1080,H=1920,END=14.0;
@@ -89,12 +89,25 @@ const Pz = {
   SITSIDE: { head: [8, -158], neck: [2, -110], sh: [2, -100], eL: [28, -84], hL: [44, -96], eR: [20, -72], hR: [42, -58], hip: [-12, -50], kL: [36, -54], fL: [40, 0], kR: [42, -50], fR: [46, 0] },
 };
 const LIESOFA = { head: [-120, -40], neck: [-84, -34], sh: [-76, -34], eL: [-50, -24], hL: [-20, -18], eR: [-50, -30], hR: [-20, -30], hip: [0, -30], kL: [50, -38], fL: [92, -30], kR: [50, -30], fR: [94, -24] };
+let GID = 0;
+const glowOf = t => t < EP.battery.chargeFrom ? 0 : batR(t) / 100;
 function man(x, y, pose, o = {}) {
-  const paint = o.paint || BONE, dir = o.dir || 1, KK = K * (o.k || 1);
+  const dir = o.dir || 1, KK = K * (o.k || 1), gl = o.glow || 0, t = o.t || 0;
+  let paint = o.paint || BONE, pre = '';
+  if (gl > 0) {
+    const id = 'gs' + (GID++), base = mixC(BONE, GOLD2, gl), deep = mixC('#e2d6b6', GOLD1, gl), period = lerp(2.6, 1.1, gl), ph = ((t % period) / period) * 1.8 - .4;
+    pre = `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${f(x - 120)}" y1="${f(y - 260)}" x2="${f(x + 120)}" y2="${f(y + 20)}"><stop offset="0" stop-color="${deep}"/><stop offset="${f(cl(ph - .12))}" stop-color="${base}"/><stop offset="${f(cl(ph))}" stop-color="${mixC(base, '#ffffff', .25 + .5 * gl)}"/><stop offset="${f(cl(ph + .12))}" stop-color="${base}"/><stop offset="1" stop-color="${deep}"/></linearGradient>`;
+    pre += `<g transform="translate(${f(x)} ${f(y)}) scale(${f(KK)}) translate(${f(-x)} ${f(-y)})"><g opacity="${f(.25 + .5 * gl)}" filter="url(#glow)">` + figure(x, y, pose, { dir, paint: GOLD2 }) + `</g></g>`;
+    paint = `url(#${id})`;
+  }
   let s = `<g transform="translate(${f(x)} ${f(y)}) scale(${f(KK)}) translate(${f(-x)} ${f(-y)})">` + `<g filter="url(#wob)">` + figure(x, y, pose, { dir, face: o.face, paint }) + `</g>`;
   if (o.bun) { const hx = x + pose.head[0] * dir, hy = y + pose.head[1]; s += `<circle cx="${f(hx - 30 * dir)}" cy="${f(hy - 30)}" r="20" fill="${paint}"/><path d="M${f(hx - 18 * dir)} ${f(hy - 30)} l${f(-8 * dir)} 6" stroke="#6d79a8" stroke-width="5" stroke-linecap="round"/>`; }
   if (o.bag) { const hx = x + pose.hR[0] * dir, hy = y + pose.hR[1]; s += `<g filter="url(#wob)"><rect x="${f(hx - 22)}" y="${f(hy + o.bagDrop)}" width="44" height="34" rx="6" fill="#6d79a8" stroke="#3a4478" stroke-width="3"/><path d="M${f(hx - 10)} ${f(hy + o.bagDrop)} q10 -14 20 0" stroke="#3a4478" stroke-width="4" fill="none"/></g>`; }
-  return s + `</g>`;
+  s += `</g>`;
+  if (gl > 0) { const cx = x + pose.head[0] * KK * dir * .5, cy = y - 110 * KK;
+    for (let i = 0; i < Math.round(gl * 8); i++) { const a = i * 2.4 + t * .8, r = 150 + 40 * Math.sin(t * 2 + i), sx = cx + Math.cos(a) * r, sy = cy + Math.sin(a) * r * 1.1, k = .5 + .5 * Math.sin(t * 5 + i);
+      s += `<path d="M${f(sx)} ${f(sy - 12 * k)} L${f(sx + 3)} ${f(sy)} L${f(sx)} ${f(sy + 12 * k)} L${f(sx - 3)} ${f(sy)}Z M${f(sx - 12 * k)} ${f(sy)} L${f(sx)} ${f(sy + 3)} L${f(sx + 12 * k)} ${f(sy)} L${f(sx)} ${f(sy - 3)}Z" fill="#fff4c8" opacity="${f(.85 * k)}"/>`; } }
+  return pre + s;
 }
 const shadowK = (x, rx = 46) => `<ellipse cx="${f(x)}" cy="${FLOOR + 6}" rx="${f(rx * K)}" ry="16" fill="#000" opacity=".4" filter="url(#soft)"/>`;
 
@@ -179,7 +192,7 @@ function half(ox, t, side) {
     } else {                                             // RIGHT: side by side on the sofa
       s += room(ox, t, false) + ground(ox);
       const y = 1500, smile = t > S.full + .6 ? 'smile' : 'closed';
-      s += man(ox + 380, y + 4, Pz.SITSIDE, { face: 'smile', bun: 1, dir: -1, k: .92 }) + man(ox + 160, y, Pz.SITSIDE, { face: smile });
+      s += man(ox + 380, y + 4, Pz.SITSIDE, { face: 'smile', bun: 1, dir: -1, k: .92 }) + man(ox + 160, y, Pz.SITSIDE, { face: smile, glow: glowOf(t), t });
     }
   } else {                                                // AT THE DOOR (and the hug, right side)
     const open = R ? sw(t, S.turn, S.turn + .15) : sw(t, S.turn, S.turn + .2);
@@ -193,7 +206,7 @@ function half(ox, t, side) {
       const k = sw(t, S.turn + .15, S.turn + .3), px = lerp(ox + 430, ox + 352, k);
       const pm = mixP(Pz.SLUMP, Pz.HUG, k), pp = mixP(Pz.STAND, Pz.HUG, k);
       const sway = Math.sin(t * 2) * 2 * k;
-      s += shadowK(x + 50, 80) + man(px + sway, FLOOR, pp, { face: k > .5 ? 'closed' : 'smile', bun: 1, dir: -1, k: .92 }) + man(x - 10 + sway, FLOOR, pm, { face: k > .6 ? 'closed' : 'limit' });
+      s += shadowK(x + 50, 80) + man(px + sway, FLOOR, pp, { face: k > .5 ? 'closed' : 'smile', bun: 1, dir: -1, k: .92 }) + man(x - 10 + sway, FLOOR, pm, { face: k > .6 ? 'closed' : 'limit', glow: glowOf(t), t });
     }
   }
   return s;
@@ -231,6 +244,6 @@ const coverSVG = function () {
   return o + `<rect width="${W}" height="${H}" filter="url(#grain)" opacity=".05"/>`;
 };
 
-  const frameSVG = (t) => sceneSVG(t) + overlay(t) + `<rect width="${W}" height="${H}" filter="url(#grain)" opacity=".05"/>`;
+  const frameSVG = (t) => { GID = 0; return sceneSVG(t) + overlay(t) + `<rect width="${W}" height="${H}" filter="url(#grain)" opacity=".05"/>`; };
   return { frameSVG, coverSVG, batL, batR, W, H };
 }
