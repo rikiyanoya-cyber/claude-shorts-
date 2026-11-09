@@ -133,7 +133,7 @@ export const Kitchen: React.FC = () => (
     ))}
   </svg>
 );
-// The sign, with the family name in it (letters can be erased)
+// The sign, with the family name in it. Letters are erased from the front, so a lone 'M' never stays on screen
 export function Sign({ letters, shown }: { letters: string; shown: number }) {
   const n = letters.length;
   return (
@@ -143,7 +143,7 @@ export function Sign({ letters, shown }: { letters: string; shown: number }) {
       <rect x={90} y={110} width={720} height={180} rx={14} fill="none" stroke={P.paper} strokeWidth={4} opacity={.6} />
       {letters.split("").map((ch, i) => (
         <text key={i} x={120 + (660 * (i + .5)) / n} y={238} textAnchor="middle" fontFamily="NSJP" fontWeight={900} fontSize={96} fill={P.paper}
-          opacity={i < shown ? 1 : 0}>{ch}</text>
+          opacity={i >= n - shown ? 1 : 0}>{ch}</text>
       ))}
     </svg>
   );
