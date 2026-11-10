@@ -71,7 +71,7 @@ export const YearBar: React.FC<{ t: number; a: number; b: number; from: number; 
   return (
     <svg viewBox="0 0 1920 1080" width={1920} height={1080} style={{ position: "absolute", opacity: o }}>
       <line x1={200} y1={900} x2={1720} y2={900} stroke={PAL.paper} strokeWidth={4} opacity={.5} />
-      {Array.from({ length: Math.floor((span[1] - span[0]) / 10) + 1 }, (_, i) => span[0] + i * 10).map((y) => (
+      {[...Array.from({ length: Math.floor((span[1] - span[0]) / 10) + 1 }, (_, i) => span[0] + i * 10).filter((y) => span[1] - y >= 5 || y === span[1]), ...(span[1] % 10 ? [span[1]] : [])].map((y) => (
         <g key={y}><line x1={X(y)} y1={886} x2={X(y)} y2={914} stroke={PAL.paper} strokeWidth={3} opacity={.6} />
           <text x={X(y)} y={956} textAnchor="middle" fontFamily="NSJP" fontWeight={700} fontSize={28} fill={PAL.paper} opacity={.6}>{y}</text></g>
       ))}

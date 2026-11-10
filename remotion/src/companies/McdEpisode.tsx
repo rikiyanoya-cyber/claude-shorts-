@@ -10,7 +10,9 @@ import { useFonts } from "./fonts";
 
 type Shot = { t: number; dur: number; kind: string; [k: string]: any };
 const plan = PLAN as unknown as { fps: number; duration: number; shots: Shot[]; subs: [number, number, string][]; chapters: { no: string; title: string; years: string; at: number }[] };
-const FPS = plan.fps, XF = 0.35;
+const FPS = plan.fps, XF = 0.35, XF_IMG = 0.16; // picture-to-picture is a near-cut (a long dissolve read as a double exposure)
+// per-picture grading (review 2026-11-10): calmer contrast on the poster-like ones, 5-14 pulled from dusk toward dawn
+const GRADE: Record<string, string> = { "ep01-5-11.jpg": "contrast(.86) saturate(.8)", "ep01-P14.jpg": "contrast(.86) saturate(.8)", "ep01-5-14.jpg": "hue-rotate(-14deg) saturate(.8) brightness(1.06)" };
 const cl = { extrapolateLeft: "clamp" as const, extrapolateRight: "clamp" as const };
 const ease = Easing.bezier(0.45, 0, 0.2, 1);
 const fin = (u: number, a: number, d = 0.4) => interpolate(u, [a, a + d], [0, 1], { ...cl, easing: ease });
@@ -36,7 +38,8 @@ const ImgShot: React.FC<{ s: Shot; u: number }> = ({ s, u }) => {
   const x = clampP(k.x0 + (k.x1 - k.x0) * p), y = clampP(k.y0 + (k.y1 - k.y0) * p);
   return (
     <AbsoluteFill style={{ overflow: "hidden", background: "#111" }}>
-      <Img src={staticFile(`mcd/${s.src}`)} style={{ width: 1920, height: 1080, objectFit: "cover", transformOrigin: "50% 50%", transform: `scale(${z}) translate(${x}%, ${y}%)` }} />
+      <Img src={staticFile(`mcd/${s.src}`)} style={{ width: 1920, height: 1080, objectFit: "cover", transformOrigin: "50% 50%", transform: `scale(${z}) translate(${x}%, ${y}%)`, filter: GRADE[s.src] }} />
+      {s.src === "ep01-5-14.jpg" && <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(150,180,235,.42) 0%, rgba(235,190,200,.22) 30%, rgba(0,0,0,0) 50%)", mixBlendMode: "screen" }} />}
       {s.counter && <Chip u={u} value={s.counter[0]} prefix={s.counter[1]} suffix={s.counter[2]} />}
     </AbsoluteFill>
   );
@@ -48,14 +51,26 @@ const CenterText: React.FC<{ u: number; text: string; sub?: string; bg?: string;
   </AbsoluteFill></Paper>
 );
 const Chapter: React.FC<{ u: number; n: number }> = ({ u, n }) => {
-  const c = plan.chapters[n], w = 900 * fin(u, .2, .8);
+  const c = plan.chapters[n], w = 900 * fin(u, .25, .8);
+  const [y0, y1] = c.years.split("–").map((x) => parseInt(x, 10)), X = (y: number) => 360 + 1200 * (y - 1940) / 86;
+  const hi = fin(u, .5, 1.0), ya = X(y0), yb = X(isNaN(y1) ? 2026 : y1);
   return (
-    <Paper bg={PAL.navy2}><AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
-      <div style={{ fontFamily: F, fontWeight: 700, fontSize: 56, color: PAL.mustard, letterSpacing: 16, opacity: fin(u, 0) }}>{c.no}</div>
-      <div style={{ fontFamily: F, fontWeight: 900, fontSize: 128, color: PAL.paper, marginTop: 18, opacity: fin(u, .15), letterSpacing: 6 }}>{c.title}</div>
-      <div style={{ width: w, height: 5, background: PAL.mustard, margin: "34px 0 26px" }} />
-      <div style={{ fontFamily: F, fontWeight: 700, fontSize: 50, color: PAL.paper, opacity: .8 * fin(u, .5), letterSpacing: 10 }}>{c.years}</div>
-    </AbsoluteFill></Paper>
+    <Paper bg={PAL.navy2}>
+      <div style={{ position: "absolute", right: 90, top: -40, fontFamily: F, fontWeight: 900, fontSize: 520, color: PAL.paper, opacity: .05, transform: `translateX(${(1 - fin(u, 0, 1.2)) * 120}px)` }}>{n + 1}</div>
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", paddingBottom: 80 }}>
+        <div style={{ fontFamily: F, fontWeight: 700, fontSize: 56, color: PAL.mustard, letterSpacing: 16, opacity: fin(u, 0), transform: `translateY(${(1 - fin(u, 0, .5)) * -24}px)` }}>{c.no}</div>
+        <div style={{ fontFamily: F, fontWeight: 900, fontSize: 128, color: PAL.paper, marginTop: 18, letterSpacing: 6, display: "flex" }}>
+          {[...c.title].map((ch, i) => <span key={i} style={{ opacity: fin(u, .12 + i * .045, .3), transform: `translateY(${(1 - fin(u, .12 + i * .045, .35)) * 40}px)`, display: "inline-block" }}>{ch}</span>)}
+        </div>
+        <div style={{ width: w, height: 5, background: PAL.mustard, margin: "34px 0 26px" }} />
+        <div style={{ fontFamily: F, fontWeight: 700, fontSize: 50, color: PAL.paper, opacity: .8 * fin(u, .5), letterSpacing: 10 }}>{c.years}</div>
+      </AbsoluteFill>
+      <svg viewBox="0 0 1920 1080" width={1920} height={1080} style={{ position: "absolute", opacity: fin(u, .3, .5) }}>
+        <line x1={360} y1={940} x2={1560} y2={940} stroke={PAL.paper} strokeWidth={3} opacity={.3} />
+        {[1940, 1960, 1980, 2000, 2026].map((y) => <text key={y} x={X(y)} y={990} textAnchor="middle" fontFamily={F} fontWeight={700} fontSize={26} fill={PAL.paper} opacity={.45}>{y}</text>)}
+        <line x1={ya} y1={940} x2={ya + (yb - ya) * hi} y2={940} stroke={PAL.mustard} strokeWidth={10} strokeLinecap="round" />
+      </svg>
+    </Paper>
   );
 };
 const MapCount: React.FC<{ s: Shot; u: number }> = ({ s, u }) => (
@@ -208,10 +223,47 @@ function Shot({ s, u }: { s: Shot; u: number }) {
     case "salesdrop": return <SalesDrop s={s} u={u} />;
     case "loss": return <Loss u={u} />;
     case "quote": return <Quote s={s} u={u} />;
+    case "globe": return <Globe s={s} u={u} />;
     case "title": return <Title s={s} u={u} />;
     default: return null;
   }
 }
+// closing map: stores spread out from Des Plaines across the real coastline, slow push-in
+const Globe: React.FC<{ s: Shot; u: number }> = ({ s, u }) => {
+  const z = 1 + .07 * interpolate(u, [0, s.dur], [0, 1], cl);
+  return (<AbsoluteFill style={{ overflow: "hidden" }}>
+    <AbsoluteFill style={{ transform: `scale(${z})` }}><WorldMapDots t={u} a={0.1} b={Math.min(6, s.dur * .7)} /></AbsoluteFill>
+    <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(10,14,22,.55) 100%)" }} />
+  </AbsoluteFill>);
+};
+// year tracker: a small timeline in the corner that moves to each year the narration says (pictures only)
+const YEARS: [number, number][] = [];
+// stops at the closing summary ("この帝国は…"), where the years are looked back on, not travelled through
+const EPILOGUE = (plan.subs.find(([, , x]) => x.startsWith("この帝国は")) || [1e9])[0] as number;
+plan.subs.forEach(([a, , txt]) => {
+  if (a >= EPILOGUE) return;
+  if (txt.startsWith("そして現在")) { YEARS.push([a, 2026]); return; }
+  const m = txt.match(/(19[4-9]\d|20[0-2]\d)年/); if (m) YEARS.push([a, +m[1]]);
+});
+const YearTrack: React.FC<{ t: number; on: boolean }> = ({ t, on }) => {
+  const first = plan.chapters[0].at + 3;
+  if (t < first || t >= EPILOGUE - .3) return null;
+  let i = -1; YEARS.forEach(([a], k) => { if (t >= a - .1) i = k; });
+  if (i < 0) return null;
+  const [a, y] = YEARS[i], py = i > 0 ? YEARS[i - 1][1] : y, k = interpolate(t, [a - .1, a + .7], [0, 1], { ...cl, easing: ease });
+  const yr = py + (y - py) * k, X = (v: number) => 24 + 392 * (v - 1940) / 86;
+  const pop = 1 + .25 * Math.sin(Math.PI * Math.min(1, (t - a + .1) / .5)) * (t - a + .1 < .5 ? 1 : 0);
+  return (
+    <svg width={460} height={110} style={{ position: "absolute", left: 56, top: 40, opacity: on ? .95 : 0 }}>
+      <rect x={0} y={0} width={440} height={96} rx={14} fill="rgba(20,22,30,.62)" />
+      <line x1={24} y1={66} x2={416} y2={66} stroke={PAL.paper} strokeWidth={3} opacity={.35} />
+      {[1940, 1960, 1980, 2000, 2020].map((v) => <line key={v} x1={X(v)} y1={60} x2={X(v)} y2={72} stroke={PAL.paper} strokeWidth={2} opacity={.4} />)}
+      <line x1={24} y1={66} x2={X(yr)} y2={66} stroke={PAL.mustard} strokeWidth={5} />
+      <circle cx={X(yr)} cy={66} r={9 * pop} fill={PAL.mustard} stroke={PAL.paper} strokeWidth={2.5} />
+      <text x={24} y={40} fontFamily={F} fontWeight={900} fontSize={34} fill={PAL.paper}>{Math.round(yr)}<tspan fontSize={20} fontWeight={700} dx={4}>年</tspan></text>
+    </svg>
+  );
+};
 const Grain: React.FC<{ seed: number }> = ({ seed }) => (
   <svg width={1920} height={1080} style={{ position: "absolute", mixBlendMode: "multiply", opacity: .12, pointerEvents: "none" }}>
     <filter id="g2"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves={2} seed={seed} /><feColorMatrix type="matrix" values="0 0 0 0 .55  0 0 0 0 .5  0 0 0 0 .42  0 0 0 1 0" /></filter>
@@ -223,7 +275,8 @@ export const McdEpisode: React.FC = () => {
   const f = useCurrentFrame(), t = f / FPS, S = plan.shots;
   let k = 0; for (let i = 0; i < S.length; i++) if (t >= S[i].t) k = i;
   const cur = S[k], prev = S[k - 1], u = t - cur.t;
-  const fade = prev && u < XF ? interpolate(u, [0, XF], [0, 1], { ...cl, easing: ease }) : 1;
+  const xf = prev && prev.kind === "img" && cur.kind === "img" ? XF_IMG : XF;
+  const fade = prev && u < xf ? interpolate(u, [0, xf], [0, 1], { ...cl, easing: ease }) : 1;
   const endFade = interpolate(t, [plan.duration - 1.2, plan.duration], [0, 1], cl);
   return (
     <AbsoluteFill style={{ background: "#000" }}>
@@ -231,10 +284,25 @@ export const McdEpisode: React.FC = () => {
       {prev && fade < 1 && <AbsoluteFill><Shot s={prev} u={t - prev.t} /></AbsoluteFill>}
       <AbsoluteFill style={{ opacity: fade }}><Shot s={cur} u={u} /></AbsoluteFill>
       <Grain seed={f % 30} />
+      <YearTrack t={t} on={cur.kind === "img"} />
       <Subs t={t} />
       <AbsoluteFill style={{ background: "#000", opacity: endFade }} />
     </AbsoluteFill>
   );
+};
+// keywords (numbers with their units, and names) in mustard
+const KW = /([約]?[0-9][0-9,.]*(?:万|億|兆)?(?:年|月|日|店|ドル|セント|円|カ国|品目|秒|時間|歳|%|人|号店|倍)?|マクドナルド|レイ・クロック|クロック|ディック|(?<!ビッグ)マック|藤田田|サンバーナーディーノ|デスプレーンズ|ハリー・ソネボーン|ソネボーン|銀座|モスクワ)/g;
+const mark = (txt: string, k0: number) => txt.split(KW).map((p, i) => (i % 2 ? <span key={k0 + i} style={{ color: PAL.mustard }}>{p}</span> : p));
+// long lines go on two rows, broken at a phrase edge near the middle (after 、」を は が で に, or before 「) so no word is split
+const hl = (txt: string) => {
+  if (txt.length <= 30) return mark(txt, 0);
+  let best = -1;
+  for (let i = 8; i < txt.length - 6; i++) {
+    const ok = "、」をはがでに".includes(txt[i - 1]) || txt[i] === "「";
+    if (ok && (best < 0 || Math.abs(i - txt.length / 2) < Math.abs(best - txt.length / 2))) best = i;
+  }
+  if (best < 0) return mark(txt, 0);
+  return <>{mark(txt.slice(0, best), 0)}<br />{mark(txt.slice(best), 100)}</>;
 };
 // subtitles with start and end times (nothing on screen in the pauses between chapters)
 const Subs: React.FC<{ t: number }> = ({ t }) => {
@@ -242,7 +310,7 @@ const Subs: React.FC<{ t: number }> = ({ t }) => {
   if (!cur) return null;
   return (
     <div style={{ position: "absolute", left: 0, right: 0, bottom: 56, textAlign: "center", opacity: fin(t, cur[0], .1) }}>
-      <span style={{ display: "inline-block", padding: "10px 34px", background: "rgba(20,22,30,.72)", borderRadius: 8, fontFamily: F, fontWeight: 700, fontSize: 50, color: "#fff" }}>{cur[2]}</span>
+      <span style={{ display: "inline-block", maxWidth: 1640, textWrap: "balance" as any, padding: "10px 34px", background: "rgba(20,22,30,.72)", borderRadius: 8, fontFamily: F, fontWeight: 700, fontSize: 50, color: "#fff" }}>{hl(cur[2])}</span>
     </div>
   );
 };
