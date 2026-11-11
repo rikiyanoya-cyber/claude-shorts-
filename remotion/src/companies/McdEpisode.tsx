@@ -17,13 +17,21 @@ const cl = { extrapolateLeft: "clamp" as const, extrapolateRight: "clamp" as con
 const ease = Easing.bezier(0.45, 0, 0.2, 1);
 const fin = (u: number, a: number, d = 0.4) => interpolate(u, [a, a + d], [0, 1], { ...cl, easing: ease });
 const F = "NSJP";
+const clamp01 = (x: number) => Math.max(0, Math.min(1, x)), eoN = (x: number) => 1 - Math.pow(1 - x, 3);
 const num = (v: number, dec = 0) => (dec ? v.toFixed(dec) : Math.round(v).toLocaleString("en-US"));
 
 // ---------- pieces ----------
 const Paper: React.FC<{ children?: React.ReactNode; bg?: string }> = ({ children, bg = PAL.paper }) => <AbsoluteFill style={{ background: bg }}>{children}</AbsoluteFill>;
 const Count: React.FC<{ u: number; at: number; value: number; prefix?: string; suffix?: string; dec?: number; size?: number; color?: string; dur?: number }> = ({ u, at, value, prefix = "", suffix = "", dec = 0, size = 200, color = PAL.ink, dur = 1.5 }) => {
-  const k = interpolate(u, [at, at + dur], [0, 1], { ...cl, easing: Easing.out(Easing.cubic) });
-  return <span style={{ fontFamily: F, fontWeight: 900, fontSize: size, color, lineHeight: 1 }}><span style={{ fontSize: size * .5 }}>{prefix}</span>{num(value * k, dec)}<span style={{ fontSize: size * .45 }}>{suffix}</span></span>;
+  // digit roll (review 2026-11-11): each digit spins blurred, then lands on its final value from left to right
+  const chars = [...num(value, dec)], nd = chars.filter((c) => /\d/.test(c)).length; let di = 0;
+  return <span style={{ fontFamily: F, fontWeight: 900, fontSize: size, color, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}><span style={{ fontSize: size * .5 }}>{prefix}</span>
+    {chars.map((c, i) => {
+      if (!/\d/.test(c)) return <span key={i}>{c}</span>;
+      const idx = di++, land = at + dur * (0.3 + 0.7 * (idx + 1) / nd);
+      if (u >= land) return <span key={i} style={{ display: "inline-block", transform: `translateY(${(1 - eoN(clamp01((u - land) / .18))) * -0.12 * size}px)` }}>{c}</span>;
+      return <span key={i} style={{ display: "inline-block", filter: `blur(${Math.max(6, size * .07)}px)`, opacity: .5, transform: "scaleY(1.35)" }}>{Math.floor(u * 30 + idx * 3.7) % 10}</span>;
+    })}<span style={{ fontSize: size * .45 }}>{suffix}</span></span>;
 };
 const Chip: React.FC<{ u: number; value: number; prefix: string; suffix: string }> = ({ u, value, prefix, suffix }) => (
   <div style={{ position: "absolute", right: 80, top: 80, padding: "18px 36px", background: "rgba(43,42,51,.86)", borderRadius: 12, opacity: fin(u, .4) }}>
@@ -32,17 +40,34 @@ const Chip: React.FC<{ u: number; value: number; prefix: string; suffix: string 
 );
 const ImgShot: React.FC<{ s: Shot; u: number }> = ({ s, u }) => {
   const k = s.kb, p = interpolate(u, [0, s.dur + XF], [0, 1], { ...cl, easing: Easing.inOut(Easing.sin) });
-  const z = k.z0 + (k.z1 - k.z0) * p;
+  const tg = s.t + u; let push = 0;
+  for (const a of KW_TIMES) if (a >= s.t - .2 && a < s.t + s.dur) { const d = tg - a; if (d > 0) push += .035 * eoN(clamp01(d / .5)) * (1 - eoN(clamp01((d - 2.2) / 1.2))); }
+  const z = (k.z0 + (k.z1 - k.z0) * p) * (1 + push);
   // keep the pan inside the picture: at zoom z the image can move at most (z-1)/(2z) of its size before an edge shows
   const lim = Math.max(0, ((z - 1) / (2 * z)) * 100 - 0.15), clampP = (v: number) => Math.max(-lim, Math.min(lim, v));
   const x = clampP(k.x0 + (k.x1 - k.x0) * p), y = clampP(k.y0 + (k.y1 - k.y0) * p);
   return (
     <AbsoluteFill style={{ overflow: "hidden", background: "#111" }}>
-      <Img src={staticFile(`mcd/${s.src}`)} style={{ width: 1920, height: 1080, objectFit: "cover", transformOrigin: "50% 50%", transform: `scale(${z}) translate(${x}%, ${y}%)`, filter: GRADE[s.src] }} />
+      <AbsoluteFill style={{ transformOrigin: "50% 50%", transform: `scale(${z}) translate(${x}%, ${y}%)` }}>
+        <Img src={staticFile(`mcd/${s.src}`)} style={{ width: 1920, height: 1080, objectFit: "cover", filter: GRADE[s.src] }} />
+        {s.src === "ep01-R4.jpg" && <R4Motion t={tg} />}
+      </AbsoluteFill>
       {s.src === "ep01-5-14.jpg" && <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(150,180,235,.42) 0%, rgba(235,190,200,.22) 30%, rgba(0,0,0,0) 50%)", mixBlendMode: "screen" }} />}
       {s.counter && <Chip u={u} value={s.counter[0]} prefix={s.counter[1]} suffix={s.counter[2]} />}
     </AbsoluteFill>
   );
+};
+// R4 (modern interior, held long): the ceiling lamps breathe and a light sweeps across the menu boards
+const R4Motion: React.FC<{ t: number }> = ({ t }) => {
+  const lamps = [[263, 205, 70], [558, 295, 55], [733, 340, 42], [820, 361, 34], [886, 377, 28]];
+  const sw = ((t * .45) % 1), bx = 1300 + sw * 760;
+  return (<svg viewBox="0 0 1920 1080" width={1920} height={1080} style={{ position: "absolute", left: 0, top: 0 }}>
+    <defs><radialGradient id="lg"><stop offset="0" stopColor="#FFE9A8" stopOpacity=".9" /><stop offset="1" stopColor="#FFE9A8" stopOpacity="0" /></radialGradient>
+      <linearGradient id="sweep" x1="0" x2="1"><stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset=".5" stopColor="#fff" stopOpacity=".55" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></linearGradient>
+      <clipPath id="boards"><polygon points="1366,279 1926,0 1926,246 1366,369" /></clipPath></defs>
+    {lamps.map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r * (1.6 + .25 * Math.sin(t * 2.1 + i))} fill="url(#lg)" opacity={.35 + .2 * Math.sin(t * 1.7 + i * 1.3)} style={{ mixBlendMode: "screen" }} />)}
+    <g clipPath="url(#boards)"><rect x={bx - 120} y={0} width={240} height={420} fill="url(#sweep)" transform={`skewX(-20)`} style={{ mixBlendMode: "screen" }} /></g>
+  </svg>);
 };
 const CenterText: React.FC<{ u: number; text: string; sub?: string; bg?: string; fg?: string; size?: number }> = ({ u, text, sub, bg = PAL.paper, fg = PAL.ink, size = 140 }) => (
   <Paper bg={bg}><AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
@@ -196,10 +221,21 @@ const Quote: React.FC<{ s: Shot; u: number }> = ({ s, u }) => (
     <div style={{ fontFamily: F, fontWeight: 700, fontSize: 46, color: PAL.mustard, marginTop: 40, opacity: fin(u, .6) }}>— {s.who}</div>
   </AbsoluteFill></Paper>
 );
+const Arches: React.FC<{ u: number }> = ({ u }) => {
+  const d = "M140 760 C140 300 230 90 330 90 C430 90 495 260 500 470 C505 260 570 90 670 90 C770 90 860 300 860 760";
+  const draw = eoN(clamp01(u / 1.0)), fill = eoN(clamp01((u - .9) / .7)), glow = clamp01((u - 1.6) / .4) * (.6 + .4 * Math.sin((u - 1.6) * 4));
+  return (<svg viewBox="0 0 1000 850" width={1100} height={935} style={{ position: "absolute", left: 410, top: 40, opacity: .92 }}>
+    <defs><filter id="ag" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="22" /></filter></defs>
+    <path d={d} fill="none" stroke="#FFC72C" strokeWidth={150} opacity={.55 * glow} filter="url(#ag)" />
+    <path d={d} fill="none" stroke="#F2B21B" strokeWidth={128} strokeLinecap="butt" strokeDasharray={2400} strokeDashoffset={2400 * (1 - fill)} opacity={fill > 0 ? 1 : 0} />
+    <path d={d} fill="none" stroke="#FFD34E" strokeWidth={8} strokeDasharray={2400} strokeDashoffset={2400 * (1 - draw)} />
+  </svg>);
+};
 const Title: React.FC<{ s: Shot; u: number }> = ({ s, u }) => (
   <Paper bg={PAL.navy2}>
+    {!s.final && <Arches u={u} />}
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", paddingBottom: 160 }}>
-      <div style={{ fontFamily: F, fontWeight: 900, fontSize: 130, color: PAL.paper, opacity: fin(u, .1, .6), letterSpacing: 8 }}>マクドナルドの全歴史</div>
+      <div style={{ fontFamily: F, fontWeight: 900, fontSize: 130, color: PAL.paper, opacity: fin(u, .1, .6), letterSpacing: 8, textShadow: "0 6px 30px rgba(10,14,24,.85), 0 0 4px rgba(10,14,24,.9)" }}>マクドナルドの全歴史</div>
       <div style={{ fontFamily: F, fontWeight: 700, fontSize: 64, color: PAL.mustard, opacity: fin(u, .6, .6), letterSpacing: 12, marginTop: 20 }}>1940–2026</div>
     </AbsoluteFill>
     {!s.final && <YearBar t={u} a={.9} b={Math.max(1.5, s.dur - .2)} from={2026} to={1940} span={[1940, 2026]} />}
@@ -235,6 +271,26 @@ const Globe: React.FC<{ s: Shot; u: number }> = ({ s, u }) => {
     <AbsoluteFill style={{ transform: `scale(${z})` }}><WorldMapDots t={u} a={0.1} b={Math.min(6, s.dur * .7)} /></AbsoluteFill>
     <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(10,14,22,.55) 100%)" }} />
   </AbsoluteFill>);
+};
+// key-word times (for the narration-synced push) and fact chips from the subtitles
+const KWT = /([0-9][0-9,.]*(?:万|億|兆)?(?:ドル|セント|円|店|品目|秒|時間|歳|%|人|カ国|号店|倍)|マクドナルド|レイ・クロック|クロック|ディック|藤田田|サンバーナーディーノ|デスプレーンズ|ソネボーン|銀座|モスクワ)/;
+const KW_TIMES: number[] = plan.subs.filter(([, , x]) => KWT.test(x)).map(([a]) => a);
+const FACT_RE = /(約)?([0-9][0-9,]*(?:\.[0-9]+)?)(万|億|兆)?(ドル|セント|円|店|品目|秒|時間|歳|%|人|カ国|倍)/;
+type Fact = { a: number; b: number; value: number; dec: number; prefix: string; suffix: string };
+const FACTS: Fact[] = [];
+plan.subs.forEach(([a, b, x]) => {
+  const m = x.match(FACT_RE); if (!m || parseFloat(m[2].replace(/,/g, "")) < 2 && !m[2].includes(".")) return;
+  const sh = [...plan.shots].reverse().find((q) => q.t <= a + .05);
+  if (!sh || sh.kind !== "img" || sh.counter) return;                       // only over pictures, never next to another counter
+  const prev = FACTS[FACTS.length - 1]; if (prev && a < prev.b + .3) return;
+  FACTS.push({ a, b: Math.min(b + 1.4, a + 3.6, sh.t + sh.dur - .1), value: parseFloat(m[2].replace(/,/g, "")), dec: m[2].includes(".") ? 1 : 0, prefix: m[1] || "", suffix: (m[3] || "") + m[4] });
+});
+const FactChip: React.FC<{ t: number }> = ({ t }) => {
+  const f = FACTS.find((q) => t >= q.a && t < q.b); if (!f) return null;
+  const u = t - f.a, o = clamp01(u / .2) * clamp01((f.b - t) / .25);
+  return (<div style={{ position: "absolute", right: 70, top: 70, padding: "14px 32px", background: "rgba(43,42,51,.86)", borderRadius: 12, opacity: o, transform: `translateY(${(1 - eoN(clamp01(u / .3))) * -24}px)` }}>
+    <Count u={u} at={.05} value={f.value} dec={f.dec} prefix={f.prefix} suffix={f.suffix} size={92} color={PAL.mustard} dur={.9} />
+  </div>);
 };
 // year tracker: a small timeline in the corner that moves to each year the narration says (pictures only)
 const YEARS: [number, number][] = [];
@@ -285,6 +341,7 @@ export const McdEpisode: React.FC = () => {
       <AbsoluteFill style={{ opacity: fade }}><Shot s={cur} u={u} /></AbsoluteFill>
       <Grain seed={f % 30} />
       <YearTrack t={t} on={cur.kind === "img"} />
+      <FactChip t={t} />
       <Subs t={t} />
       <AbsoluteFill style={{ background: "#000", opacity: endFade }} />
     </AbsoluteFill>
