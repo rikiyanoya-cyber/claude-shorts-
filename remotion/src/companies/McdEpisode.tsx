@@ -40,14 +40,14 @@ const Chip: React.FC<{ u: number; value: number; prefix: string; suffix: string 
 );
 const ImgShot: React.FC<{ s: Shot; u: number }> = ({ s, u }) => {
   const k = s.kb, p = interpolate(u, [0, s.dur + XF], [0, 1], { ...cl, easing: Easing.inOut(Easing.sin) });
-  const tg = s.t + u; let push = 0;
-  for (const a of KW_TIMES) if (a >= s.t - .2 && a < s.t + s.dur) { const d = tg - a; if (d > 0) push += .035 * eoN(clamp01(d / .5)) * (1 - eoN(clamp01((d - 2.2) / 1.2))); }
-  if (s.final) push = 0;
-  const z = s.final ? 1.02 + .07 * eoN(clamp01(u / s.dur)) : (k.z0 + (k.z1 - k.z0) * p) * (1 + push) * 1.03;
-  const tilt = s.final ? 0 : (k.x1 > k.x0 ? 1 : -1) * (-1.4 + 2.8 * p), tiltX = s.final ? 0 : (k.y1 > k.y0 ? 1 : -1) * (-.6 + 1.2 * p);
-  // keep the pan inside the picture: at zoom z the image can move at most (z-1)/(2z) of its size before an edge shows
-  const lim = Math.max(0, ((z - 1) / (2 * z)) * 100 - 0.15), clampP = (v: number) => Math.max(-lim, Math.min(lim, v));
-  const x = clampP(k.x0 + (k.x1 - k.x0) * p), y = clampP(k.y0 + (k.y1 - k.y0) * p);
+  // one transform per hold (review 2026-11-11 evening): zoom and pan advance together under the same ease, the pan
+  // range is fixed by the hold's smallest zoom so it never waits for the zoom ("zoom, then slide"); no extra pushes.
+  // The final still does not move at all.
+  const tg = s.t + u;
+  const zMin = Math.min(k.z0, k.z1), limMin = Math.max(0, ((zMin - 1) / (2 * zMin)) * 100 - 0.2), cp = (v: number) => Math.max(-limMin, Math.min(limMin, v));
+  const z = s.final ? 1.0 : k.z0 + (k.z1 - k.z0) * p;
+  const x = s.final ? 0 : cp(k.x0) + (cp(k.x1) - cp(k.x0)) * p, y = s.final ? 0 : cp(k.y0) + (cp(k.y1) - cp(k.y0)) * p;
+  const tilt = s.final ? 0 : (k.x1 > k.x0 ? 1 : -1) * (-.7 + 1.4 * p), tiltX = 0;
   return (
     <AbsoluteFill style={{ overflow: "hidden", background: "#111" }}>
       <AbsoluteFill style={{ transformOrigin: "50% 50%", transform: `perspective(2200px) rotateY(${tilt}deg) rotateX(${tiltX}deg) scale(${z}) translate(${x}%, ${y}%)` }}>
@@ -286,7 +286,8 @@ plan.subs.forEach(([a, b, x]) => {
   const sh = [...plan.shots].reverse().find((q) => q.t <= a + .05);
   if (!sh || sh.kind !== "img" || sh.counter) return;                       // only over pictures, never next to another counter
   const prev = FACTS[FACTS.length - 1]; if (prev && a < prev.b + .3) return;
-  FACTS.push({ a, b: Math.min(b + 1.4, a + 3.6, sh.t + sh.dur - .1), value: parseFloat(m[2].replace(/,/g, "")), dec: m[2].includes(".") ? 1 : 0, prefix: m[1] || "", suffix: (m[3] || "") + m[4] });
+  let end = sh.t + sh.dur; for (const q of plan.shots) if (q.t >= end - .01 && q.t < end + .01 && q.src === sh.src) end = q.t + q.dur;   // a detail cut of the same picture continues the hold
+  FACTS.push({ a, b: Math.min(b + 1.4, a + 3.6, end - .1), value: parseFloat(m[2].replace(/,/g, "")), dec: m[2].includes(".") ? 1 : 0, prefix: m[1] || "", suffix: (m[3] || "") + m[4] });
 });
 const FactChip: React.FC<{ t: number }> = ({ t }) => {
   const f = FACTS.find((q) => t >= q.a && t < q.b); if (!f) return null;
