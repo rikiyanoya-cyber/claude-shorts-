@@ -34,21 +34,23 @@ const Count: React.FC<{ u: number; at: number; value: number; prefix?: string; s
     })}<span style={{ fontSize: size * .45 }}>{suffix}</span></span>;
 };
 const Chip: React.FC<{ u: number; value: number; prefix: string; suffix: string }> = ({ u, value, prefix, suffix }) => (
-  <div style={{ position: "absolute", right: 80, top: 80, padding: "18px 36px", background: "rgba(43,42,51,.86)", borderRadius: 12, opacity: fin(u, .4) }}>
-    <Count u={u} at={.4} value={value} prefix={prefix} suffix={suffix} size={120} color={PAL.mustard} />
-  </div>
+  <div style={{ position: "absolute", left: 0, right: 0, bottom: 190, display: "flex", justifyContent: "center", opacity: fin(u, .4) }}><div style={{ padding: "14px 46px 18px", background: "rgba(20,22,30,.9)", border: "4px solid " + PAL.mustard, borderRadius: 16, boxShadow: "0 12px 40px rgba(0,0,0,.55)" }}>
+    <Count u={u} at={.4} value={value} prefix={prefix} suffix={suffix} size={140} color={PAL.mustard} />
+  </div></div>
 );
 const ImgShot: React.FC<{ s: Shot; u: number }> = ({ s, u }) => {
   const k = s.kb, p = interpolate(u, [0, s.dur + XF], [0, 1], { ...cl, easing: Easing.inOut(Easing.sin) });
   const tg = s.t + u; let push = 0;
   for (const a of KW_TIMES) if (a >= s.t - .2 && a < s.t + s.dur) { const d = tg - a; if (d > 0) push += .035 * eoN(clamp01(d / .5)) * (1 - eoN(clamp01((d - 2.2) / 1.2))); }
-  const z = (k.z0 + (k.z1 - k.z0) * p) * (1 + push);
+  if (s.final) push = 0;
+  const z = s.final ? 1.02 + .07 * eoN(clamp01(u / s.dur)) : (k.z0 + (k.z1 - k.z0) * p) * (1 + push) * 1.03;
+  const tilt = s.final ? 0 : (k.x1 > k.x0 ? 1 : -1) * (-1.4 + 2.8 * p), tiltX = s.final ? 0 : (k.y1 > k.y0 ? 1 : -1) * (-.6 + 1.2 * p);
   // keep the pan inside the picture: at zoom z the image can move at most (z-1)/(2z) of its size before an edge shows
   const lim = Math.max(0, ((z - 1) / (2 * z)) * 100 - 0.15), clampP = (v: number) => Math.max(-lim, Math.min(lim, v));
   const x = clampP(k.x0 + (k.x1 - k.x0) * p), y = clampP(k.y0 + (k.y1 - k.y0) * p);
   return (
     <AbsoluteFill style={{ overflow: "hidden", background: "#111" }}>
-      <AbsoluteFill style={{ transformOrigin: "50% 50%", transform: `scale(${z}) translate(${x}%, ${y}%)` }}>
+      <AbsoluteFill style={{ transformOrigin: "50% 50%", transform: `perspective(2200px) rotateY(${tilt}deg) rotateX(${tiltX}deg) scale(${z}) translate(${x}%, ${y}%)` }}>
         <Img src={staticFile(`mcd/${s.src}`)} style={{ width: 1920, height: 1080, objectFit: "cover", filter: GRADE[s.src] }} />
         {s.src === "ep01-R4.jpg" && <R4Motion t={tg} />}
       </AbsoluteFill>
@@ -260,6 +262,7 @@ function Shot({ s, u }: { s: Shot; u: number }) {
     case "loss": return <Loss u={u} />;
     case "quote": return <Quote s={s} u={u} />;
     case "globe": return <Globe s={s} u={u} />;
+    case "duo": return <Duo s={s} u={u} />;
     case "title": return <Title s={s} u={u} />;
     default: return null;
   }
@@ -288,9 +291,9 @@ plan.subs.forEach(([a, b, x]) => {
 const FactChip: React.FC<{ t: number }> = ({ t }) => {
   const f = FACTS.find((q) => t >= q.a && t < q.b); if (!f) return null;
   const u = t - f.a, o = clamp01(u / .2) * clamp01((f.b - t) / .25);
-  return (<div style={{ position: "absolute", right: 70, top: 70, padding: "14px 32px", background: "rgba(43,42,51,.86)", borderRadius: 12, opacity: o, transform: `translateY(${(1 - eoN(clamp01(u / .3))) * -24}px)` }}>
-    <Count u={u} at={.05} value={f.value} dec={f.dec} prefix={f.prefix} suffix={f.suffix} size={92} color={PAL.mustard} dur={.9} />
-  </div>);
+  return (<div style={{ position: "absolute", left: 0, right: 0, bottom: 190, display: "flex", justifyContent: "center", opacity: o, transform: `translateY(${(1 - eoN(clamp01(u / .3))) * 30}px) scale(${.9 + .1 * eoN(clamp01(u / .3))})` }}><div style={{ padding: "12px 44px 16px", background: "rgba(20,22,30,.9)", border: "4px solid " + PAL.mustard, borderRadius: 16, boxShadow: "0 12px 40px rgba(0,0,0,.55)" }}>
+    <Count u={u} at={.05} value={f.value} dec={f.dec} prefix={f.prefix} suffix={f.suffix} size={124} color={PAL.mustard} dur={.9} />
+  </div></div>);
 };
 // year tracker: a small timeline in the corner that moves to each year the narration says (pictures only)
 const YEARS: [number, number][] = [];
@@ -320,6 +323,51 @@ const YearTrack: React.FC<{ t: number; on: boolean }> = ({ t, on }) => {
     </svg>
   );
 };
+const Duo: React.FC<{ s: Shot; u: number }> = ({ s, u }) => {
+  const k = eoN(clamp01(u / .6)), z = 1.04 + .05 * clamp01(u / s.dur);
+  const half = (src: string, left: boolean) => (<div style={{ position: "absolute", top: 0, bottom: 0, width: 960, left: left ? 0 : 960, overflow: "hidden", transform: `translateX(${(1 - k) * (left ? -120 : 120)}px)`, opacity: k }}>
+    <Img src={staticFile(`mcd/${src}`)} style={{ position: "absolute", left: -480, width: 1920, height: 1080, objectFit: "cover", transform: `scale(${z})` }} /></div>);
+  return (<AbsoluteFill style={{ background: "#111" }}>{half(s.a, true)}{half(s.b, false)}
+    <div style={{ position: "absolute", left: 956, top: 0, bottom: 0, width: 8, background: PAL.mustard, transform: `scaleY(${k})` }} /></AbsoluteFill>);
+};
+// map insets: a small Mercator map panel that slides in over the picture (flight, Canada, Ginza, Moscow, Russia exit)
+import INSETS from "./mcd_insets.json";
+type Inset = { id: string; land: string; hi: string; pins: [number, number, string][]; dots: [number, number][] };
+const INS = INSETS as unknown as Inset[];
+const subAt = (k: string) => (plan.subs.find(([, , x]) => x.includes(k)) || [0])[0] as number;
+const INSET_PLAN: { id: string; a: number; d: number; title: string }[] = [
+  { id: "flight", a: subAt("カリフォルニアへ飛んだ") - 1.2, d: 6.2, title: "1954  シカゴ → カリフォルニア" },
+  { id: "canada", a: subAt("カナダへ進出"), d: 5.5, title: "1967  初の海外・カナダ" },
+  { id: "ginza", a: subAt("流行は銀座から") - .3, d: 5.5, title: "1971  銀座" },
+  { id: "moscow", a: subAt("プーシキン広場"), d: 6.0, title: "1990  モスクワ" },
+  { id: "russia", a: subAt("ロシア事業の売却"), d: 6.5, title: "2022  ロシア撤退" },
+];
+const MapInset: React.FC<{ t: number }> = ({ t }) => {
+  const P = INSET_PLAN.find((q) => t >= q.a && t < q.a + q.d); if (!P) return null;
+  const m = INS.find((q) => q.id === P.id)!; const u = t - P.a, o = clamp01(u / .35) * clamp01((P.d - u) / .35), sl = (1 - eoN(clamp01(u / .45))) * -80;
+  const hi = eoN(clamp01((u - .4) / .6));
+  let extra: React.ReactNode = null;
+  if (P.id === "flight") { const [a, b] = m.pins, d = eoN(clamp01((u - .8) / 2.2)), x = a[0] + (b[0] - a[0]) * d, y = a[1] + (b[1] - a[1]) * d - Math.sin(Math.PI * d) * 60;
+    const path = `M${a[0]} ${a[1]} Q${(a[0] + b[0]) / 2} ${(a[1] + b[1]) / 2 - 120} ${b[0]} ${b[1]}`;
+    extra = <><path d={path} fill="none" stroke={PAL.red} strokeWidth={5} strokeDasharray="8 8" pathLength={1} style={{ strokeDasharray: `${d} 1` } as any} />
+      <circle cx={x} cy={y} r={10} fill={PAL.red} stroke="#fff" strokeWidth={3} /></>; }
+  if (P.id === "russia") extra = <>{m.dots.map(([x, y], i) => { const gone = clamp01((u - 1.4 - (i / m.dots.length) * 3.2) / .4); return <circle key={i} cx={x} cy={y} r={5 * (1 - gone)} fill="#fff" stroke={PAL.red} strokeWidth={1.5} opacity={clamp01((u - .5) / .5) * (1 - gone)} />; })}</>;
+  return (<div style={{ position: "absolute", left: 70, top: 250, width: 640, height: 470, opacity: o, transform: `translateX(${sl}px)` }}>
+    <div style={{ position: "absolute", inset: 0, background: "rgba(20,22,30,.92)", border: "3px solid " + PAL.mustard, borderRadius: 14, boxShadow: "0 14px 40px rgba(0,0,0,.6)" }} />
+    <div style={{ position: "absolute", left: 22, top: 14, fontFamily: F, fontWeight: 900, fontSize: 34, color: PAL.mustard, letterSpacing: 2 }}>{P.title}</div>
+    <svg viewBox="0 0 640 400" width={640} height={400} style={{ position: "absolute", left: 0, top: 64 }}>
+      <defs><clipPath id={"ic" + P.id}><rect x={6} y={0} width={628} height={394} rx={10} /></clipPath></defs>
+      <g clipPath={`url(#ic${P.id})`}><rect width={640} height={400} fill="#2C3A52" />
+        <path d={m.land} fill="#5A6478" stroke="#7D879A" strokeWidth={.8} />
+        <path d={m.hi} fill={PAL.mustard} opacity={.25 + .55 * hi} stroke={PAL.paper} strokeWidth={1.4} />
+        {extra}
+        {m.pins.map(([x, y, label], i) => { const pk = clamp01((u - .9 - i * .3) / .35), rip = ((u - .9 - i * .3) % 1.4) / 1.4;
+          return (<g key={i} opacity={pk}><circle cx={x} cy={y} r={10 + 40 * rip} fill="none" stroke={PAL.red} strokeWidth={3} opacity={1 - rip} />
+            <circle cx={x} cy={y} r={11 * (.6 + .4 * pk)} fill={PAL.red} stroke="#fff" strokeWidth={3} />
+            <text x={x + (x > 420 ? -18 : 18)} y={y - 16} textAnchor={x > 420 ? "end" : "start"} fontFamily={F} fontWeight={900} fontSize={30} fill="#fff" stroke="#111" strokeWidth={6} paintOrder="stroke">{label}</text></g>); })}
+      </g></svg>
+  </div>);
+};
 const Grain: React.FC<{ seed: number }> = ({ seed }) => (
   <svg width={1920} height={1080} style={{ position: "absolute", mixBlendMode: "multiply", opacity: .12, pointerEvents: "none" }}>
     <filter id="g2"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves={2} seed={seed} /><feColorMatrix type="matrix" values="0 0 0 0 .55  0 0 0 0 .5  0 0 0 0 .42  0 0 0 1 0" /></filter>
@@ -332,16 +380,19 @@ export const McdEpisode: React.FC = () => {
   let k = 0; for (let i = 0; i < S.length; i++) if (t >= S[i].t) k = i;
   const cur = S[k], prev = S[k - 1], u = t - cur.t;
   const xf = prev && prev.kind === "img" && cur.kind === "img" ? XF_IMG : XF;
-  const fade = prev && u < xf ? interpolate(u, [0, xf], [0, 1], { ...cl, easing: ease }) : 1;
+  const WIPE = .5, wiping = !!(cur.wipe && prev && u < WIPE), wk = wiping ? eoN(clamp01(u / WIPE)) : 1;
+  const fade = wiping ? 1 : (prev && u < xf ? interpolate(u, [0, xf], [0, 1], { ...cl, easing: ease }) : 1);
   const endFade = interpolate(t, [plan.duration - 1.2, plan.duration], [0, 1], cl);
   return (
     <AbsoluteFill style={{ background: "#000" }}>
       <Audio src={staticFile("mcd/narration.wav")} />
-      {prev && fade < 1 && <AbsoluteFill><Shot s={prev} u={t - prev.t} /></AbsoluteFill>}
-      <AbsoluteFill style={{ opacity: fade }}><Shot s={cur} u={u} /></AbsoluteFill>
+      {prev && (fade < 1 || wiping) && <AbsoluteFill><Shot s={prev} u={t - prev.t} /></AbsoluteFill>}
+      <AbsoluteFill style={{ opacity: fade, clipPath: wiping ? `inset(0 ${(1 - wk) * 100}% 0 0)` : undefined }}><Shot s={cur} u={u} /></AbsoluteFill>
+      {wiping && <div style={{ position: "absolute", top: 0, bottom: 0, left: `${wk * 100}%`, width: 10, marginLeft: -5, background: PAL.mustard, boxShadow: "0 0 30px rgba(214,168,74,.8)" }} />}
       <Grain seed={f % 30} />
       <YearTrack t={t} on={cur.kind === "img"} />
       <FactChip t={t} />
+      <MapInset t={t} />
       <Subs t={t} />
       <AbsoluteFill style={{ background: "#000", opacity: endFade }} />
     </AbsoluteFill>
