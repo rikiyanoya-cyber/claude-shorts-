@@ -46,4 +46,6 @@ remotion/public/whatif/
 
 # episode assets (owner material, not committed)
 remotion/public/mcd/
+remotion/public/nike/
+remotion/.pub_nike/
 remotion/.pub_ep/
