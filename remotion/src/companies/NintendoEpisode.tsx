@@ -240,7 +240,7 @@ const Quote: React.FC<{ s: Shot; u: number }> = ({ s, u }) => (
   </AbsoluteFill></Paper>
 );
 // net sales by fiscal year (March), shape only, from Nintendo's reports; the peak in question is marked
-const SALES: [number, number][] = [[2005, 5152], [2006, 5093], [2007, 9672], [2008, 16724], [2009, 18386], [2010, 14343], [2011, 10143], [2012, 6476], [2013, 6354], [2014, 5717], [2015, 5497], [2016, 5044], [2017, 4890], [2018, 10556], [2019, 12005], [2020, 13085], [2021, 17589], [2022, 16953], [2023, 16016], [2024, 16718], [2025, 11649], [2026, 23130]];
+const SALES: [number, number][] = [[2005, 5153], [2006, 5092], [2007, 9665], [2008, 16724], [2009, 18386], [2010, 14344], [2011, 10143], [2012, 6476], [2013, 6354], [2014, 5717], [2015, 5498], [2016, 5044], [2017, 4890], [2018, 10557], [2019, 12006], [2020, 13085], [2021, 17589], [2022, 16953], [2023, 16017], [2024, 16719], [2025, 11649], [2026, 23131]];  // 億円, checked against the ledger (2026-11-14)
 const Sales: React.FC<{ s: Shot; u: number }> = ({ s, u }) => {
   const last = s.peak === 2009 ? 2009 : 2026, rows = SALES.filter(([y]) => y <= last), X = (y: number) => 330 + 1260 * (y - 2005) / (last - 2005), Y = (v: number) => 860 - 500 * v / 24000;
   const k = interpolate(u, [.2, Math.min(2.4, s.dur * .5)], [0, 1], { ...cl, easing: Easing.inOut(Easing.cubic) }), n = Math.max(1, Math.round(rows.length * k));
