@@ -14,7 +14,7 @@ const LIMIT = Number(process.env.PARTS || 999);
 for (let a = 0, i = 0; a < N && i < LIMIT; a += step, i++) {
   const f = path.join(out, `part${String(i).padStart(2, "0")}.mp4`); list.push(`file '${f}'`);
   if (fs.existsSync(f) && fs.statSync(f).size > 0) { console.log("skip", i); continue; }
-  await renderMedia({ serveUrl, composition, codec: "h264", crf: 20, muted: true, outputLocation: f, browserExecutable, concurrency: Number(process.env.CONC || 3), frameRange: [a, Math.min(a + step - 1, N - 1)] });
+  await renderMedia({ serveUrl, composition, codec: "h264", crf: Number(process.env.CRF || 20), muted: true, outputLocation: f, browserExecutable, concurrency: Number(process.env.CONC || 3), frameRange: [a, Math.min(a + step - 1, N - 1)] });
   console.log("part", i, "done", a);
 }
 fs.writeFileSync(path.join(out, "list.txt"), list.join("\n") + "\n");

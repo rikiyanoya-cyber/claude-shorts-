@@ -9,6 +9,7 @@ import { SamuraiOnce, SamuraiOnceCover, ONCE_FRAMES } from "./samurai/SamuraiOnc
 import { McdOpening, MCD_FRAMES } from "./companies/McdOpening";
 import { McdEpisode, MCD_EP_FRAMES } from "./companies/McdEpisode";
 import { NikeEpisode, NIKE_EP_FRAMES } from "./companies/NikeEpisode";
+import { NintendoEpisode, NINTENDO_EP_FRAMES } from "./companies/NintendoEpisode";
 
 export const Root: React.FC = () => {
   return (
@@ -66,6 +67,7 @@ export const Root: React.FC = () => {
       <Composition id="McdOpening" component={McdOpening} width={1920} height={1080} fps={30} durationInFrames={MCD_FRAMES} />
       <Composition id="McdEpisode" component={McdEpisode} width={1920} height={1080} fps={30} durationInFrames={MCD_EP_FRAMES} />
       <Composition id="NikeEpisode" component={NikeEpisode} width={1920} height={1080} fps={30} durationInFrames={NIKE_EP_FRAMES} />
+      <Composition id="NintendoEpisode" component={NintendoEpisode} width={1920} height={1080} fps={30} durationInFrames={NINTENDO_EP_FRAMES} />
       <Composition id="CameraReel" component={CameraReel} width={1920} height={1080} fps={30} durationInFrames={CAMERA_REEL_FRAMES} />
     </>
   );
