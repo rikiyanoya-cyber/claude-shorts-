@@ -357,6 +357,8 @@ const Captions: React.FC<{ t: number }> = ({ t }) => {
     <span style={{ display: "inline-block", maxWidth: 1700, fontFamily: F, fontWeight: 900, fontSize: 48, color: "#fff", textShadow: "0 0 6px #000, 0 2px 0 #000, 0 0 18px rgba(0,0,0,.8)", textWrap: "balance" as any, lineHeight: 1.4 }}>{mark(txt)}</span></div>);
 };
 export const FAM1_SAMPLE_END = at(24) - .1;
+// the end: the picture switches off like an old TV (squash to a line, then to a dot, then black)
+export const TV_OFF = S[S.length - 1][2] + .45;
 export const FAM1_FRAMES = Math.round((S[S.length - 1][2] + 2.5) * FPS);
 export const Fam1Episode: React.FC = () => {
   useFonts();
@@ -367,15 +369,21 @@ export const Fam1Episode: React.FC = () => {
   const mode = k % 3, push = sh.still ? 1 : 1.03 + (mode === 0 ? .04 * ep : .015), dx = sh.still || mode === 0 ? 0 : (mode === 1 ? -1 : 1) * (18 - 36 * ep);
   const wipe = sh.tr === "wipe" && prev && u < .55, wk = eo(u / .55);
   const draw = !!sh.scene && (!prev || prev.scene !== sh.scene);
+  const q = Math.max(0, t - TV_OFF), sy = q > 0 ? Math.max(.004, 1 - eo(q / .28)) : 1, sx = q > .28 ? Math.max(0, 1 - eo((q - .28) / .22)) : 1, flash = q > 0 ? Math.min(1, q / .2) : 0;
+  const tvDot = q > .28 && q < .9 ? Math.max(0, 1 - (q - .5) / .4) : 0;
   return (
     <AbsoluteFill style={{ background: "#000" }}>
       <Audio src={staticFile("fam1/narration.wav")} />
+      <AbsoluteFill style={{ transform: `scale(${sx}, ${sy})`, filter: q > 0 ? `brightness(${1 + 1.5 * flash})` : undefined, opacity: q > .5 ? 0 : 1 }}>
       {prev && (fade < 1 || wipe) && <AbsoluteFill>{prev.draw(t - at(prev.from), t)}</AbsoluteFill>}
       <ShotCtx.Provider value={{ u, draw }}>
         <AbsoluteFill style={{ opacity: wipe ? 1 : fade, transform: `scale(${push}) translateX(${dx}px)`, clipPath: wipe ? `inset(0 ${(1 - wk) * 100}% 0 0)` : undefined }}>{sh.draw(u, t)}</AbsoluteFill>
       </ShotCtx.Provider>
       {wipe && <div style={{ position: "absolute", top: 0, bottom: 0, left: `${wk * 100}%`, width: 6, marginLeft: -3, background: GOLD, boxShadow: "0 0 30px rgba(232,185,90,.8)" }} />}
       <Captions t={t} />
+      </AbsoluteFill>
+      {q > .18 && q < .52 && <div style={{ position: "absolute", left: 960 - 960 * sx, top: 538, width: 1920 * sx, height: 4, background: "#fff", boxShadow: "0 0 24px 6px rgba(200,225,255,.85)", opacity: Math.min(1, (q - .18) / .08) }} />}
+      {tvDot > 0 && <div style={{ position: "absolute", left: 960, top: 540, width: 14, height: 14, marginLeft: -7, marginTop: -7, borderRadius: 7, background: "#fff", opacity: tvDot, boxShadow: "0 0 30px 12px rgba(200,225,255,.8)", transform: `scale(${1 + 1.2 * (1 - tvDot)})` }} />}
     </AbsoluteFill>
   );
 };
