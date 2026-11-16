@@ -14,10 +14,9 @@ C = []
 QUIET = set([51, 54, 60, 61, 62]) | set(range(104, 114))
 for a in shots:
     if a not in QUIET and a != 1: C.append((at(a) - .05, 'whoosh', -22, .6))
-for a in (15, 24, 48, 55, 67):
-    for k in range(5): C.append((at(a) + .2 + k * .28, 'tick', -21, .35))
-for t in (at(1) + 1.4, at(2) + .3, at(6) + 1.2, at(42) + .3, at(53) + .1, at(72) + .2, at(87) + .2): C.append((t, 'count', -20, 1.6))
-for t in (at(29) + .3, at(37) + .3, at(96) + .3, at(96) + 1.6, at(99) + .2): C.append((t, 'notify', -19, 1.1))
+for a in (15, 24, 48, 55, 67): C.append((at(a) + .25, 'tick', -22, .35))   # one tick per time jump (was five)
+for t in (at(42) + .3, at(53) + .1, at(87) + .2): C.append((t, 'count', -22, 1.6))   # only the three big study samples
+for t in (at(29) + .3, at(99) + .2): C.append((t, 'notify', -21, 1.1))   # the sent message and the Sunday call
 C.append((at(31) + .1, 'typing', -20, 1.2)); C.append((at(32) + .4, 'typing', -21, .9))
 C.append((at(56) + .15, 'knock', -16, 1.0)); C.append((at(68) + .2, 'knock', -18, 1.0))   # mother at the front door; father at your door
 for t in (at(77), at(79), at(75) + .2): C.append((t, 'thud', -17, 1.6))
@@ -35,7 +34,7 @@ def bed(a, b, db):
     n = int((b - a) * SR); r = np.concatenate([rain] * (n // len(rain) + 2))[:n].copy(); f = int(.8 * SR)
     r[:f] *= np.linspace(0, 1, f)[:, None]; r[-f:] *= np.linspace(1, 0, f)[:, None]; put(r, a, 10 ** (db / 20) * vr / rms(rain))
 bed(at(26) - .2, at(28) + .3, -24); bed(at(40) - .2, at(41) + .2, -24)
-# BGM (main theme 'Night Walk Home'): looped with 4 s crossfades, -27 dB under speech, -21 dB in pauses,
+# BGM (main theme 'Night Walk Home'): looped with 4 s crossfades, ducked under speech,
 # faded in over 2 s and out over the last 3 s
 bg = np.zeros((N, 2), np.float32)
 if BGM:
@@ -46,7 +45,7 @@ if BGM:
         buf[p:p + len(seg)] += seg; p += len(seg) - xf
     env = np.abs(voice).max(1); k = int(.3 * SR); c = np.cumsum(np.concatenate([np.zeros(k // 2 + 1), env, np.zeros(k)])); env = (c[k:k + N] - c[:N]) / k
     speak = np.clip(env / (0.25 * np.abs(voice).max()), 0, 1)
-    g = 10 ** ((-27 + 6 * (1 - speak)) / 20) * vr / rms(b)
+    g = 10 ** ((-21 + 5 * (1 - speak)) / 20) * vr / rms(b)   # 2026-11-16: -21 dB under speech, -16 dB in pauses (was inaudible)
     t = np.arange(N) / SR; g *= np.clip(t / 2, 0, 1) * np.clip((N / SR - t) / 3, 0, 1)
     bg = buf[:N] * g[:, None]
 mix = voice + fx + bg
