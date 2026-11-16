@@ -1,6 +1,6 @@
 # Effects for 家族心理学アニメ 第1本: soft symbolic sounds on the shot list's events, 16-24 dB under the voice.
 # usage: python3 mix.py <narration wav (with the 1 s pause)> <sfx dir> <out wav> [bgm]   (sfx dir: tick rain pop typing count thud whoosh chime knock notify .wav)
-# 2026-11-16 review: far fewer pops (only the three items of the 'common points' list); quiet beats get no sound.
+# 2026-11-16 review (fix list v3): no pop per item; sounds only on scene changes and big numbers; quiet beats get no sound.
 import sys, json, re, subprocess, numpy as np, soundfile as sf
 NAR, SFX, OUT = sys.argv[1:4]; BGM = sys.argv[4] if len(sys.argv) > 4 else None; SR = 48000
 HERE = '/home/user/claude-shorts-/remotion/src/companies/'
@@ -17,10 +17,9 @@ for a in shots:
 for a in (15, 24, 48, 55, 67):
     for k in range(5): C.append((at(a) + .2 + k * .28, 'tick', -21, .35))
 for t in (at(1) + 1.4, at(2) + .3, at(6) + 1.2, at(42) + .3, at(53) + .1, at(72) + .2, at(87) + .2): C.append((t, 'count', -20, 1.6))
-for t in (at(44) + .1, at(45) + .1, at(46) + .1): C.append((t, 'pop', -21, .4))
 for t in (at(29) + .3, at(37) + .3, at(96) + .3, at(96) + 1.6, at(99) + .2): C.append((t, 'notify', -19, 1.1))
 C.append((at(31) + .1, 'typing', -20, 1.2)); C.append((at(32) + .4, 'typing', -21, .9))
-C.append((at(56) + .15, 'knock', -16, 1.0))
+C.append((at(56) + .15, 'knock', -16, 1.0)); C.append((at(68) + .2, 'knock', -18, 1.0))   # mother at the front door; father at your door
 for t in (at(77), at(79), at(75) + .2): C.append((t, 'thud', -17, 1.6))
 for t in (at(14) + .8, at(86)): C.append((t, 'chime', -19, 1.6))
 cache = {}; fx = np.zeros((N, 2), np.float32)

@@ -16,6 +16,8 @@ const ease = Easing.bezier(.45, 0, .2, 1);
 const fin = (u: number, a: number, d = .4) => interpolate(u, [a, a + d], [0, 1], { ...cl, easing: ease });
 const eo = (x: number) => 1 - Math.pow(1 - Math.max(0, Math.min(1, x)), 3);
 const GOLD = "#E8B95A", SEP = "#D9B27A", NAVY = "#0A2257", BLUE = "#5FA8FF";
+// shot-local time and whether the line art should draw itself in (a new place, not the same room as the shot before)
+const ShotCtx = React.createContext({ u: 9, draw: false });
 
 // ---------- grounds ----------
 const Stage: React.FC<{ u: number; spots?: number[]; tint?: string; warm?: boolean }> = ({ u, spots = [960], tint, warm }) => (
@@ -28,23 +30,26 @@ const Stage: React.FC<{ u: number; spots?: number[]; tint?: string; warm?: boole
       {spots.map((x, i) => <g key={i} opacity={.6 + .4 * fin(u, 0, .8)}>
         <path d={`M${x - 70} -20 L${x + 70} -20 L${x + 260} 930 L${x - 260} 930Z`} fill="url(#beam)" />
         <ellipse cx={x} cy={930} rx={300} ry={46} fill="url(#pool)" /></g>)}
-      <rect x={0} y={930} width={1920} height={150} fill="#061331" opacity={.55} />
+      <rect x={0} y={930} width={1920} height={150} fill={warm ? "#1a1208" : "#061331"} opacity={.55} />
+      {spots.flatMap((x, i) => Array.from({ length: 14 }, (_, j) => { const sd = (j * 53.7 + i * 17) % 1, px = x + (((j * 97) % 300) - 150) * (.4 + .6 * sd), py = 900 - ((u * (18 + 22 * sd) + j * 61) % 800);
+        return <circle key={`${i}-${j}`} cx={px + 10 * Math.sin(u * .7 + j)} cy={py} r={1.6 + 2.2 * sd} fill="#fff" opacity={.18 + .25 * Math.sin(u * 1.3 + j) ** 2} />; }))}
     </svg>
   </AbsoluteFill>
 );
 // sepia line-art ground; children are SVG line drawings
-const Sepia: React.FC<{ children?: React.ReactNode; warm?: number }> = ({ children, warm = 1 }) => (
-  <AbsoluteFill style={{ background: `radial-gradient(ellipse at 50% 45%, ${warm ? "#3a2c1c" : "#1c2433"} 0%, ${warm ? "#1c140c" : "#0d1320"} 100%)` }}>
-    <svg width={1920} height={1080} style={{ position: "absolute" }} fill="none" stroke={warm ? SEP : "#8fb3e6"} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">{children}</svg>
-  </AbsoluteFill>
-);
+const Sepia: React.FC<{ children?: React.ReactNode; warm?: number }> = ({ children, warm = 1 }) => {
+  const { u, draw } = React.useContext(ShotCtx), k = draw ? eo(u / 1.4) : 1;
+  return (<AbsoluteFill style={{ background: `radial-gradient(ellipse at 50% 45%, ${warm ? "#3a2c1c" : "#1c2433"} 0%, ${warm ? "#1c140c" : "#0d1320"} 100%)` }}>
+    <svg width={1920} height={1080} style={{ position: "absolute", strokeDasharray: k < 1 ? 4200 : undefined, strokeDashoffset: k < 1 ? 4200 * (1 - k) : undefined }} fill="none" stroke={warm ? SEP : "#8fb3e6"} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">{children}</svg>
+  </AbsoluteFill>);
+};
 // ---------- characters ----------
 const H: Record<string, number> = { father: 470, mother: 420, sota: 380, you: 410, you18: 450 };
 const Char: React.FC<{ img: string; x: number; y?: number; u: number; a?: number; h?: number; flip?: boolean; glow?: string }> = ({ img, x, y = 905, u, a = 0, h, flip, glow }) => {
   const who = img.startsWith("you18") ? "you18" : img.split("-")[0];
   const hh = (h ?? H[who] ?? 420) * (img.includes("sit") ? .8 : img.includes("sleep") ? .45 : 1);
-  const o = fin(u, a, .45), bob = 1 + .008 * Math.sin((u + x) * 2.2);
-  return <Img src={staticFile(`fam1/${img}.png`)} style={{ position: "absolute", left: x, top: y, height: hh, transform: `translate(-50%, -100%) translateY(${(1 - o) * 26}px) scaleX(${flip ? -1 : 1}) scaleY(${bob})`, transformOrigin: "50% 100%", opacity: o, filter: `drop-shadow(0 0 ${glow ? 26 : 16}px ${glow || "rgba(255,255,255,.35)"})` }} />;
+  const o = fin(u, a, .45), bob = 1 + .008 * Math.sin((u + x) * 2.2), pop = 1 + .06 * Math.sin(Math.PI * Math.min(1, Math.max(0, (u - a) / .5))) * (u - a < .5 ? 1 : 0);
+  return <Img src={staticFile(`fam1/${img}.png`)} style={{ position: "absolute", left: x, top: y, height: hh, transform: `translate(-50%, -100%) translateY(${(1 - o) * 26}px) scale(${pop}) scaleX(${flip ? -1 : 1}) scaleY(${bob})`, transformOrigin: "50% 100%", opacity: o, filter: `drop-shadow(0 0 ${glow ? 26 : 16}px ${glow || "rgba(255,255,255,.35)"})` }} />;
 };
 // ---------- devices ----------
 const Phone: React.FC<{ u: number; x: number; y: number; s?: number; dots?: [number, number, string][]; label?: string; a?: number }> = ({ u, x, y, s = 1, dots = [[0, 0, BLUE]], label, a = 0 }) => {
@@ -74,8 +79,9 @@ const Bubble: React.FC<{ u: number; a: number; x: number; y: number; text: strin
   </div>);
 };
 const Keyword: React.FC<{ u: number; a: number; text: string; size?: number; y?: number; color?: string }> = ({ u, a, text, size = 150, y = 470, color = "#fff" }) => {
-  const o = fin(u, a, .25);
-  return <div style={{ position: "absolute", left: 0, right: 0, top: y, textAlign: "center", transform: `translateY(-50%) scale(${1.12 - .12 * o})`, opacity: o, fontFamily: F, fontWeight: 900, fontSize: size, color, letterSpacing: 6, textShadow: "0 0 40px rgba(255,255,255,.25)" }}>{text}</div>;
+  const ch = [...text];
+  return <div style={{ position: "absolute", left: 0, right: 0, top: y, textAlign: "center", transform: "translateY(-50%)", fontFamily: F, fontWeight: 900, fontSize: size, color, letterSpacing: 6, textShadow: "0 0 40px rgba(255,255,255,.25)", whiteSpace: "nowrap" }}>
+    {ch.map((c, i) => { const o = fin(u, a + i * .05, .3); return <span key={i} style={{ display: "inline-block", opacity: o, transform: `translateY(${(1 - o) * size * .35}px) scale(${1.15 - .15 * o})` }}>{c}</span>; })}</div>;
 };
 // line-art houses (blue = watching, gold = listening)
 const House: React.FC<{ x: number; y: number; s?: number; col: string; glow?: number }> = ({ x, y, s = 1, col, glow = 1 }) => (
@@ -98,8 +104,13 @@ const Ruler: React.FC<{ u: number; time: number; from?: number }> = ({ u, time, 
       <line x1={260} y1={700} x2={X(cur)} y2={700} stroke={GOLD} strokeWidth={8} />
       <circle cx={X(cur)} cy={700} r={14} fill={GOLD} />
     </svg>
+    <svg width={1920} height={1080} style={{ position: "absolute" }}>
+      <g transform="translate(560 330)" stroke="#cfd8ea" strokeWidth={5} fill="none" strokeLinecap="round"><circle r={78} />
+        {Array.from({ length: 12 }, (_, i) => <line key={i} x1={0} y1={-66} x2={0} y2={-58} transform={`rotate(${i * 30})`} />)}
+        <line x1={0} y1={0} x2={0} y2={-40} transform={`rotate(${(cur % 12) * 30})`} stroke={GOLD} strokeWidth={7} />
+        <line x1={0} y1={0} x2={0} y2={-62} transform={`rotate(${(cur % 1) * 360})`} stroke="#fff" /></g></svg>
     <Char img="you-walk" x={X(cur)} y={690} u={u} h={260} />
-    <div style={{ position: "absolute", left: 0, right: 0, top: 240, textAlign: "center", fontFamily: F, fontWeight: 900, fontSize: 170, color: GOLD, letterSpacing: 4, textShadow: "0 0 30px rgba(232,185,90,.35)" }}>{hh}:{String(mm).padStart(2, "0")}</div>
+    <div style={{ position: "absolute", left: 160, right: 0, top: 240, textAlign: "center", fontFamily: F, fontWeight: 900, fontSize: 170, color: GOLD, letterSpacing: 4, textShadow: "0 0 30px rgba(232,185,90,.35)" }}>{hh}:{String(mm).padStart(2, "0")}</div>
   </>);
 };
 const People: React.FC<{ u: number; a: number; n: number; lit: number; x?: number; y?: number }> = ({ u, a, n, lit, x = 960, y = 640 }) => (
@@ -196,7 +207,7 @@ const Chain: React.FC<{ u: number; at2: number; at3: number }> = ({ u, at2, at3 
 };
 
 // ---------- shot list ----------
-type Shot = { from: number; to: number; draw: (u: number, t: number) => React.ReactNode; push?: number };
+type Shot = { from: number; to: number; draw: (u: number, t: number) => React.ReactNode; push?: number; scene?: string; tr?: "wipe"; still?: boolean };
 const SH: Shot[] = [
   { from: 1, to: 1, draw: (u) => <><Stage u={u} /><Char img="you-phone" x={960} u={u} /><Num u={u} a={1.4} value={10} suf="歳" x={1460} y={420} size={170} /></> },
   { from: 2, to: 3, draw: (u, t) => <><Stage u={u} /><Num u={u} a={.3} value={10} pre="平均 約" suf="歳" y={430} cite="初めてスマホを持つ年齢　NTTドコモ モバイル社会研究所（2024）" /></> },
@@ -206,22 +217,22 @@ const SH: Shot[] = [
   { from: 7, to: 7, draw: (u) => <><Stage u={u} /><Char img="father-phone-worried" x={960} u={u} /></> },
   { from: 8, to: 9, draw: (u, t) => <><Stage u={u} spots={[560]} /><Char img="father-phone-worried" x={560} u={u} /><Phone u={u} x={1240} y={500} a={.3} label={t >= at(9) ? "どこにいるか　✓" : "今も表示されている"} /></> },
   { from: 10, to: 10, draw: (u) => <><Stage u={u} spots={[960]} /><Char img="you-stand" x={960} u={u} /><Keyword u={u} a={1.2} text="？" size={260} y={330} color={GOLD} /><div style={{ position: "absolute", left: 0, right: 0, top: 150, textAlign: "center", fontFamily: F, fontWeight: 900, fontSize: 56, color: "#cfe0ff", opacity: fin(u, .5) }}>何を考えているか</div></> },
-  { from: 11, to: 12, draw: (u, t) => <><Sepia><House x={560} y={900} col="#8fb3e6" /><House x={1360} y={900} col={SEP} /></Sepia><Char img="mother-stand" x={1640} u={u} glow="rgba(232,185,90,.55)" /><Char img="sota-laugh" x={1800} u={u} a={t >= at(12) ? at(12) - at(11) : 99} glow="rgba(232,185,90,.55)" /></> },
+  { from: 11, to: 12, scene: "town", draw: (u, t) => <><Sepia><House x={560} y={900} col="#8fb3e6" /><House x={1360} y={900} col={SEP} /></Sepia><Char img="mother-stand" x={1640} u={u} glow="rgba(232,185,90,.55)" /><Char img="sota-laugh" x={1800} u={u} a={t >= at(12) ? at(12) - at(11) : 99} glow="rgba(232,185,90,.55)" /></> },
   { from: 13, to: 13, draw: (u) => <><Stage u={u} spots={[560, 1360]} /><Char img="father-phone-worried" x={560} u={u} /><Char img="mother-listen" x={1360} u={u} glow="rgba(232,185,90,.55)" /><Keyword u={u} a={.6} text="なぜ？" size={170} y={260} color={GOLD} /></> },
   { from: 14, to: 14, draw: (u) => <><Stage u={u} spots={[640, 1280]} /><Char img="you-stand" x={640} u={u} /><Char img="father-stand" x={1280} u={u} a={.3} /><div style={{ position: "absolute", left: 0, right: 0, top: 170, textAlign: "center", opacity: fin(u, .8, .6) }}>
     <div style={{ fontFamily: F, fontWeight: 900, fontSize: 92, color: "#fff", letterSpacing: 4, textShadow: "0 0 30px rgba(255,255,255,.25)" }}>厳しい親が、<span style={{ color: GOLD }}>何も知らなかった</span>理由</div></div></> },
-  { from: 15, to: 15, draw: (u) => <><Stage u={u} spots={[]} /><Ruler u={u} time={20.5} from={20} /></> },
-  { from: 16, to: 17, draw: (u, t) => <><Sepia><path d="M700 930 L700 330 L1000 330 L1000 930" /><circle cx={960} cy={640} r={10} /><line x1={300} y1={930} x2={1620} y2={930} /></Sepia><Char img={t >= at(17) ? "you-walk" : "you-talk-smile"} x={t >= at(17) ? 850 + 260 * eo((t - at(17)) / 2.5) : 850} u={u} />{t < at(17) && <Bubble u={u} a={.1} x={1250} y={420} text="「ソウタと一緒に勉強してくるね」" w={560} />}</> },
+  { from: 15, to: 15, tr: "wipe", draw: (u) => <><Stage u={u} spots={[]} /><Ruler u={u} time={20.5} from={20} /></> },
+  { from: 16, to: 17, scene: "door1", draw: (u, t) => <><Sepia><path d="M700 930 L700 330 L1000 330 L1000 930" /><circle cx={960} cy={640} r={10} /><line x1={300} y1={930} x2={1620} y2={930} /></Sepia><Char img={t >= at(17) ? "you-walk" : "you-talk-smile"} x={t >= at(17) ? 850 + 260 * eo((t - at(17)) / 2.5) : 850} u={u} />{t < at(17) && <Bubble u={u} a={.1} x={1250} y={420} text="「ソウタと一緒に勉強してくるね」" w={560} />}</> },
   { from: 18, to: 19, draw: (u, t) => <><Stage u={u} tint={BLUE} /><Char img="father-phone-worried" x={760} u={u} glow="rgba(95,168,255,.55)" />{t >= at(19) && <Bubble u={u} a={at(19) - at(18)} x={1300} y={460} w={700} text="「門限は10時だからな。それと、お前に危ないことがないか、ちゃんと見てるからな」" />}</> },
-  { from: 20, to: 21, draw: (u, t) => <><Sepia><House x={760} y={930} col={SEP} s={1.3} /><path d="M1360 230 q40 -50 90 -20 q40 -40 90 0 q50 0 40 50 l-220 0z" /></Sepia><Char img="mother-stand" x={1240} u={u} glow="rgba(232,185,90,.55)" />{t >= at(21) && <Bubble u={u} a={at(21) - at(20)} x={1440} y={430} w={640} warm text="「雨が降りそうだからさ、その時は、困ったら電話してね」" />}</> },
+  { from: 20, to: 21, scene: "sotahouse", draw: (u, t) => <><Sepia><House x={760} y={930} col={SEP} s={1.3} /><path d="M1360 230 q40 -50 90 -20 q40 -40 90 0 q50 0 40 50 l-220 0z" /></Sepia><Char img="mother-stand" x={1240} u={u} glow="rgba(232,185,90,.55)" />{t >= at(21) && <Bubble u={u} a={at(21) - at(20)} x={1440} y={430} w={640} warm text="「雨が降りそうだからさ、その時は、困ったら電話してね」" />}</> },
   { from: 22, to: 23, draw: (u, t) => { const b = t >= at(23) ? fin(t - at(23), .2, .4) : 0; return <><Stage u={u} spots={[560, 1360]} /><svg width={1920} height={1080} style={{ position: "absolute" }} fill="none" strokeWidth={3}><House x={560} y={930} col="#8fb3e6" /><House x={1360} y={930} col={SEP} /></svg>
     <div style={{ position: "absolute", left: 300, top: 150, width: 520, opacity: b, fontFamily: F, fontWeight: 700, fontSize: 40, color: "#cfe0ff", lineHeight: 1.6, textAlign: "center" }}>門限は10時<br />居場所は見てる</div>
     <div style={{ position: "absolute", left: 1100, top: 150, width: 520, opacity: fin(t - at(23), .9, .4) * (t >= at(23) ? 1 : 0), fontFamily: F, fontWeight: 700, fontSize: 40, color: GOLD, lineHeight: 1.6, textAlign: "center" }}>困ったら<br />電話してね</div></>; } },
   // ---- 22:58
-  { from: 24, to: 24, draw: (u) => <><Stage u={u} spots={[]} /><Ruler u={u} time={22 + 58 / 60} from={20.5} /></> },
-  { from: 25, to: 25, draw: (u, t) => <><Restaurant t={t} /><Char img="you-talk-smile" x={760} u={u} y={905} h={330} /><Char img="sota-laugh" x={1160} u={u} a={.3} y={905} h={310} />
+  { from: 24, to: 24, tr: "wipe", draw: (u) => <><Stage u={u} spots={[]} /><Ruler u={u} time={22 + 58 / 60} from={20.5} /></> },
+  { from: 25, to: 25, scene: "rest", draw: (u, t) => <><Restaurant t={t} /><Char img="you-talk-smile" x={760} u={u} y={905} h={330} /><Char img="sota-laugh" x={1160} u={u} a={.3} y={905} h={310} />
     <Label u={u} a={2.5} x={760} y={300} text="🎮" size={90} /><Label u={u} a={4.5} x={1160} y={300} text="▶" size={90} color="#ff6b6b" /></> },
-  { from: 26, to: 27, draw: (u, t) => <><Restaurant t={t} rain={eo(u / 2)} /><Char img="you-sit-sad" x={760} u={u} y={905} h={300} />{t >= at(27) && <Svg o={fin(t - at(27), .1)}><g transform="translate(1250 820)"><circle cx={-90} cy={0} r={60} /><circle cx={90} cy={0} r={60} /><path d="M-90 0 L-20 -80 L60 -80 L90 0 M-20 -80 L0 0 L60 -80" /><line x1={-170} y1={-150} x2={170} y2={60} stroke="#ff8a7a" strokeWidth={8} /></g></Svg>}</> },
+  { from: 26, to: 27, scene: "rest", draw: (u, t) => <><Restaurant t={t} rain={eo(u / 2)} /><Char img="you-bored-phone" x={760} u={u} y={760} h={330} />{t >= at(27) && <Svg o={fin(t - at(27), .1)}><g transform="translate(1250 820)"><circle cx={-90} cy={0} r={60} /><circle cx={90} cy={0} r={60} /><path d="M-90 0 L-20 -80 L60 -80 L90 0 M-20 -80 L0 0 L60 -80" /><line x1={-170} y1={-150} x2={170} y2={60} stroke="#ff8a7a" strokeWidth={8} /></g></Svg>}</> },
   { from: 28, to: 33, draw: (u, t) => { const b = (i: number) => at(i) - at(28); return <><Stage u={u} spots={[560]} tint={BLUE} /><Char img="you-phone" x={560} u={u} glow="rgba(95,168,255,.55)" />
     <Chat u={u} sent={[[b(29) + .3, "雨だからさ、弱まるまで待っててもいい？ごめん…"]]} draft={[b(31) + .1, b(32) + .4, "迎えに来てほしい"]} />
     {t >= at(33) && <Label u={u} a={b(33) + .3} x={560} y={240} text={"勉強していなかったことが\n全部ばれる"} color="#ff8a7a" size={44} />}</>; } },
@@ -232,7 +243,7 @@ const SH: Shot[] = [
   { from: 37, to: 39, draw: (u, t) => { const b = (i: number) => at(i) - at(37); return <><Stage u={u} spots={[640, 1300]} tint={GOLD} /><Char img="sota-phone" x={640} u={u} glow="rgba(232,185,90,.55)" /><Char img="mother-phone" x={1300} u={u} a={.5} glow="rgba(232,185,90,.55)" />
     {t >= at(38) && <Bubble u={u} a={b(38)} x={960} y={330} w={560} warm text="「雨がすごいから、迎えに来て」" />}</>; } },
   // ---- the ride home and what the research says
-  { from: 40, to: 40, draw: (u, t) => <><Car t={t} /><Rain t={t} n={60} /></> },
+  { from: 40, to: 40, scene: "car", draw: (u, t) => <><Car t={t} /><Char img="mother-drive" x={960 + 40 * Math.sin(t * .8) + 150} y={760} u={u} h={240} flip glow="rgba(232,185,90,.6)" /><Rain t={t} n={60} /></> },
   { from: 41, to: 41, draw: (u) => <><Stage u={u} /><Keyword u={u} a={.3} text="共通点" size={170} y={420} color={GOLD} /></> },
   { from: 42, to: 43, draw: (u, t) => t < at(43) ? <><Stage u={u} spots={[]} /><Crowd u={u} a={.3} n={1186} label="14歳の子どもと、その親" cite="Kerr & Stattin (2000) / Stattin & Kerr (2000)" /></> : <><Stage u={u} spots={[]} />
     <Label u={u} a={at(43) - at(42) + .2} x={960} y={250} text="親が子どものことを知っている理由" size={56} />
@@ -240,33 +251,33 @@ const SH: Shot[] = [
       return <div key={i} style={{ marginBottom: 50 }}><div style={{ fontFamily: F, fontWeight: 900, fontSize: 44, color: c as string, marginBottom: 12 }}>{s as string}</div><div style={{ height: 50, width: 1200 * (v as number) * k, background: c as string, borderRadius: 25 }} /></div>; })}</div>
     <div style={{ ...W, left: 0, right: 0, top: 780, textAlign: "center", fontFamily: F, fontWeight: 700, fontSize: 26, color: "#9fb4d8" }}>Stattin & Kerr (2000)　※棒の長さは説明のためのイメージ</div></> },
   { from: 44, to: 46, draw: (u) => { const b = (i: number) => at(i) - at(44); return <><Stage u={u} spots={[]} /><Steps u={u} head="よく話す子の家の共通点" items={[[.1, "子どもの話をよく聞く"], [b(45) + .1, "家のルールがはっきりしている"], [b(46) + .1, "「親に悪い」と思わせない"]]} cite="Soenens et al. (2006)" /></>; } },
-  { from: 47, to: 47, draw: (u) => <><Sepia><House x={960} y={930} col={SEP} s={1.4} glow={2} /></Sepia><Char img="mother-listen" x={1320} u={u} glow="rgba(232,185,90,.6)" /><Char img="sota-laugh" x={1520} u={u} a={.3} glow="rgba(232,185,90,.6)" /></> },
+  { from: 47, to: 47, scene: "sotahouse2", draw: (u) => <><Sepia><House x={960} y={930} col={SEP} s={1.4} glow={2} /></Sepia><Char img="mother-listen" x={1320} u={u} glow="rgba(232,185,90,.6)" /><Char img="sota-laugh" x={1520} u={u} a={.3} glow="rgba(232,185,90,.6)" /></> },
   // ---- 23:15
-  { from: 48, to: 48, draw: (u) => <><Stage u={u} spots={[]} /><Ruler u={u} time={23.25} from={22 + 58 / 60} /></> },
-  { from: 49, to: 49, draw: (u) => <><Entrance /><Char img="you-walk" x={760 + 200 * eo(u / 2.5)} u={u} /></> },
+  { from: 48, to: 48, tr: "wipe", draw: (u) => <><Stage u={u} spots={[]} /><Ruler u={u} time={23.25} from={22 + 58 / 60} /></> },
+  { from: 49, to: 49, scene: "ent", draw: (u) => <><Entrance /><Char img="you-walk" x={760 + 200 * eo(u / 2.5)} u={u} /></> },
   { from: 50, to: 50, draw: (u) => <><Stage u={u} spots={[560]} /><Char img="father-phone-worried" x={560} u={u} /><Phone u={u} x={1260} y={500} a={.3} dots={[[0, 40, BLUE]]} label="家にいる　✓" /></> },
-  { from: 51, to: 51, draw: (u) => <><Bedroom /><Char img="you-sit-sad" x={900} u={u} y={760} h={330} /></> },
+  { from: 51, to: 51, scene: "bed", draw: (u) => <><Bedroom /><Char img="you-sit-sad" x={900} u={u} y={760} h={330} /></> },
   { from: 52, to: 53, draw: (u, t) => t < at(53) ? <><Stage u={u} spots={[]} /><Steps u={u} head="親に秘密が多い子ほど" items={[[.6, "気分が落ち込みやすい"], [1.6, "問題を起こしやすい"]]} cite="Frijns et al. (2005)" /></>
     : <><Stage u={u} spots={[]} /><Crowd u={u} a={at(53) - at(52)} n={1173} label="仲の良さ・会話の多さを差し引いても、変わらなかった" cite="Frijns et al. (2005)" /></> },
   { from: 54, to: 54, draw: (u) => <><Stage u={u} /><Char img="you-sit-sad" x={960} u={u} h={330} />
     <Svg o={fin(u, .4)} stroke={GOLD}>{[0, 1, 2].map((i) => <g key={i} opacity={fin(u, .5 + i * .5, .3)}><rect x={1180} y={770 - i * 90} width={220} height={80} rx={10} fill="rgba(232,185,90,.12)" /></g>)}</Svg>
     {[0, 1, 2].map((i) => <Label key={i} u={u} a={.5 + i * .5} x={1290} y={812 - i * 90} text="秘密" color={GOLD} size={38} />)}</> },
   // ---- 23:30 the knock
-  { from: 55, to: 55, draw: (u) => <><Stage u={u} spots={[]} /><Ruler u={u} time={23.5} from={23.25} /></> },
-  { from: 56, to: 56, draw: (u) => <><Entrance u={u} knock={.2} /></> },
-  { from: 57, to: 58, draw: (u, t) => <><Entrance /><Char img="mother-stand" x={960} u={u} glow="rgba(232,185,90,.6)" />{t >= at(58) && <Svg o={fin(t - at(58), .2)}><g transform="translate(1250 700)"><rect x={-90} y={-60} width={180} height={140} rx={20} fill="rgba(232,185,90,.12)" /><path d="M-50 -60 Q0 -130 50 -60" /></g></Svg>}</> },
+  { from: 55, to: 55, tr: "wipe", draw: (u) => <><Stage u={u} spots={[]} /><Ruler u={u} time={23.5} from={23.25} /></> },
+  { from: 56, to: 56, scene: "ent2", draw: (u) => <><Entrance u={u} knock={.2} /></> },
+  { from: 57, to: 58, scene: "ent2", draw: (u, t) => <><Entrance /><Char img="mother-stand" x={960} u={u} glow="rgba(232,185,90,.6)" />{t >= at(58) && <Svg o={fin(t - at(58), .2)}><g transform="translate(1250 700)"><rect x={-90} y={-60} width={180} height={140} rx={20} fill="rgba(232,185,90,.12)" /><path d="M-50 -60 Q0 -130 50 -60" /></g></Svg>}</> },
   { from: 59, to: 59, draw: (u) => <><Stage u={u} spots={[960]} /><Char img="father-stand" x={960} u={u} /><Label u={u} a={1.4} x={960} y={300} text={"勉強していなかった"} color="#ff8a7a" size={62} /></> },
   // ---- why he watches: the summer festival
-  { from: 60, to: 62, draw: (u, t) => <><Lanterns t={t} /><Char img="you-stand" x={960} u={u} h={240} />{t >= at(61) && <Num u={u} a={at(61) - at(60) + .4} value={4} suf="分間" x={960} y={480} size={150} />}{t >= at(62) && <Char img="father-sit" x={1450} u={u} a={at(62) - at(60)} />}</> },
+  { from: 60, to: 62, scene: "fest", draw: (u, t) => <><Lanterns t={t} /><Char img="you-stand" x={960} u={u} h={240} />{t >= at(61) && <Num u={u} a={at(61) - at(60) + .4} value={4} suf="分間" x={960} y={480} size={150} />}{t >= at(62) && <Char img="father-sit" x={1450} u={u} a={at(62) - at(60)} />}</> },
   { from: 63, to: 64, draw: (u, t) => t < at(64) ? <><Stage u={u} spots={[]} /><People u={u} a={.2} n={8} lit={4} y={760} /><Label u={u} a={.4} x={960} y={250} text="約半数" color={GOLD} size={150} /><Label u={u} a={1.2} x={960} y={380} text="大学生くらいの子を持つ親" size={40} color="#cfe0ff" />
     <div style={{ ...W, left: 0, right: 0, top: 440, textAlign: "center", fontFamily: F, fontWeight: 700, fontSize: 26, color: "#9fb4d8", opacity: fin(u, 1.6) }}>C.S. Mott Children's Hospital National Poll (2026)</div></>
     : <><Stage u={u} /><Keyword u={u} a={.2} text="「安心したいから」" size={110} y={430} color="#fff" /></> },
   { from: 65, to: 66, draw: (u, t) => <><Stage u={u} spots={[]} /><People u={u} a={.2} n={4} lit={1} y={760} /><Label u={u} a={.4} x={960} y={250} text="4人に1人" color={GOLD} size={130} />
     {t >= at(66) && <Bubble u={u} a={at(66) - at(65)} x={960} y={480} w={760} text="「見ていると、余計に不安になる」" />}</> },
   // ---- 23:45 the door
-  { from: 67, to: 67, draw: (u) => <><Stage u={u} spots={[]} /><Ruler u={u} time={23.75} from={23.5} /></> },
-  { from: 68, to: 69, draw: (u, t) => <><Bedroom door={eo(u / 1.5)} /><Char img="you-sleep" x={900} u={u} y={720} h={360} />{t >= at(69) && <><Char img="father-stand" x={1480} u={u} a={at(69) - at(68)} glow="rgba(232,185,90,.5)" /><Svg o={fin(t - at(69), .8)} stroke="#ff8a7a"><g transform="translate(1700 420)"><rect x={-40} y={-70} width={80} height={140} rx={14} stroke="#cfd8ea" /><line x1={-70} y1={-90} x2={70} y2={90} strokeWidth={8} /></g></Svg></>}</> },
-  { from: 70, to: 71, draw: (u, t) => <><Bedroom /><Char img="you-sit-sad" x={760} u={u} y={760} h={330} /><Char img="father-sit" x={1100} u={u} y={780} a={.3} glow="rgba(232,185,90,.5)" />{t >= at(71) && <Bubble u={u} a={at(71) - at(70)} x={1100} y={330} w={620} warm text="「今日、本当はどこにいたの？」" />}</> },
+  { from: 67, to: 67, tr: "wipe", draw: (u) => <><Stage u={u} spots={[]} /><Ruler u={u} time={23.75} from={23.5} /></> },
+  { from: 68, to: 69, scene: "bed2", draw: (u, t) => <><Bedroom door={eo((u - 1.1) / 1.5)} /><Char img="you-sleep" x={900} u={u} y={720} h={360} />{t < at(69) && <Char img="father-knock" x={1720} u={u} a={.1} />}{t >= at(69) && <><Char img="father-stand" x={1480} u={u} a={at(69) - at(68)} glow="rgba(232,185,90,.5)" /><Svg o={fin(t - at(69), .8)} stroke="#ff8a7a"><g transform="translate(1700 420)"><rect x={-40} y={-70} width={80} height={140} rx={14} stroke="#cfd8ea" /><line x1={-70} y1={-90} x2={70} y2={90} strokeWidth={8} /></g></Svg></>}</> },
+  { from: 70, to: 71, scene: "bed2", draw: (u, t) => <><Bedroom /><Char img="you-sit-sad" x={760} u={u} y={760} h={330} /><Char img="father-sit" x={1100} u={u} y={780} a={.3} glow="rgba(232,185,90,.5)" />{t >= at(71) && <Bubble u={u} a={at(71) - at(70)} x={1100} y={330} w={620} warm text="「今日、本当はどこにいたの？」" />}</> },
   { from: 72, to: 74, draw: (u, t) => <><Stage u={u} spots={[]} /><Num u={u} a={.2} value={497} suf="組" x={760} y={250} size={140} /><Num u={u} a={.8} value={3} suf="年間" x={1240} y={250} size={140} />
     <div style={{ ...W, left: 0, right: 0, top: 360, textAlign: "center", fontFamily: F, fontWeight: 700, fontSize: 26, color: "#9fb4d8", opacity: fin(u, 1.2) }}>オランダ・親子の追跡調査　Hawk et al. (2013)</div>
     {t >= at(73) && <Chain u={t - at(73)} at2={1.6} at3={at(74) - at(73) + .3} />}</> },
@@ -279,9 +290,9 @@ const SH: Shot[] = [
     {t >= at(80) && t < at(81) && <Bubble u={u} a={b(80) + .2} x={700} y={420} w={420} text="「ごめんなさい…」" />}
     {t >= at(81) && <Label u={u} a={b(81) + .2} x={480} y={300} text={"二度と\n話さなくなった"} color="#8fb3e6" size={60} />}
     <Char img="father-stand" x={1440} u={9} h={420} /><div style={{ ...W, left: 960, top: 0, width: 960, height: 1080, background: "#000", opacity: .74 }} /></Split>; } },
-  { from: 83, to: 86, draw: (u, t) => { const b = (i: number) => at(i) - at(83); return <Split u={u}><Char img="father-shout" x={420} u={9} h={420} /><Char img={t >= at(86) ? "father-listen" : "father-stand"} x={1340} u={u} glow="rgba(232,185,90,.5)" />
+  { from: 83, to: 86, draw: (u, t) => { const b = (i: number) => at(i) - at(83); return <Split u={u}><Char img="father-shout" x={420} u={9} h={420} /><Char img={t >= at(86) ? "father-nod" : t >= at(85) ? "father-listen" : "father-stand"} x={1340} u={u} glow="rgba(232,185,90,.5)" />{t >= at(86) && <Char img={t >= at(86) + 2.6 ? "you-talk-smile" : "you-relief"} x={1700} u={u} a={b(86) + 1.2} h={360} glow="rgba(232,185,90,.5)" />}
     {t >= at(84) && <Label u={u} a={b(84)} x={960} y={200} text="罰は同じ" color="#fff" size={56} />}
-    {t >= at(86) && <Bubble u={u} a={b(86)} x={1440} y={420} w={640} warm text="「まずは、話してくれて、ありがとうな。」" />}
+    {t >= at(86) && <Bubble u={u} a={b(86)} x={1340} y={420} w={600} warm text="「まずは、話してくれて、ありがとうな。」" />}
     <div style={{ ...W, left: 0, top: 0, width: 960, height: 1080, background: "#000", opacity: .74 }} /></Split>; } },
   { from: 87, to: 88, draw: (u, t) => t < at(88) ? <><Stage u={u} spots={[]} /><Crowd u={u} a={.2} n={982} label="若者の追跡調査" cite="Tilton-Weaver et al. (2010)" /></>
     : <><Stage u={u} spots={[]} /><Label u={u} a={at(88) - at(87)} x={960} y={300} text="打ち明けた直後の、親の反応" size={60} />
@@ -314,7 +325,12 @@ const SH: Shot[] = [
   { from: 107, to: 109, draw: (u, t) => <><Stage u={u} spots={[]} /><Label u={u} a={.3} x={960} y={330} text="監視" color="#7d8aa8" size={120} />
     <Svg o={fin(u, 1.6)} stroke="#ff8a7a"><line x1={820} y1={340} x2={1100} y2={310} strokeWidth={10} /></Svg>
     {t >= at(108) && <Label u={u} a={at(108) - at(107)} x={960} y={520} text={"子どもが自分から\n話してくれる環境"} color={GOLD} size={82} />}</> },
-  { from: 110, to: 113, draw: () => <AbsoluteFill style={{ background: "#06163b" }} /> },   // the ending image is made by the owner
+  { from: 110, to: 113, still: true, draw: () => <AbsoluteFill>   {/* the last 18 s: A (blue) | B (yellow), a still */}
+    <div style={{ ...W, left: 0, top: 0, width: 960, height: 1080, background: "radial-gradient(ellipse at 50% 40%, #16336f 0%, #06132e 100%)" }} />
+    <div style={{ ...W, left: 960, top: 0, width: 960, height: 1080, background: "radial-gradient(ellipse at 50% 40%, #5a4220 0%, #1c1308 100%)" }} />
+    <div style={{ ...W, left: 956, top: 0, width: 8, height: 1080, background: "#fff", opacity: .7 }} />
+    <Char img="father-shout" x={380} u={9} h={470} glow="rgba(95,168,255,.5)" /><Char img="you-sit-sad" x={720} u={9} h={330} glow="rgba(95,168,255,.5)" />
+    <Char img="father-nod" x={1250} u={9} h={470} glow="rgba(232,185,90,.6)" /><Char img="you-talk-smile" x={1580} u={9} h={410} glow="rgba(232,185,90,.6)" /></AbsoluteFill> },
 
 ];
 const shotAt = (t: number) => { let k = 0; SH.forEach((s, i) => { if (t >= at(s.from) - (i === 0 ? 99 : 0)) k = i; }); return k; };
@@ -346,12 +362,19 @@ export const Fam1Episode: React.FC = () => {
   useFonts();
   const f = useCurrentFrame(), t = f / FPS, k = shotAt(t), sh = SH[k], start = k === 0 ? 0 : at(sh.from), u = t - start;
   const prev = SH[k - 1], xf = .45, fade = prev && u < xf ? interpolate(u, [0, xf], [0, 1], { ...cl, easing: ease }) : 1;
-  const end = sh.to < S.length ? at(sh.to + 1) : t + 1, push = 1 + .035 * Math.min(1, u / Math.max(2, end - start));
+  const end = sh.to < S.length ? at(sh.to + 1) : t + 1, p = Math.min(1, u / Math.max(2, end - start)), ep = Easing.inOut(Easing.sin)(p);
+  // camera: push in, drift right or drift left, by shot; the closing still does not move
+  const mode = k % 3, push = sh.still ? 1 : 1.03 + (mode === 0 ? .04 * ep : .015), dx = sh.still || mode === 0 ? 0 : (mode === 1 ? -1 : 1) * (18 - 36 * ep);
+  const wipe = sh.tr === "wipe" && prev && u < .55, wk = eo(u / .55);
+  const draw = !!sh.scene && (!prev || prev.scene !== sh.scene);
   return (
     <AbsoluteFill style={{ background: "#000" }}>
       <Audio src={staticFile("fam1/narration.wav")} />
-      {prev && fade < 1 && <AbsoluteFill>{prev.draw(t - at(prev.from), t)}</AbsoluteFill>}
-      <AbsoluteFill style={{ opacity: fade, transform: `scale(${push})` }}>{sh.draw(u, t)}</AbsoluteFill>
+      {prev && (fade < 1 || wipe) && <AbsoluteFill>{prev.draw(t - at(prev.from), t)}</AbsoluteFill>}
+      <ShotCtx.Provider value={{ u, draw }}>
+        <AbsoluteFill style={{ opacity: wipe ? 1 : fade, transform: `scale(${push}) translateX(${dx}px)`, clipPath: wipe ? `inset(0 ${(1 - wk) * 100}% 0 0)` : undefined }}>{sh.draw(u, t)}</AbsoluteFill>
+      </ShotCtx.Provider>
+      {wipe && <div style={{ position: "absolute", top: 0, bottom: 0, left: `${wk * 100}%`, width: 6, marginLeft: -3, background: GOLD, boxShadow: "0 0 30px rgba(232,185,90,.8)" }} />}
       <Captions t={t} />
     </AbsoluteFill>
   );
