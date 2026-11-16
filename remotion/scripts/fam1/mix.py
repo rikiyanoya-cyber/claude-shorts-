@@ -1,5 +1,5 @@
 # Effects for 家族心理学アニメ 第1本: soft symbolic sounds on the shot list's events, 16-24 dB under the voice.
-# usage: python3 mix.py <narration wav (with the 1 s pause)> <sfx dir> <out wav> [bgm]   (sfx dir: tick rain pop typing count thud whoosh chime knock notify .wav)
+# usage: python3 mix.py <narration wav (with the 1 s pause)> <sfx dir> <out wav> [bgm]   (sfx dir: tick rain pop typing count thud whoosh chime knock notify tvoff .wav)
 # 2026-11-16 review (fix list v3): no pop per item; sounds only on scene changes and big numbers; quiet beats get no sound.
 import sys, json, re, subprocess, numpy as np, soundfile as sf
 NAR, SFX, OUT = sys.argv[1:4]; BGM = sys.argv[4] if len(sys.argv) > 4 else None; SR = 48000
@@ -22,6 +22,8 @@ C.append((at(31) + .1, 'typing', -20, 1.2)); C.append((at(32) + .4, 'typing', -2
 C.append((at(56) + .15, 'knock', -16, 1.0)); C.append((at(68) + .2, 'knock', -18, 1.0))   # mother at the front door; father at your door
 for t in (at(77), at(79), at(75) + .2): C.append((t, 'thud', -17, 1.6))
 for t in (at(14) + .8, at(86)): C.append((t, 'chime', -19, 1.6))
+# the TV switch-off at the very end (TV_OFF in Fam1Episode.tsx = last line end + 0.45 s)
+C.append((S[max(S)][1] + .45, 'tvoff', -8, 1.2))
 cache = {}; fx = np.zeros((N, 2), np.float32)
 def put(x, t, g):
     i = int(t * SR); j = min(N, i + len(x))
