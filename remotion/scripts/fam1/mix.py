@@ -1,8 +1,8 @@
 # Effects for 家族心理学アニメ 第1本: soft symbolic sounds on the shot list's events, 16-24 dB under the voice.
-# usage: python3 mix.py <narration wav (with the 1 s pause)> <sfx dir> <out wav>   (sfx dir: tick rain pop typing count thud whoosh chime knock notify .wav)
+# usage: python3 mix.py <narration wav (with the 1 s pause)> <sfx dir> <out wav> [bgm]   (sfx dir: tick rain pop typing count thud whoosh chime knock notify .wav)
 # 2026-11-16 review: far fewer pops (only the three items of the 'common points' list); quiet beats get no sound.
 import sys, json, re, subprocess, numpy as np, soundfile as sf
-NAR, SFX, OUT = sys.argv[1:4]; SR = 48000
+NAR, SFX, OUT = sys.argv[1:4]; BGM = sys.argv[4] if len(sys.argv) > 4 else None; SR = 48000
 HERE = '/home/user/claude-shorts-/remotion/src/companies/'
 S = {i: (a, b) for i, a, b, _ in json.load(open(HERE + 'fam1_sentences.json'))}
 at = lambda i: S[i][0]
@@ -36,5 +36,19 @@ def bed(a, b, db):
     n = int((b - a) * SR); r = np.concatenate([rain] * (n // len(rain) + 2))[:n].copy(); f = int(.8 * SR)
     r[:f] *= np.linspace(0, 1, f)[:, None]; r[-f:] *= np.linspace(1, 0, f)[:, None]; put(r, a, 10 ** (db / 20) * vr / rms(rain))
 bed(at(26) - .2, at(28) + .3, -24); bed(at(40) - .2, at(41) + .2, -24)
-mix = voice + fx
+# BGM (main theme 'Night Walk Home'): looped with 4 s crossfades, -27 dB under speech, -21 dB in pauses,
+# faded in over 2 s and out over the last 3 s
+bg = np.zeros((N, 2), np.float32)
+if BGM:
+    from numpy.lib.stride_tricks import sliding_window_view
+    b = load(BGM); xf = int(4 * SR); p = 0; buf = np.zeros((N + len(b), 2), np.float32)
+    while p < N:
+        seg = b.copy(); seg[:xf] *= np.linspace(0, 1, xf)[:, None]; seg[-xf:] *= np.linspace(1, 0, xf)[:, None]
+        buf[p:p + len(seg)] += seg; p += len(seg) - xf
+    env = np.abs(voice).max(1); k = int(.3 * SR); c = np.cumsum(np.concatenate([np.zeros(k // 2 + 1), env, np.zeros(k)])); env = (c[k:k + N] - c[:N]) / k
+    speak = np.clip(env / (0.25 * np.abs(voice).max()), 0, 1)
+    g = 10 ** ((-27 + 6 * (1 - speak)) / 20) * vr / rms(b)
+    t = np.arange(N) / SR; g *= np.clip(t / 2, 0, 1) * np.clip((N / SR - t) / 3, 0, 1)
+    bg = buf[:N] * g[:, None]
+mix = voice + fx + bg
 sf.write(OUT, mix / max(1, np.abs(mix).max() / .95), SR); print('cues', len(C))
