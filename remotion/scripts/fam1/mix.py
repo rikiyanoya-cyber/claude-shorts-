@@ -12,11 +12,12 @@ voice = load(NAR); N = len(voice) + 3 * SR; voice = np.concatenate([voice, np.ze
 rms = lambda x: np.sqrt((x[np.abs(x).max(1) > 1e-4] ** 2).mean()); vr = rms(voice)
 C = []
 QUIET = set([51, 54, 60, 61, 62]) | set(range(104, 114))
-for a in shots:
-    if a not in QUIET and a != 1: C.append((at(a) - .05, 'whoosh', -22, .6))
-for a in (15, 24, 48, 55, 67): C.append((at(a) + .25, 'tick', -22, .35))   # one tick per time jump (was five)
-for t in (at(42) + .3, at(53) + .1, at(87) + .2): C.append((t, 'count', -22, 1.6))   # only the three big study samples
-for t in (at(29) + .3, at(99) + .2): C.append((t, 'notify', -21, 1.1))   # the sent message and the Sunday call
+# 2026-11-16: the shot-change whoosh only where a chapter turns (it was on every shot)
+for a in (15, 24, 48, 55, 67, 76, 93): C.append((at(a) - .05, 'whoosh', -22, .6))
+for a in (15, 24, 48, 55, 67):
+    for k in range(5): C.append((at(a) + .2 + k * .28, 'tick', -21, .35))
+for t in (at(1) + 1.4, at(2) + .3, at(6) + 1.2, at(42) + .3, at(53) + .1, at(72) + .2, at(87) + .2): C.append((t, 'count', -20, 1.6))
+for t in (at(29) + .3, at(37) + .3, at(96) + .3, at(96) + 1.6, at(99) + .2): C.append((t, 'notify', -19, 1.1))
 C.append((at(31) + .1, 'typing', -20, 1.2)); C.append((at(32) + .4, 'typing', -21, .9))
 C.append((at(56) + .15, 'knock', -16, 1.0)); C.append((at(68) + .2, 'knock', -18, 1.0))   # mother at the front door; father at your door
 for t in (at(77), at(79), at(75) + .2): C.append((t, 'thud', -17, 1.6))
@@ -45,7 +46,7 @@ if BGM:
         buf[p:p + len(seg)] += seg; p += len(seg) - xf
     env = np.abs(voice).max(1); k = int(.3 * SR); c = np.cumsum(np.concatenate([np.zeros(k // 2 + 1), env, np.zeros(k)])); env = (c[k:k + N] - c[:N]) / k
     speak = np.clip(env / (0.25 * np.abs(voice).max()), 0, 1)
-    g = 10 ** ((-21 + 5 * (1 - speak)) / 20) * vr / rms(b)   # 2026-11-16: -21 dB under speech, -16 dB in pauses (was inaudible)
+    g = np.full(N, 10 ** (-20 / 20) * vr / rms(b))   # 2026-11-16: a steady 20 dB under the voice
     t = np.arange(N) / SR; g *= np.clip(t / 2, 0, 1) * np.clip((N / SR - t) / 3, 0, 1)
     bg = buf[:N] * g[:, None]
 mix = voice + fx + bg
