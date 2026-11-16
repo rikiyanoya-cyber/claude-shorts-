@@ -30,11 +30,11 @@ const fmt = (v: number) => { const man = Math.round(v * 100); if (man < 10000) r
 // crossings for the event calls
 const cross = (a: string, b: string) => { const ja = data.keys.indexOf(a), jb = data.keys.indexOf(b); for (let d = 1977; d <= D1; d += 1 / 48) if (valueAt(ja, d) > valueAt(jb, d) && valueAt(jb, d) > 0) return d; return D1; };
 const tOf = (d: number) => (d - D0) / (D1 - D0) * RACE;
-const PS2TOP = cross("ps2", "game-boy"), SWDS = cross("switch", "ds");
+const PS2TOP = cross("ps2", "game-boy");
 const EVENTS: [number, string][] = [
   [0.2, "1977年、Atari 2600 発売"], [tOf(1983.6), "1983年、ファミコン登場"], [tOf(1989.4), "1989年、ゲームボーイ発売"],
   [tOf(1994.95), "1994年、PlayStation 参入"], [tOf(2000.3), "2000年、PlayStation 2 発売"], [tOf(PS2TOP), `${Math.floor(PS2TOP)}年、PS2 が1位に`],
-  [tOf(2017.2), "2017年、Nintendo Switch 発売"], [tOf(SWDS), `${Math.floor(SWDS)}年、Switch が DS を抜いて2位。PS2まで、あと少し`],
+  [tOf(2017.2), "2017年、Nintendo Switch 発売"],
 ];
 const ROW0 = 330, RH = 132, N = 10;
 const ease = Easing.bezier(.45, 0, .2, 1);
@@ -49,7 +49,6 @@ export const ConsoleRace: React.FC = () => {
   const slot = (j: number) => { let s = 0, n = 0; for (let k = 0; k < 8; k++) { const tt = Math.max(0, t - k * .03), r = ranks(dateAt(tt)).findIndex(([x]) => x === j); s += r < 0 ? N + 1 : Math.min(r, N + 1); n++; } return s / n; };
   const year = Math.floor(d), month = Math.max(1, Math.min(12, Math.floor((d - year) * 12 - 1e-6) + 1));
   const ev = [...EVENTS].reverse().find(([a]) => t >= a && t < a + 3.2 && t < RACE);
-  const hold = t >= RACE;
   const show = new Set(top.map(([j]) => j));
   // keep rows that are leaving visible while they slide out
   const leaving = data.keys.map((_, j) => j).filter((j) => !show.has(j) && valueAt(j, d) > 0 && slot(j) < N - .1);
@@ -78,8 +77,6 @@ export const ConsoleRace: React.FC = () => {
       })}
       {ev && <div style={{ position: "absolute", left: 40, right: 40, top: 1660, display: "flex", justifyContent: "center", opacity: fin(t, ev[0], .25) * interpolate(t, [ev[0] + 2.9, ev[0] + 3.2], [1, 0], cl) }}>
         <div style={{ background: "#F5C518", color: "#111", fontWeight: 900, fontSize: 50, padding: "16px 36px", borderRadius: 18, transform: `scale(${.9 + .1 * fin(t, ev[0], .25)})` }}>{ev[1]}</div></div>}
-      {hold && <div style={{ position: "absolute", left: 40, right: 40, top: 1660, display: "flex", flexDirection: "column", alignItems: "center", opacity: fin(t, RACE + .2, .4) }}>
-        <div style={{ background: "#E60012", color: "#fff", fontWeight: 900, fontSize: 58, padding: "18px 40px", borderRadius: 20, textAlign: "center", lineHeight: 1.25 }}>Switch、PS2まで<br />あと280万台以上</div></div>}
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 34, textAlign: "center", color: "#9a9ca6", fontWeight: 700, fontSize: 28 }}>出荷台数ベース／一部推定値を含む（各社公式発表ほか・2026年11月時点）</div>
     </AbsoluteFill>
   );
