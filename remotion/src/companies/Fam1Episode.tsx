@@ -18,8 +18,8 @@ const eo = (x: number) => 1 - Math.pow(1 - Math.max(0, Math.min(1, x)), 3);
 const GOLD = "#E8B95A", SEP = "#D9B27A", NAVY = "#0A2257", BLUE = "#5FA8FF";
 
 // ---------- grounds ----------
-const Stage: React.FC<{ u: number; spots?: number[]; tint?: string }> = ({ u, spots = [960], tint }) => (
-  <AbsoluteFill style={{ background: `radial-gradient(ellipse at 50% 35%, #12306f 0%, ${NAVY} 55%, #06163b 100%)` }}>
+const Stage: React.FC<{ u: number; spots?: number[]; tint?: string; warm?: boolean }> = ({ u, spots = [960], tint, warm }) => (
+  <AbsoluteFill style={{ background: warm ? "radial-gradient(ellipse at 50% 35%, #5a4220 0%, #2e2010 55%, #160f06 100%)" : `radial-gradient(ellipse at 50% 35%, #12306f 0%, ${NAVY} 55%, #06163b 100%)` }}>
     <svg width={1920} height={1080} style={{ position: "absolute" }}>
       <defs>
         <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".18" /><stop offset="1" stopColor="#fff" stopOpacity=".02" /></linearGradient>
@@ -174,10 +174,10 @@ const Car: React.FC<{ t: number }> = ({ t }) => { const x = 960 + 40 * Math.sin(
     <circle cx={-250} cy={0} r={70} /><circle cx={260} cy={0} r={70} /><path d="M430 -110 L700 -60 L700 -150Z" fill="rgba(255,230,160,.15)" stroke="none" /></g><line x1={0} y1={830} x2={1920} y2={830} /></Sepia>); };
 // A/B split: left cold red-dark, right warm gold
 const Split: React.FC<{ u: number; children?: React.ReactNode }> = ({ u, children }) => (
-  <AbsoluteFill><div style={{ ...W, left: 0, top: 0, width: 960, height: 1080, background: "radial-gradient(ellipse at 50% 40%, #3a1414 0%, #120606 100%)" }} />
+  <AbsoluteFill><div style={{ ...W, left: 0, top: 0, width: 960, height: 1080, background: "radial-gradient(ellipse at 50% 40%, #16336f 0%, #06132e 100%)" }} />
     <div style={{ ...W, left: 960, top: 0, width: 960, height: 1080, background: "radial-gradient(ellipse at 50% 40%, #3e2e16 0%, #160f06 100%)" }} />
     <div style={{ ...W, left: 957, top: 0, width: 6, height: 1080, background: "#fff", opacity: .5 }} />
-    <div style={{ ...W, left: 0, width: 960, top: 60, textAlign: "center", fontFamily: F, fontWeight: 900, fontSize: 64, color: "#ff8a7a" }}>父親A</div>
+    <div style={{ ...W, left: 0, width: 960, top: 60, textAlign: "center", fontFamily: F, fontWeight: 900, fontSize: 64, color: "#8fb3e6" }}>父親A</div>
     <div style={{ ...W, left: 960, width: 960, top: 60, textAlign: "center", fontFamily: F, fontWeight: 900, fontSize: 64, color: GOLD }}>父親B</div>
     {children}</AbsoluteFill>);
 const Label: React.FC<{ u: number; a: number; x: number; y: number; text: string; color?: string; size?: number }> = ({ u, a, x, y, text, color = "#fff", size = 46 }) => (
@@ -230,7 +230,7 @@ const SH: Shot[] = [
     {t >= at(36) && <Label u={u} a={b(36)} x={560} y={510} text="→ 送った" color="#fff" />}{t >= at(36) && <Label u={u} a={b(36) + .3} x={1360} y={510} text="→ 送らない" color="#7d8aa8" />}
     <Keyword u={u} a={.4} text="嘘じゃない" size={80} y={200} color={GOLD} /></>; } },
   { from: 37, to: 39, draw: (u, t) => { const b = (i: number) => at(i) - at(37); return <><Stage u={u} spots={[640, 1300]} tint={GOLD} /><Char img="sota-phone" x={640} u={u} glow="rgba(232,185,90,.55)" /><Char img="mother-phone" x={1300} u={u} a={.5} glow="rgba(232,185,90,.55)" />
-    {t >= at(38) && <Bubble u={u} a={b(38)} x={960} y={330} w={560} warm text="「雨がすごいから、迎えに来て」" />}{t >= at(39) && <Keyword u={u} a={b(39) + .2} text="それだけ" size={90} y={180} color={GOLD} />}</>; } },
+    {t >= at(38) && <Bubble u={u} a={b(38)} x={960} y={330} w={560} warm text="「雨がすごいから、迎えに来て」" />}</>; } },
   // ---- the ride home and what the research says
   { from: 40, to: 40, draw: (u, t) => <><Car t={t} /><Rain t={t} n={60} /></> },
   { from: 41, to: 41, draw: (u) => <><Stage u={u} /><Keyword u={u} a={.3} text="共通点" size={170} y={420} color={GOLD} /></> },
@@ -277,20 +277,19 @@ const SH: Shot[] = [
   { from: 78, to: 82, draw: (u, t) => { const b = (i: number) => at(i) - at(78); return <Split u={u}><Char img="father-shout" x={420} u={u} />{t >= at(80) && <Char img="you-sit-sad" x={760} u={u} a={b(80)} h={300} />}
     {t >= at(79) && t < at(80) && <Bubble u={u} a={b(79)} x={480} y={330} w={760} text="「嘘をついたのか。罰として、スマホは取り上げるぞ！」" />}
     {t >= at(80) && t < at(81) && <Bubble u={u} a={b(80) + .2} x={700} y={420} w={420} text="「ごめんなさい…」" />}
-    {t >= at(81) && <Label u={u} a={b(81) + .2} x={480} y={300} text={"二度と\n話さなくなった"} color="#ff8a7a" size={60} />}
-    {t >= at(82) && <Label u={u} a={b(82) + .3} x={480} y={470} text="隠す方が楽" color="#fff" size={46} />}
-    <Char img="father-stand" x={1440} u={9} h={420} /><div style={{ ...W, left: 960, top: 0, width: 960, height: 1080, background: "#000", opacity: .45 }} /></Split>; } },
+    {t >= at(81) && <Label u={u} a={b(81) + .2} x={480} y={300} text={"二度と\n話さなくなった"} color="#8fb3e6" size={60} />}
+    <Char img="father-stand" x={1440} u={9} h={420} /><div style={{ ...W, left: 960, top: 0, width: 960, height: 1080, background: "#000", opacity: .74 }} /></Split>; } },
   { from: 83, to: 86, draw: (u, t) => { const b = (i: number) => at(i) - at(83); return <Split u={u}><Char img="father-shout" x={420} u={9} h={420} /><Char img={t >= at(86) ? "father-listen" : "father-stand"} x={1340} u={u} glow="rgba(232,185,90,.5)" />
     {t >= at(84) && <Label u={u} a={b(84)} x={960} y={200} text="罰は同じ" color="#fff" size={56} />}
     {t >= at(86) && <Bubble u={u} a={b(86)} x={1440} y={420} w={640} warm text="「まずは、話してくれて、ありがとうな。」" />}
-    <div style={{ ...W, left: 0, top: 0, width: 960, height: 1080, background: "#000", opacity: .45 }} /></Split>; } },
+    <div style={{ ...W, left: 0, top: 0, width: 960, height: 1080, background: "#000", opacity: .74 }} /></Split>; } },
   { from: 87, to: 88, draw: (u, t) => t < at(88) ? <><Stage u={u} spots={[]} /><Crowd u={u} a={.2} n={982} label="若者の追跡調査" cite="Tilton-Weaver et al. (2010)" /></>
     : <><Stage u={u} spots={[]} /><Label u={u} a={at(88) - at(87)} x={960} y={300} text="打ち明けた直後の、親の反応" size={60} />
       <Svg o={fin(t - at(88), 1.2)} stroke="#fff"><path d="M960 380 L960 470 M948 458 L960 472 L972 458" /></Svg>
       <Label u={u} a={at(88) - at(87) + 1.6} x={960} y={560} text="次も話してくれるか" size={72} color={GOLD} />
       <div style={{ ...W, left: 0, right: 0, top: 660, textAlign: "center", fontFamily: F, fontWeight: 700, fontSize: 26, color: "#9fb4d8" }}>Tilton-Weaver et al. (2010)</div></> },
   { from: 89, to: 92, draw: (u, t) => { const b = (i: number) => at(i) - at(89); return <Split u={u}><Char img="father-shout" x={480} u={u} h={380} /><Char img="father-listen" x={1440} u={u} a={b(90)} h={380} glow="rgba(232,185,90,.5)" />
-    <Label u={u} a={.3} x={480} y={250} text="秘密が増える" color="#ff8a7a" size={58} />{t >= at(90) && <Label u={u} a={b(90) + .2} x={1440} y={250} text="次も話してくれる" color={GOLD} size={58} />}
+    <Label u={u} a={.3} x={480} y={250} text="秘密が増える" color="#8fb3e6" size={58} />{t >= at(90) && <Label u={u} a={b(90) + .2} x={1440} y={250} text="次も話してくれる" color={GOLD} size={58} />}
     {t >= at(91) && <Label u={u} a={b(91)} x={960} y={150} text="罰は同じ" color="#fff" size={52} />}
     {t >= at(92) && <Keyword u={u} a={b(92) + .2} text="話を聞いたかどうか" size={84} y={420} color="#fff" />}</Split>; } },
   // ---- two years later
@@ -299,7 +298,7 @@ const SH: Shot[] = [
     {t < at(96) ? <Phone u={u} x={1280} y={500} a={.3} label="今も、居場所を見てしまう" /> : <Chat u={t - at(96)} sent={[[.3, "元気か？"], [1.6, "連絡くらいしろ"]]} />}
     {t >= at(97) && <Label u={u} a={b(97)} x={560} y={180} text="どこにいるか　✓" color="#5FA8FF" size={50} />}
     {t >= at(98) && <Label u={u} a={b(98)} x={560} y={250} text="何を考えているか　？" color={GOLD} size={50} />}</>; } },
-  { from: 99, to: 100, draw: (u, t) => <><Stage u={u} spots={[560, 1360]} tint={GOLD} /><Char img="father-phone-laugh" x={560} u={u} glow="rgba(232,185,90,.55)" /><Char img="you18-phone-laugh" x={1360} u={u} a={.4} glow="rgba(232,185,90,.55)" />
+  { from: 99, to: 100, draw: (u, t) => <><Stage u={u} spots={[560, 1360]} tint={GOLD} warm /><Char img="father-phone-laugh" x={560} u={u} glow="rgba(232,185,90,.55)" /><Char img="you18-phone-laugh" x={1360} u={u} a={.4} glow="rgba(232,185,90,.55)" />
     <Label u={u} a={.8} x={960} y={200} text="日曜日" color={GOLD} size={70} />{t >= at(100) && <Bubble u={u} a={at(100) - at(99)} x={1360} y={360} w={460} warm text="「元気にしてるよ」" />}</> },
   { from: 101, to: 103, draw: (u, t) => { const k = eo((u - .3) / 3); const pts = (f: (x: number) => number) => Array.from({ length: 41 }, (_, i) => i / 40).filter((x) => x <= k).map((x) => `${300 + 1320 * x},${f(x)}`).join(" ");
     return <><Stage u={u} spots={[]} /><Svg stroke="#cfd8ea"><line x1={300} y1={800} x2={1640} y2={800} opacity={.5} /><line x1={300} y1={300} x2={300} y2={800} opacity={.5} />
@@ -315,8 +314,7 @@ const SH: Shot[] = [
   { from: 107, to: 109, draw: (u, t) => <><Stage u={u} spots={[]} /><Label u={u} a={.3} x={960} y={330} text="監視" color="#7d8aa8" size={120} />
     <Svg o={fin(u, 1.6)} stroke="#ff8a7a"><line x1={820} y1={340} x2={1100} y2={310} strokeWidth={10} /></Svg>
     {t >= at(108) && <Label u={u} a={at(108) - at(107)} x={960} y={520} text={"子どもが自分から\n話してくれる環境"} color={GOLD} size={82} />}</> },
-  { from: 110, to: 113, draw: (u, t) => <><Stage u={u} spots={[]} /><Typed u={u} a={.2} text="親がしつこくするほど、" y={300} size={84} /><Typed u={u} a={1.2} text="話してもらえなくなる。" y={420} size={84} color={GOLD} />
-    <div style={{ ...W, left: 0, right: 0, top: 640, textAlign: "center", fontFamily: F, fontWeight: 700, fontSize: 32, color: "#9fb4d8", opacity: fin(u, 3), lineHeight: 1.7 }}>物語は創作です。知見は実在の研究にもとづいています。<br />出典は概要欄へ</div></> },
+  { from: 110, to: 113, draw: () => <AbsoluteFill style={{ background: "#06163b" }} /> },   // the ending image is made by the owner
 
 ];
 const shotAt = (t: number) => { let k = 0; SH.forEach((s, i) => { if (t >= at(s.from) - (i === 0 ? 99 : 0)) k = i; }); return k; };
