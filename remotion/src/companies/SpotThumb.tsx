@@ -35,11 +35,22 @@ const Boy: React.FC<{ img: string; x: number; y: number; h: number; glow?: strin
   <Img src={staticFile(`spot/${img}.png`)} style={{ position: "absolute", left: x, top: y, height: h, transform: "translateX(-50%)", filter: `drop-shadow(0 0 22px ${glow})` }} />
 );
 
-// A: one scene. He hides his face under the spotlight while a dark room of glowing eyes watches. "EVERYONE SAW." (what it feels like)
+// A: one scene. He hides his face under the spotlight while a dark crowd stares at him. "EVERYONE SAW." (what it feels like)
+// watchers: rim-lit silhouettes with narrow glowing eyes and heavy brows, pupils turned toward him
+const Watcher: React.FC<{ x: number; y: number; s: number; look: number }> = ({ x, y, s, look }) => (
+  <g transform={`translate(${x} ${y}) scale(${s})`}>
+    <path d="M-95 220 Q-95 95 0 88 Q95 95 95 220Z" fill="#03071a" stroke="#4f74d6" strokeWidth={3.5} strokeOpacity={.75} />
+    <circle cx={0} cy={0} r={62} fill="#03071a" stroke="#4f74d6" strokeWidth={3.5} strokeOpacity={.75} />
+    {[-24, 24].map((ex) => <g key={ex} transform={`translate(${ex} 2)`} style={{ filter: "drop-shadow(0 0 10px #fff) drop-shadow(0 0 4px #fff)" }}>
+      <path d="M-16 0 Q0 -11 16 0 Q0 9 -16 0Z" fill="#fff" />
+      <circle cx={look * 6} cy={0} r={5} fill="#03071a" />
+      <line x1={-18} y1={ex < 0 ? -18 : -10} x2={16} y2={ex < 0 ? -10 : -18} stroke="#fff" strokeWidth={5} strokeLinecap="round" opacity={.9} /></g>)}
+  </g>
+);
 const A: React.FC = () => (<Navy>
   <Beam x={640} w={620} o={.55} />
   <svg width={1280} height={720} style={{ position: "absolute" }}>
-    {[[110, 470, 1.15], [250, 560, 1.3], [1030, 470, 1.15], [1170, 560, 1.3], [170, 690, 1.5], [1110, 690, 1.5]].map(([x, y, s], i) => <Head key={i} x={x} y={y} s={s} />)}
+    {([[180, 300, .8, 1], [1100, 300, .8, -1], [60, 420, 1.05, 1], [1220, 420, 1.05, -1], [330, 470, 1.1, 1], [950, 470, 1.1, -1], [150, 610, 1.4, 1], [1130, 610, 1.4, -1]] as [number, number, number, number][]).map(([x, y, sc, l], i) => <Watcher key={i} x={x} y={y} s={sc} look={l} />)}
   </svg>
   <Boy img="you-cover-face" x={640} y={170} h={760} />
   <Word top={30}>EVERYONE <span style={{ color: GOLD }}>SAW.</span></Word>
