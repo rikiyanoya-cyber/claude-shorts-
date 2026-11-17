@@ -1,6 +1,6 @@
 # THE SPOTLIGHT EFFECT audio: narration (cut 1 s after the last line) + closing voice + soft symbolic effects
 # + one BGM looped with 4 s crossfades at a steady -20 dB under the voice (2 s in, 3 s out).
-# usage: python3 mix.py <narration> <closing voice> <bgm> <sfx dir (fam1 set + bubble.wav, question.wav)> <out wav>
+# usage: python3 mix.py <narration> <closing voice> <bgm> <sfx dir (fam1 set + bubble.wav, question.wav, steps.wav)> <out wav>
 # Times mirror SpotEpisode.tsx (OUT0 = last line end + 1.0, TV_OFF = OUT0 + 9.8 + 0.45, end = TV_OFF + 2.5).
 import sys, json, subprocess, numpy as np, soundfile as sf
 NAR, OUTRO, BGM, SFX, OUT = sys.argv[1:6]; SR = 48000
@@ -55,6 +55,11 @@ for t, n, db, mx in C:
     if n not in cache: cache[n] = load(f'{SFX}/{n}.wav')
     x = cache[n][:int(mx * SR)].copy(); fo = min(len(x) // 3, int(.15 * SR)); x[-fo:] *= np.linspace(1, 0, fo)[:, None]
     i = int(t * SR); j = min(N, i + len(x)); fx[i:j] += x[:j - i] * (10 ** (db / 20) * vr / rms(cache[n]))
+# footsteps (2026-11-17): the user's 'toko toko' loop (one step every ~0.25 s, like the two walk frames), cut to each walk
+st = load(f'{SFX}/steps.wav'); sg = 10 ** ((-19 + SFX_BOOST + CHAR_BOOST) / 20) * vr / rms(st)
+for a0, b0 in ((0.1, 2.3), (33.1, 35.1), (W_(15), W_(15) + 2.4), (at(39), at(39) + 2.6), (at(135) - .2, at(135) + 2.3), (W_(137) + .2, W_(137) + 3.2)):
+    n = int((b0 - a0) * SR); x = np.concatenate([st] * (n // len(st) + 1))[:n].copy(); f = int(.12 * SR)
+    x[-f:] *= np.linspace(1, 0, f)[:, None]; i = int(a0 * SR); fx[i:i + n] += x[:N - i] * sg
 b = load(BGM); X = 4 * SR; loop = b.copy()
 while len(loop) < N:
     r = np.linspace(0, 1, X)[:, None]; loop = np.concatenate([loop[:-X], loop[-X:] * (1 - r) + b[:X] * r, b[X:]])
