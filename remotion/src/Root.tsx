@@ -12,6 +12,7 @@ import { NikeEpisode, NIKE_EP_FRAMES } from "./companies/NikeEpisode";
 import { NintendoEpisode, NINTENDO_EP_FRAMES } from "./companies/NintendoEpisode";
 import { ConsoleRace, RACE_FRAMES } from "./companies/ConsoleRace";
 import { SpotEpisode, SPOT_TEST_END, SPOT_FRAMES } from "./companies/SpotEpisode";
+import { SpotThumb } from "./companies/SpotThumb";
 import { Fam1Episode, FAM1_SAMPLE_END, FAM1_FRAMES } from "./companies/Fam1Episode";
 
 export const Root: React.FC = () => {
@@ -71,6 +72,7 @@ export const Root: React.FC = () => {
       <Composition id="McdEpisode" component={McdEpisode} width={1920} height={1080} fps={30} durationInFrames={MCD_EP_FRAMES} />
       <Composition id="NikeEpisode" component={NikeEpisode} width={1920} height={1080} fps={30} durationInFrames={NIKE_EP_FRAMES} />
       <Composition id="SpotEpisode" component={SpotEpisode} width={1920} height={1080} fps={30} durationInFrames={SPOT_FRAMES} />
+      <Composition id="SpotThumb" component={SpotThumb} width={1280} height={720} fps={30} durationInFrames={1} defaultProps={{ v: "A" }} />
       <Composition id="SpotTest" component={SpotEpisode} width={1920} height={1080} fps={30} durationInFrames={Math.round(SPOT_TEST_END * 30)} />
       <Composition id="Fam1Episode" component={Fam1Episode} width={1920} height={1080} fps={30} durationInFrames={FAM1_FRAMES} />
       <Composition id="Fam1Sample" component={Fam1Episode} width={1920} height={1080} fps={30} durationInFrames={Math.round(FAM1_SAMPLE_END * 30)} />
