@@ -212,7 +212,11 @@ type Shot = { from: number; to?: number; push?: number; r: (u: number, t: number
 const W = (i: number) => at(i) - .15;                    // a shot that starts with sentence i
 const CH = (i: number) => ({ to: end(i) + .55, fadeOut: .7 }); // the last shot of a chapter fades to black
 const TW = 74.54, FV = 153.6, CHANCE = 229.76, IMAG = 300.69, LINK = 335.96, NARROW = 411.5, LIKED = 431.5, LAST = 511.17;
-export const SPOT_END = S[S.length - 1][2] + 2.8;
+// closing voice (separate file, placed 1 s after the last narration line), then the TV switch-off
+export const OUT0 = S[S.length - 1][2] + 1.0;
+const OUT_LINES: [number, number, string][] = [[0, 1.35, "That's all for today's story."], [1.8, 2.43, "What did you think?"], [2.88, 5.11, "Have you ever experienced something like this yourself?"], [5.67, 8.1, "Share your thoughts and experiences in the comments below."], [8.48, 9.8, "I'll see you in the next video."]];
+export const TV_OFF = OUT0 + 9.8 + .45;
+export const SPOT_END = TV_OFF + 2.5;
 const SH: Shot[] = [
   // ===== 0:00 The moment you can't forget =====
   { from: 0, fadeIn: .8, r: (u, t) => <><Stage u={u} beam={960} /><Lockers /><Char img="you-stand" x={960} u={u} a={.3} h={440} /></> },
@@ -464,7 +468,7 @@ const SH: Shot[] = [
   { from: W(139), r: (u, t) => <><Stage u={u} beam={null} />
     <Char img="girl-long-mirror" x={420} u={u} a={0} h={380} /><Char img="boy-red-conversation" x={960} u={u} a={.2} h={390} /><Char img="girl-bob-stare" x={1500} u={u} a={.4} h={350} />
     <Bubble t={t} a={at(139) + 2.5} x={420} y={500} w={300} text="My moment…" size={28} /><Bubble t={t} a={at(139) + 3} x={960} y={490} w={300} text="My moment…" size={28} /><Bubble t={t} a={at(139) + 3.5} x={1500} y={530} w={300} text="My moment…" size={28} /></> },
-  { from: W(141), to: SPOT_END, fadeOut: 1.4, push: .08, r: (u, t) => { const off = fin(t, LAST - .2, .5);
+  { from: W(141), to: OUT0, fadeOut: .9, push: .08, r: (u, t) => { const off = fin(t, LAST - .2, .5);
     return <><Stage u={u} beam={960} dim={off} /><AbsoluteFill style={{ opacity: 1 - .85 * off }}><Lockers o={.25} /><Char img="you-stand" x={960} u={u} a={0} h={440} /></AbsoluteFill></>; } },
 ];
 
@@ -497,13 +501,15 @@ const SOURCES: [number, string, string?][] = [
   [at(119), "Boothby et al. (2018)", "The liking gap"],
 ];
 
+SH.push({ from: OUT0 - .1, to: SPOT_END, fadeIn: .7, push: .04, r: (u, t) => <><Stage u={u} beam={960} warm />
+  <Img src={staticFile("spot/char-master-spotlight.png")} style={{ position: "absolute", left: 960, top: 800, height: 300, transform: "translate(-50%,-100%)", opacity: fin(u, .3, .6), filter: "drop-shadow(0 0 18px rgba(255,226,170,.4))" }} /></> });
 export const SPOT_TEST_END = 44.4;
 export const SPOT_FRAMES = Math.round(SPOT_END * FPS);
 
 export const SpotEpisode: React.FC = () => {
   useFonts();
   const f = useCurrentFrame(), t = f / FPS;
-  const caps = React.useMemo(() => S.filter(([i]) => i !== 142).flatMap(([, a, b, x]) => phrases(x, a, b)), []);
+  const caps = React.useMemo(() => [...S.filter(([i]) => i !== 142).flatMap(([, a, b, x]) => phrases(x, a, b)), ...OUT_LINES.flatMap(([a, b, x]) => phrases(x, OUT0 + a, OUT0 + b))], []);
   const idx = SH.findIndex((s, i) => t >= s.from && t < (s.to ?? (SH[i + 1]?.from ?? SPOT_END)));
   const big = BIGS.find((b) => t >= b.a && t < b.b);
   let body: React.ReactNode = null, op = 1;
@@ -513,13 +519,17 @@ export const SpotEpisode: React.FC = () => {
     const dir = idx % 3, dx = dir === 1 ? -30 * k : dir === 2 ? 30 * k : 0;
     body = <AbsoluteFill style={{ transform: `translateX(${dx}px) scale(${z})`, transformOrigin: "50% 55%" }}>{sh.r(u, t)}</AbsoluteFill>;
   }
-  const endO = fin(t, LAST + .1, .9) * fout(t, SPOT_END - .2, 1.2);
-  return (<AbsoluteFill style={{ background: "#03060f" }}>
+  const endO = fin(t, LAST + .1, .9) * fout(t, OUT0 - .1, .8);
+  const tv = t - TV_OFF, sy = tv < 0 ? 1 : Math.max(.004, 1 - eo(tv / .28)), sx = tv < .28 ? 1 : Math.max(.004, 1 - eo((tv - .28) / .22)), flash = tv < 0 ? 0 : Math.min(1, tv / .2);
+  return (<AbsoluteFill style={{ background: "#000" }}>
+   <AbsoluteFill style={{ transform: `scale(${sx}, ${sy})`, opacity: tv < .5 ? 1 : fout(tv, .9, .4), background: "#03060f" }}>
     <AbsoluteFill style={{ opacity: op }}>{body}<Dust t={t} /></AbsoluteFill>
     <Vignette />
     {big && <SpotWord u={t} a={big.a} b={big.b} pre={big.pre} big={big.big} post={big.post} size={big.size} y={big.y} color={big.color} />}
     {SOURCES.map(([a, x, s], i) => <Source key={i} u={t} a={a} d={3.2} text={x} sub={s} />)}
     {!big && <Caption t={t} caps={caps} />}
-    {t > LAST && <div style={{ position: "absolute", left: 0, right: 0, top: 300, textAlign: "center", fontFamily: F, fontWeight: 600, fontSize: 68, color: "#fff", opacity: endO, textShadow: "0 0 24px rgba(220,232,255,.35)" }}>It was only ever in your head.</div>}
+    {t > LAST && t < OUT0 && <div style={{ position: "absolute", left: 0, right: 0, top: 300, textAlign: "center", fontFamily: F, fontWeight: 600, fontSize: 68, color: "#fff", opacity: endO, textShadow: "0 0 24px rgba(220,232,255,.35)" }}>It was only ever in your head.</div>}
+    <AbsoluteFill style={{ background: "#fff", opacity: flash * .9 }} />
+   </AbsoluteFill>
   </AbsoluteFill>);
 };
