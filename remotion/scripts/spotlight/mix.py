@@ -33,7 +33,9 @@ C.append((at(89) + .3, 'notify', -19, 1.1))
 C.append((153.7, 'thud', -18, 1.4))                                                                         # the meter hits the top
 C.append((TV_OFF, 'tvoff', -8, 1.2))
 cache = {}; fx = np.zeros((N, 2), np.float32)
+SFX_BOOST = 4.0   # 2026-11-17 review: effects 4 dB louder (the TV switch-off stays as it was)
 for t, n, db, mx in C:
+    db += 0 if n == 'tvoff' else SFX_BOOST
     if n not in cache: cache[n] = load(f'{SFX}/{n}.wav')
     x = cache[n][:int(mx * SR)].copy(); fo = min(len(x) // 3, int(.15 * SR)); x[-fo:] *= np.linspace(1, 0, fo)[:, None]
     i = int(t * SR); j = min(N, i + len(x)); fx[i:j] += x[:j - i] * (10 ** (db / 20) * vr / rms(cache[n]))
