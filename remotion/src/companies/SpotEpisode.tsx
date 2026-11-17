@@ -211,7 +211,7 @@ const Tip: React.FC<{ t: number; a: number; n: string; text: string }> = ({ t, a
   const o = fin(t, a, .45);
   return <div style={{ position: "absolute", left: 170, top: 250, width: 760, opacity: o, transform: `translateX(${(1 - o) * -40}px)`, fontFamily: F, background: "rgba(10,20,52,.78)", border: "2px solid rgba(242,196,107,.6)", borderRadius: 28, padding: "40px 48px", boxShadow: "0 0 50px rgba(242,196,107,.18)" }}>
     <div style={{ fontWeight: 800, fontSize: 40, letterSpacing: 8, color: GOLD }}>{n}</div>
-    <div style={{ fontWeight: 800, fontSize: 60, lineHeight: 1.15, color: "#fff", marginTop: 16 }}>{text.split(" ").map((w, i) => <span key={i} style={{ whiteSpace: "nowrap" }}>{w} </span>)}</div>
+    <div style={{ fontWeight: 800, fontSize: 60, lineHeight: 1.15, color: "#fff", marginTop: 16 }}>{text.split(" ").map((w, i) => <React.Fragment key={i}><span style={{ whiteSpace: "nowrap" }}>{w}</span>{" "}</React.Fragment>)}</div>
   </div>;
 };
 // volume meter
