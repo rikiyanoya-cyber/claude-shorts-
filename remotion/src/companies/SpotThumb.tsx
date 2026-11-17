@@ -52,7 +52,7 @@ const A: React.FC = () => (<Navy>
   <svg width={1280} height={720} style={{ position: "absolute" }}>
     {([[180, 300, .8, 1], [1100, 300, .8, -1], [60, 420, 1.05, 1], [1220, 420, 1.05, -1], [330, 470, 1.1, 1], [950, 470, 1.1, -1], [150, 610, 1.4, 1], [1130, 610, 1.4, -1]] as [number, number, number, number][]).map(([x, y, sc, l], i) => <Watcher key={i} x={x} y={y} s={sc} look={l} />)}
   </svg>
-  <Boy img="you-cover-face" x={640} y={170} h={760} />
+  <Boy img="you-cover-face-plain" x={640} y={170} h={760} />
   <Word top={30}>EVERYONE <span style={{ color: GOLD }}>SAW.</span></Word>
 </Navy>);
 
