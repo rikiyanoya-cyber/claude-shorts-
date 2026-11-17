@@ -33,15 +33,16 @@ const Dust: React.FC<{ t: number; n?: number; x?: number; w?: number }> = ({ t, 
   </svg>
 );
 // navy room with an overhead light; `beam` = x of the spotlight on the floor (null = no beam)
-const Stage: React.FC<{ u: number; beam?: number | null; warm?: boolean; floor?: number; dim?: number }> = ({ u, beam = 960, warm, floor = 900, dim = 0 }) => (
+const Stage: React.FC<{ u: number; beam?: number | null; warm?: boolean; floor?: number; dim?: number; bg?: string; bgDim?: number }> = ({ u, beam = 960, warm, floor = 900, dim = 0, bg, bgDim = .6 }) => (
   <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 30%, #1b2f66 0%, #0e1b45 45%, #060c22 100%)" }}>
+    {bg && <Img src={staticFile(`bg/${bg}.jpg`)} style={{ position: "absolute", left: 0, top: 0, width: 1920, height: 1080, objectFit: "cover", filter: `brightness(${bgDim}) saturate(.95)`, transform: `scale(${1.06 + .015 * Math.sin(u * .2)}) translateX(${-6 * u}px)`, transformOrigin: "50% 60%" }} />}
     <svg width={1920} height={1080} style={{ position: "absolute" }}>
       <defs>
         <linearGradient id="sbeam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={warm ? "#ffe1a0" : "#fff"} stopOpacity=".22" /><stop offset="1" stopColor={warm ? "#ffe1a0" : "#fff"} stopOpacity=".03" /></linearGradient>
         <radialGradient id="spool"><stop offset="0" stopColor={warm ? "#ffd98a" : "#dfe8ff"} stopOpacity=".32" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></radialGradient>
         <filter id="sblur"><feGaussianBlur stdDeviation="14" /></filter>
       </defs>
-      <rect x={0} y={floor} width={1920} height={1080 - floor} fill="#050a1c" opacity={.55} />
+      <rect x={0} y={floor} width={1920} height={1080 - floor} fill="#050a1c" opacity={bg ? .25 : .55} />
       <line x1={0} y1={floor} x2={1920} y2={floor} stroke="#3c5390" strokeWidth={2} opacity={.35} />
       {beam !== null && <g opacity={(.75 + .25 * fin(u, 0, .9)) * (1 - dim)} filter="url(#sblur)">
         <path d={`M${beam - 60} -30 L${beam + 60} -30 L${beam + 270} ${floor} L${beam - 270} ${floor}Z`} fill="url(#sbeam)" />
@@ -52,9 +53,23 @@ const Stage: React.FC<{ u: number; beam?: number | null; warm?: boolean; floor?:
 const Vignette: React.FC = () => <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 46%, rgba(0,0,0,0) 52%, rgba(2,4,14,.78) 100%)", pointerEvents: "none" }} />;
 
 // ---------- people ----------
-const Char: React.FC<{ img: string; x: number; y?: number; u: number; a?: number; h?: number; flip?: boolean; dim?: number; glow?: string; rot?: number }> = ({ img, x, y = 900, u, a = 0, h = 420, flip, dim = 0, glow, rot = 0 }) => {
-  const o = fin(u, a, .45), bob = 1 + .007 * Math.sin((u + x * .01) * 2.1);
-  return <Img src={staticFile(`spot/${img}.png`)} style={{ position: "absolute", left: x, top: y, height: h, transform: `translate(-50%, -100%) translateY(${(1 - o) * 22}px) rotate(${rot}deg) scaleX(${flip ? -1 : 1}) scaleY(${bob})`, transformOrigin: "50% 100%", opacity: o * (1 - dim * .55), filter: `brightness(${1 - dim * .55}) drop-shadow(0 0 ${glow ? 28 : 18}px ${glow || "rgba(220,232,255,.38)"})` }} />;
+type Anim = "talk" | "shake" | "nod" | "hop" | "breathe" | "droop";
+const Char: React.FC<{ img: string; x: number; y?: number; u: number; a?: number; h?: number; flip?: boolean; dim?: number; glow?: string; rot?: number; anim?: Anim; slide?: number; out?: number }> = ({ img, x, y = 900, u, a = 0, h = 420, flip, dim = 0, glow, rot = 0, anim, slide = 0, out }) => {
+  const o = fin(u, a, .45) * (out !== undefined ? fout(u, out, .3) : 1), v = u - a;
+  let ty = (1 - fin(u, a, .45)) * 22, tx = slide * (1 - eo(v / .8)), r = rot + .9 * Math.sin(u * 1.4 + x * .013), sy = 1 + .009 * Math.sin((u + x * .01) * 2.1), sx = 1;
+  if (anim === "talk") { r += 2.2 * Math.sin(u * 6.5); ty -= 4 * Math.abs(Math.sin(u * 6.5)); }
+  if (anim === "shake") { tx += 3.5 * Math.sin(u * 47); r += .8 * Math.sin(u * 31); }
+  if (anim === "nod") { r += 2.5 * Math.sin(u * 3.2); ty += 5 * Math.abs(Math.sin(u * 3.2)); }
+  if (anim === "hop") ty -= 28 * Math.abs(Math.sin(Math.min(v, 1.26) * 5)) * (v < 1.26 ? 1 : 0);
+  if (anim === "breathe") { sy += .02 * Math.sin(u * 2.2); sx -= .01 * Math.sin(u * 2.2); }
+  if (anim === "droop") { ty += 10 * eo(v / 1.5); r -= 3 * eo(v / 1.5); }
+  return <Img src={staticFile(`spot/${img}.png`)} style={{ position: "absolute", left: x, top: y, height: h, transform: `translate(-50%, -100%) translate(${tx}px, ${ty}px) rotate(${r}deg) scaleX(${(flip ? -1 : 1) * sx}) scaleY(${sy})`, transformOrigin: "50% 100%", opacity: o * (1 - dim * .55), filter: `brightness(${1 - dim * .55}) drop-shadow(0 0 ${glow ? 28 : 18}px ${glow || "rgba(220,232,255,.38)"})` }} />;
+};
+// walking: two frames alternate while the figure moves from x0 to x1 between a and b, then `stop` takes over
+const Walk: React.FC<{ u: number; a: number; b: number; x0: number; x1: number; y?: number; h?: number; frames?: string[]; stop?: string; stopH?: number }> = ({ u, a, b, x0, x1, y = 900, h = 440, frames = ["you-walk-1", "you-walk-2"], stop = "you-stand", stopH }) => {
+  if (u >= b) return <Char img={stop} x={x1} y={y} u={u} a={b - .45} h={stopH ?? h} />;
+  const k = Math.max(0, (u - a) / (b - a)), x = x0 + (x1 - x0) * k, f = frames[Math.floor(Math.max(0, u - a) / .24) % frames.length], bounce = -7 * Math.abs(Math.sin(Math.max(0, u - a) / .24 * Math.PI));
+  return <Img src={staticFile(`spot/${f}.png`)} style={{ position: "absolute", left: x, top: y + bounce, height: h, transform: `translate(-50%, -100%) scaleX(${x1 < x0 ? -1 : 1})`, opacity: fin(u, a - .2, .3), filter: "drop-shadow(0 0 18px rgba(220,232,255,.38))" }} />;
 };
 
 // ---------- the spotlight word: small lead-in, BIG word lit from above, small tail ----------
@@ -105,7 +120,7 @@ const Crowd: React.FC<{ u: number; a: number; n: number; cols: number; x: number
   <svg width={1920} height={1080} style={{ position: "absolute" }}>
     {Array.from({ length: n }, (_, i) => { const r = Math.floor(i / cols), c = i % cols, cx = x + (c - (cols - 1) / 2) * gap + (r % 2) * gap * .5, cy = y + r * gap * 1.05, o = fin(u, a + (i % 7) * .06 + r * .1, .35), on = i < lit && u > litAt + i * .12;
       return <g key={i} opacity={o} transform={`translate(${cx} ${cy}) scale(${s})`} fill={on ? GOLD : "#3d5288"} style={on ? { filter: "drop-shadow(0 0 10px rgba(242,196,107,.7))" } : {}}>
-        <circle cx={0} cy={-62} r={20} /><rect x={-24} y={-36} width={48} height={64} rx={22} /></g>; })}
+        <g transform={`translate(0 ${2.5 * Math.sin(u * 1.6 + i)})`}><circle cx={0} cy={-62} r={20} /><rect x={-24} y={-36} width={48} height={64} rx={22} /><circle cx={-7} cy={-63} r={3.2} fill="#dfe8ff" opacity={.85} /><circle cx={7} cy={-63} r={3.2} fill="#dfe8ff" opacity={.85} /></g></g>; })}
   </svg>
 );
 
@@ -208,7 +223,7 @@ const Meter: React.FC<{ t: number; a: number; x: number; y: number }> = ({ t, a,
 
 // ---------- shots ----------
 // a shot runs from `from` until the next shot starts (or its own `to`); r gets (u = local seconds, t = absolute seconds)
-type Shot = { from: number; to?: number; push?: number; r: (u: number, t: number) => React.ReactNode; fadeIn?: number; fadeOut?: number };
+type Shot = { from: number; to?: number; push?: number; cam?: [number, number, number, number]; r: (u: number, t: number) => React.ReactNode; fadeIn?: number; fadeOut?: number };
 const W = (i: number) => at(i) - .15;                    // a shot that starts with sentence i
 const CH = (i: number) => ({ to: end(i) + .55, fadeOut: .7 }); // the last shot of a chapter fades to black
 const TW = 74.54, FV = 153.6, CHANCE = 229.76, IMAG = 300.69, LINK = 335.96, NARROW = 411.5, LIKED = 431.5, LAST = 511.17;
@@ -219,44 +234,45 @@ export const TV_OFF = OUT0 + 9.8 + .45;
 export const SPOT_END = TV_OFF + 2.5;
 const SH: Shot[] = [
   // ===== 0:00 The moment you can't forget =====
-  { from: 0, fadeIn: .8, r: (u, t) => <><Stage u={u} beam={960} /><Lockers /><Char img="you-stand" x={960} u={u} a={.3} h={440} /></> },
-  { from: 3.05, r: (u) => <><Stage u={u} beam={900} /><Tables />
-    <Char img="girl-bob-stare" x={330} u={u} a={.9} h={350} dim={.35} /><Char img="boy-red-sit-watch" x={1590} u={u} a={1.1} h={340} flip dim={.35} />
-    <Char img="you-trip-tray" x={900 + 40 * eo(u / 1.2)} u={u} a={0} h={440} rot={-6 + 6 * eo(u / 1.2)} /></> },
-  { from: 7.9, r: (u) => <><Stage u={u} beam={1180} />
+  { from: 0, fadeIn: .8, r: (u, t) => <><Stage u={u} beam={960} bg="bg-hallway" /><Walk u={u} a={.1} b={2.3} x0={520} x1={960} /></> },
+  { from: 3.05, cam: [1.0, 1.12, 50, 60], r: (u) => <><Stage u={u} beam={900} bg="bg-cafeteria" />
+    <Char img="girl-bob-stare" x={330} u={u} a={1.6} h={350} dim={.3} slide={-160} anim="nod" /><Char img="boy-red-sit-watch" x={1590} u={u} a={2.0} h={340} flip dim={.3} slide={160} anim="nod" />
+    <Char img="you-trip-tray" x={760 + 180 * eo(u / .9)} u={u} a={0} h={440} rot={-14 + 14 * eo(u / .9)} />
+    <svg width={1920} height={1080} style={{ position: "absolute", opacity: fin(u, .2, .2) * fout(u, 2.4, .5) }}>{[0, 1, 2, 3].map((i) => <circle key={i} cx={1080 + i * 46 + 120 * eo(u / 1.2)} cy={560 - 160 * Math.sin(Math.min(1, u / 1.4) * Math.PI) + i * 18} r={10 - i} fill="#f2c46b" opacity={.8} />)}</svg></> },
+  { from: 7.9, r: (u) => <><Stage u={u} beam={1180} bg="bg-hallway" bgDim={.45} />
     <svg width={1920} height={1080} style={{ position: "absolute" }}><Clock u={u} x={600} y={400} h0={8} h1={15.5} a={.6} d={3} /></svg>
-    <Char img="you-stand" x={1180} u={u} a={0} h={460} />
+    <Char img="you-stand" x={1180} u={u} a={0} h={460} anim="breathe" />
     <div style={{ position: "absolute", left: 1180 + 22, top: 900 - 460 + 132, width: 20, height: 13, borderRadius: "50%", background: "#a5532f", opacity: fin(u, .4, .3), transform: "rotate(-14deg)" }} /></> },
-  { from: 11.95, r: (u) => <><Stage u={u} beam={960} dim={.35} /><Char img="you-slipup-sit" x={960} u={u} a={0} h={380} />
-    <div style={{ position: "absolute", left: 960 - 170, top: 150, width: 340, height: 240, borderRadius: 120, border: "3px solid rgba(207,216,234,.6)", background: "rgba(14,27,69,.7)", overflow: "hidden", opacity: fin(u, .4, .4), boxShadow: "0 0 30px rgba(143,166,214,.35)" }}>
+  { from: 11.95, cam: [1.0, 1.1, 50, 70], r: (u) => <><Stage u={u} beam={null} bg="bg-bedroom" bgDim={.7} /><Char img="you-bed-replay" x={960} y={930} u={u} a={0} h={300} anim="breathe" />
+    <div style={{ position: "absolute", left: 960 - 170, top: 170, width: 340, height: 240, borderRadius: 120, border: "3px solid rgba(207,216,234,.6)", background: "rgba(14,27,69,.7)", overflow: "hidden", opacity: fin(u, .4, .4), boxShadow: "0 0 30px rgba(143,166,214,.35)" }}>
       <Img src={staticFile("spot/you-trip-tray.png")} style={{ position: "absolute", left: 100, top: 30, height: 200, transform: `rotate(${-8 + 8 * ((u * .9) % 1)}deg)`, opacity: .9 }} /></div>
-    <svg width={1920} height={1080} style={{ position: "absolute", opacity: fin(u, .3, .4) }} fill="rgba(207,216,234,.6)"><circle cx={940} cy={430} r={12} /><circle cx={925} cy={470} r={8} /></svg></> },
-  { from: 14.85, r: (u) => <><Stage u={u} beam={null} /><Crowd u={u} a={.1} n={16} cols={8} x={960} y={700} gap={150} s={1.25} /></> },
-  { from: 18.05, r: (u) => <><Stage u={u} beam={null} /><Crowd u={u} a={0} n={24} cols={8} x={960} y={520} gap={150} s={1.25} />
+    <svg width={1920} height={1080} style={{ position: "absolute", opacity: fin(u, .3, .4) }} fill="rgba(207,216,234,.6)"><circle cx={900} cy={440} r={12} /><circle cx={860} cy={500} r={8} /></svg></> },
+  { from: 14.85, cam: [1.0, 1.15, 50, 75], r: (u) => <><Stage u={u} beam={null} /><Crowd u={u} a={.1} n={16} cols={8} x={960} y={700} gap={150} s={1.25} /></> },
+  { from: 18.05, cam: [1.12, 1.0, 50, 50], r: (u) => <><Stage u={u} beam={null} /><Crowd u={u} a={0} n={24} cols={8} x={960} y={520} gap={150} s={1.25} />
     <div style={{ position: "absolute", left: 0, right: 0, top: 230, textAlign: "center", fontFamily: F, fontWeight: 900, fontSize: 200, color: GOLD, opacity: fin(u, 3.3, .4), textShadow: "0 0 40px rgba(242,196,107,.5)", transform: `scale(${.9 + .1 * eo((u - 3.3) / .5)})` }}>?</div></> },
-  { from: 23.75, to: 29.6, fadeOut: 1.0, r: (u) => <><Stage u={u} beam={760} />
+  { from: 23.75, to: 29.6, fadeOut: 1.0, r: (u) => <><Stage u={u} beam={760} bg="bg-room" bgDim={.5} />
     <svg width={1920} height={1080} style={{ position: "absolute" }} fill="none" stroke="#cfd8ea" strokeWidth={5} strokeLinecap="round">
       <g opacity={fin(u, .5, .5)} transform="translate(1180 330)"><rect x={0} y={0} width={360} height={470} rx={18} fill="rgba(10,20,52,.6)" /><rect x={120} y={-24} width={120} height={46} rx={10} fill="#0e1b45" />
         {[0, 1, 2, 3].map((i) => <g key={i}><rect x={40} y={70 + i * 95} width={44} height={44} rx={6} /><line x1={110} y1={92 + i * 95} x2={310} y2={92 + i * 95} />
           {u > 1.6 + i * .5 && <path d={`M48 ${92 + i * 95} l12 14 l24 -30`} stroke={GOLD} strokeWidth={7} />}</g>)}</g></svg>
-    <Char img="you-stand" x={760} u={u} a={.1} h={430} /></> },
+    <Char img="you-think" x={760} u={u} a={.1} h={440} anim="nod" /><Lbl x={830} y={330} text="?" size={80} weight={800} color="#dfe8ff" w={100} o={fin(u, .6, .3) * (.7 + .3 * Math.sin(u * 4))} /></> },
   // ===== 0:30 The T-shirt =====
   { from: 30.3, fadeIn: .5, r: (u) => <><Stage u={u} beam={null} />
     <div style={{ position: "absolute", left: 0, right: 0, top: 360, textAlign: "center", fontFamily: F, fontWeight: 800, fontSize: 260, letterSpacing: 10, color: GOLD, opacity: fin(u, .2, .5), textShadow: "0 0 50px rgba(242,196,107,.55)" }}>2000</div></> },
-  { from: 32.5, r: (u) => <><Stage u={u} beam={1220} />
+  { from: 32.5, r: (u) => <><Stage u={u} beam={1220} bg="bg-room" bgDim={.45} />
     <Img src={staticFile("spot/char-master-spotlight.png")} style={{ position: "absolute", left: 160, top: 900, height: 330, transform: "translateY(-100%)", opacity: fin(u, 0, .4) * .6, filter: "brightness(.55) drop-shadow(0 0 14px rgba(220,232,255,.25))" }} />
-    <Char img="you-stand" x={760 + 460 * eo((u - .8) / 1.6)} u={u} a={.4} h={430} /></> },
-  { from: 36.25, push: .12, r: (u) => <><Stage u={u} beam={960} />
-    <Char img="girl-bob-stare" x={420} u={u} a={4.2} h={330} dim={.4} /><Char img="boy-red-conversation" x={1510} u={u} a={4.5} h={340} flip dim={.4} />
-    <Char img="you-shirt-embarrassing" x={960} u={u} a={0} h={560} /></> },
+    <Walk u={u} a={.6} b={2.6} x0={720} x1={1220} h={430} /></> },
+  { from: 36.25, cam: [1.0, 1.35, 50, 62], r: (u, t) => <><Stage u={u} beam={960} />
+    <Char img="girl-bob-stare" x={420} u={u} a={4.2} h={330} dim={.4} slide={-200} anim="nod" /><Char img="boy-red-conversation" x={1510} u={u} a={4.5} h={340} flip dim={.4} slide={200} />
+    {t < 41.6 ? <Char img="you-shirt-embarrassing" x={960} u={u} a={0} h={560} anim="breathe" /> : <Char img="you-cover-face" x={960} u={u} a={5.2} h={560} anim="shake" />}</> },
   // 15 into a room full of strangers
-  { from: W(15), r: (u, t) => <><Stage u={u} beam={960} /><Crowd u={u} a={.3} n={14} cols={7} x={960} y={660} gap={210} s={1.2} />
-    <Char img="you-shirt-embarrassing" x={960} u={u} a={0} h={440} /></> },
+  { from: W(15), r: (u, t) => <><Stage u={u} beam={960} bg="bg-room" bgDim={.4} /><Crowd u={u} a={.3} n={14} cols={7} x={960} y={700} gap={210} s={1.2} />
+    <Walk u={u} a={0} b={2.4} x0={380} x1={960} frames={["you-walk-shirt"]} stop="you-shirt-embarrassing" h={450} /></> },
   // 16-18 when they came out: how many would recognise the face?
-  { from: W(16), r: (u, t) => <><Stage u={u} beam={700} />
-    <Char img="you-shirt-embarrassing" x={700} u={u} a={0} h={470} />
+  { from: W(16), r: (u, t) => <><Stage u={u} beam={700} bg="bg-room" bgDim={.45} />
+    <Char img="you-shirt-embarrassing" x={700} u={u} a={0} h={470} anim="breathe" />
     <Bubble t={t} a={at(18)} x={1250} y={470} w={520} size={34} text="How many would recognize the face?" />
-    <Char img="girl-bob-stare" x={1300} u={u} a={.3} h={330} dim={.2} flip /></> },
+    <Char img="girl-bob-stare" x={1300} u={u} a={.3} h={330} dim={.2} flip anim="nod" /></> },
   // 19-23 46% guessed vs 23% real
   { from: W(19), r: (u, t) => <><Stage u={u} beam={null} />
     <Bars t={t} bars={[{ label: "THEY GUESSED", v: 46, a: 57.85 }, { label: "REALLY NOTICED", v: 23, a: 64.6, col: "#dfe8ff" }]} gap={520} />
@@ -270,9 +286,9 @@ const SH: Shot[] = [
   { from: W(25), ...CH(25), r: (u, t) => <><Stage u={u} beam={null} />
     <House2 t={t} a={at(25)} eyes1={8} eyes2={4} grow={TW + .2} l1="IN THEIR MINDS" l2="IN THE ROOM" /></> },
   // ===== 1:18 It's not just the bad days =====
-  { from: at(26) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} warm /><Char img="you-shirt-star" x={960} u={u} a={.2} h={460} /></> },
+  { from: at(26) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} warm /><Char img="you-shirt-star" x={960} u={u} a={.2} h={460} anim="hop" /></> },
   { from: W(27), r: (u, t) => <><Stage u={u} beam={760} warm />
-    <Char img="you-shirt-star" x={760} u={u} a={0} h={470} /><Char img="girl-long-clap" x={1300} u={u} a={at(28) - u * 0 - (t - u)} h={360} dim={.15} />
+    <Char img="you-shirt-star" x={760} u={u} a={0} h={470} anim="talk" /><Char img="girl-long-clap" x={1300} u={u} a={at(28) - (t - u)} h={360} dim={.15} slide={200} anim="nod" />
     <Bubble t={t} a={at(28)} x={1300} y={470} w={360} text="Someone everyone admired" size={28} warm /></> },
   // 29-30 48% -> 8% (the bar shrinks)
   { from: W(29), r: (u, t) => <><Stage u={u} beam={null} />
@@ -284,21 +300,20 @@ const SH: Shot[] = [
       <defs><radialGradient id="cg"><stop offset="0" stopColor="#ffe6a8" stopOpacity=".45" /><stop offset="1" stopColor="#ffe6a8" stopOpacity="0" /></radialGradient></defs>
       <circle cx={560} cy={590} r={330 * eo((t - at(32)) / 1.2) + 40} fill="url(#cg)" />
       <circle cx={1360} cy={590} r={70 * eo((t - at(32) - 1) / 1) + 10} fill="url(#cg)" /></svg>
-    <Char img="you-shirt-star" x={560} y={780} u={u} a={0} h={380} /><Char img="you-shirt-star" x={1360} y={780} u={u} a={.4} h={380} />
+    <Char img="you-shirt-star" x={560} y={780} u={u} a={0} h={380} anim="breathe" /><Char img="you-shirt-star" x={1360} y={780} u={u} a={.4} h={380} anim="breathe" />
     <Lbl x={560} y={800} text="HOW IT FEELS TO YOU" size={30} o={fin(t, at(32), .4)} /><Lbl x={1360} y={800} text="WHAT OTHERS SEE" size={30} o={fin(t, at(32) + 1, .4)} /></> },
   // 33-36 the conversation study
-  { from: W(33), r: (u, t) => <><Stage u={u} beam={960} />
-    <Char img="girl-bob-stare" x={520} u={u} a={.2} h={330} dim={.15} /><Char img="you-talk-sit" x={860} u={u} a={0} h={380} />
-    <Char img="girl-long-clap" x={1180} u={u} a={.3} h={360} dim={.15} flip /><Char img="boy-red-conversation" x={1460} u={u} a={.4} h={380} flip dim={.15} />
+  { from: W(33), cam: [1.0, 1.18, 45, 60], r: (u, t) => <><Stage u={u} beam={960} bg="bg-room" bgDim={.45} />
+    <Char img="girl-bob-stare" x={520} u={u} a={.2} h={330} dim={.15} anim="nod" /><Char img="you-talk-sit" x={860} u={u} a={0} h={380} anim="talk" />
+    <Char img="girl-long-clap" x={1180} u={u} a={.3} h={360} dim={.15} flip anim="nod" /><Char img="boy-red-conversation" x={1460} u={u} a={.4} h={380} flip dim={.15} slide={200} />
     <Bubble t={t} a={at(36)} x={760} y={520} w={300} text="Best point ★" size={28} warm /><Bubble t={t} a={at(36) + 1.2} x={1080} y={430} w={300} text="Slip-up…" size={28} /></> },
   // 37-38 more attention than the group said
   { from: W(37), r: (u, t) => <><Stage u={u} beam={null} />
     <Bars t={t} bars={[{ label: "HOW MUCH I STOOD OUT", v: 70, a: at(37) + .8 }, { label: "WHAT THE GROUP SAID", v: 38, a: at(37) + 2.2, col: "#dfe8ff" }]} gap={520} max={100} note="* Illustration" /></> },
   // 39 replayed all the way home
-  { from: W(39), r: (u, t) => <><Stage u={u} beam={1100} dim={.3} />
-    <svg width={1920} height={1080} style={{ position: "absolute", opacity: .3 }} fill="none" stroke={LINE} strokeWidth={3}><rect x={260} y={300} width={260} height={220} rx={6} /><line x1={390} y1={300} x2={390} y2={520} /><line x1={260} y1={410} x2={520} y2={410} /><circle cx={340} cy={360} r={26} fill="#dfe8ff" stroke="none" opacity={.6} /></svg>
-    <Char img="you-phone-worried" x={1100} u={u} a={0} h={440} />
-    <Bubble t={t} a={at(39) + 1} x={1100} y={380} w={360} text="Why did I say that?" size={28} /></> },
+  { from: W(39), cam: [1.0, 1.15, 55, 70], r: (u, t) => <><Stage u={u} beam={null} bg="bg-bedroom" bgDim={.7} />
+    {t < at(39) + 2.6 ? <Walk u={t} a={at(39)} b={at(39) + 2.6} x0={1500} x1={1100} h={420} stop="you-phone-worried" /> : <Char img="you-bed-replay" x={1050} y={930} u={t} a={at(39) + 2.4} h={300} anim="breathe" />}
+    <Bubble t={t} a={at(39) + 3} x={1150} y={560} w={360} text="Why did I say that?" size={28} /></> },
   // 40-44 the ranking board: own guess #2, the group #3
   { from: W(40), r: (u, t) => { const k = eo((t - 140.6) / .7), row = 1 + k, rows = ["Comment A", "Comment B", "Comment C", "Comment D", "Comment E"];
     return <><Stage u={u} beam={null} />
@@ -308,17 +323,17 @@ const SH: Shot[] = [
           <span style={{ width: 80 }}>#{t < 140.6 ? 2 : 3}</span>YOUR SLIP-UP</div>
       </div>
       <Lbl x={1620} y={260 + row * 110} text={t < 140.6 ? "YOU THOUGHT" : "THE GROUP"} size={30} color={GOLD} w={300} o={fin(t, 136.3, .3)} /></>; } },
-  { from: W(44), ...CH(44), r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-slipup-sit" x={960} u={u} a={0} h={400} glow="rgba(242,196,107,.55)" /></> },
+  { from: W(44), ...CH(44), r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-slipup-sit" x={960} u={u} a={0} h={400} glow="rgba(242,196,107,.55)" anim="shake" /></> },
   // ===== 2:26 Why your brain does this =====
-  { from: at(45) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-stand" x={960} u={u} a={.2} h={440} />
+  { from: at(45) - .35, fadeIn: .5, cam: [1.0, 1.2, 50, 45], r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-think" x={960} u={u} a={.2} h={450} anim="nod" /><Lbl x={1050} y={410} text="?" size={80} weight={800} color="#dfe8ff" w={100} o={fin(u, .8, .3)} />
     <svg width={1920} height={1080} style={{ position: "absolute" }}><circle cx={960} cy={530} r={95 + 8 * Math.sin(t * 2)} fill="none" stroke={GOLD} strokeWidth={3} opacity={.5 * fin(t, at(45) + 1, .5)} /></svg></> },
   // 46-47 inside, at FULL VOLUME
-  { from: W(46), r: (u, t) => <><Stage u={u} beam={760} /><Char img="you-speech-nervous" x={760} u={u} a={0} h={470} /><Meter t={t} a={FV - .4} x={1340} y={860} /></> },
+  { from: W(46), r: (u, t) => <><Stage u={u} beam={760} /><Char img="you-speech-nervous" x={760} u={u} a={0} h={470} anim="shake" /><Meter t={t} a={FV - .4} x={1340} y={860} /></> },
   { from: W(48), r: (u, t) => { const sh = 4 * Math.sin(t * 40) * (t > 156.6 ? 1 : 0);
     return <><Stage u={u} beam={960} warm={t < 156.6} />
       <div style={{ position: "absolute", inset: 0, transform: `translateX(${sh}px)` }}><Char img="you-speech-nervous" x={960} u={u} a={0} h={520} /></div>
       <svg width={1920} height={1080} style={{ position: "absolute", opacity: fin(t, at(48), .4) * (t < 156.6 ? 1 : .3) }}>{[0, 1, 2].map((i) => <path key={i} d={`M${1100 + i * 30} ${520 - ((t * 60 + i * 40) % 120)} q12 -14 0 -28 q-12 -14 0 -28`} fill="none" stroke={RED} strokeWidth={5} strokeLinecap="round" />)}</svg></>; } },
-  { from: W(49), r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-speech-nervous" x={960} u={u} a={0} h={520} glow="rgba(242,196,107,.6)" /></> },
+  { from: W(49), cam: [1.0, 1.4, 50, 45], r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-speech-nervous" x={960} u={u} a={0} h={520} glow="rgba(242,196,107,.6)" anim="shake" /></> },
   // 51 start from how it felt, adjust — not far enough
   { from: W(51), r: (u, t) => { const k = eo((t - 169) / 2.5), v = 92 - 30 * k;
     return <><Stage u={u} beam={null} />
@@ -338,18 +353,18 @@ const SH: Shot[] = [
       <Lbl x={960} y={880} text="stopped to consider smaller numbers" size={32} w={900} o={fin(t, 181.6, .4)} /></>
     : <><Lbl x={960} y={330} text="THEY STILL GUESSED" size={34} o={fin(t, at(55), .4)} /><Lbl x={960} y={390} text="ABOUT HALF" size={180} color={GOLD} weight={800} w={1600} o={fin(t, at(55) + .3, .4)} /></>}</> },
   // 56-57 everyone is busy watching themselves
-  { from: W(56), ...CH(57), r: (u, t) => <><Stage u={u} beam={null} />
-    <Char img="girl-long-mirror" x={380} u={u} a={.2} h={380} /><Char img="boy-red-conversation" x={760} u={u} a={.5} h={390} />
-    <Char img="girl-bob-stare" x={1160} u={u} a={.8} h={350} /><Char img="you-phone-worried" x={1540} u={u} a={1.1} h={390} />
-    <Bubble t={t} a={190.6} x={380} y={500} w={270} text="My hair…" size={28} /><Bubble t={t} a={191.6} x={760} y={490} w={300} text="What I said…" size={28} />
+  { from: W(56), ...CH(57), r: (u, t) => <><Stage u={u} beam={null} bg="bg-cafeteria" bgDim={.4} />
+    <Char img="girl-long-makeup" x={380} u={u} a={.2} h={390} anim="nod" slide={-120} /><Char img="boy-red-phone" x={760} u={u} a={.5} h={390} anim="breathe" slide={-120} />
+    <Char img="girl-bob-check-clothes" x={1160} u={u} a={.8} h={390} anim="nod" slide={120} /><Char img="you-phone-worried" x={1540} u={u} a={1.1} h={390} anim="breathe" slide={120} />
+    <Bubble t={t} a={190.6} x={380} y={500} w={270} text="My face…" size={28} /><Bubble t={t} a={191.6} x={760} y={490} w={300} text="What I posted…" size={28} />
     <Bubble t={t} a={193.6} x={1160} y={530} w={300} text="My clothes…" size={28} /><Bubble t={t} a={194.8} x={1540} y={490} w={300} text="My moment…" size={28} /></> },
   // ===== 3:23 Your feelings don't leak out either =====
-  { from: at(58) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-lie-nervous" x={960} u={u} a={.2} h={450} />
+  { from: at(58) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-lie-nervous" x={960} u={u} a={.2} h={450} anim="shake" />
     {["nervous", "lying", "about to cry"].map((w, i) => <Lbl key={w} x={[620, 1310, 1290][i]} y={[380, 330, 560][i]} text={w} size={40} color="rgba(207,217,245,.75)" w={360} o={fin(t, [207.8, 208.6, 209.4][i], .4) * .9} weight={600} />)}</> },
   // 60-64 the lie study
-  { from: W(60), r: (u, t) => <><Stage u={u} beam={960} />
-    <Char img="girl-bob-stare" x={420} u={u} a={.3} h={330} dim={.25} /><Char img="boy-red-sit-watch" x={1500} u={u} a={.5} h={330} flip dim={.25} />
-    <Char img="you-lie-nervous" x={960} u={u} a={0} h={450} />
+  { from: W(60), cam: [1.0, 1.2, 50, 55], r: (u, t) => <><Stage u={u} beam={960} bg="bg-room" bgDim={.4} />
+    <Char img="girl-bob-stare" x={420} u={u} a={.3} h={330} dim={.25} anim="nod" slide={-150} /><Char img="boy-red-sit-watch" x={1500} u={u} a={.5} h={330} flip dim={.25} anim="nod" slide={150} />
+    <Char img="you-lie-nervous" x={960} u={u} a={0} h={450} anim="shake" />
     <Bubble t={t} a={at(62)} x={960} y={360} w={460} text="Half of them saw through me" size={28} /></> },
   { from: W(63), r: (u, t) => { const k = eo((t - 228.4) / .8), th = Math.PI * (.5 + .06 * k);
     return <><Stage u={u} beam={null} />
@@ -360,28 +375,28 @@ const SH: Shot[] = [
         <circle cx={960} cy={840} r={16} fill={GOLD} /></svg>
       <Lbl x={960} y={880} text="50% = PURE GUESSING" size={28} color="#8fa6d6" o={fin(t, at(63), .4)} /></>; } },
   // 65-68 vinegar: 5 of 10 guessed, really ~3
-  { from: W(65), r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-drink-disgust" x={960} u={u} a={0} h={470} /></> },
+  { from: W(65), cam: [1.0, 1.3, 50, 45], r: (u, t) => <><Stage u={u} beam={960} bg="bg-cafeteria" bgDim={.4} /><Char img="you-drink-disgust" x={960} u={u} a={0} h={470} anim="shake" /></> },
   { from: W(67), r: (u, t) => <><Stage u={u} beam={null} />
     <Crowd u={t} a={at(67) - .2} n={10} cols={10} x={960} y={600} gap={150} s={1.5} lit={t < 247.4 ? 5 : 3} litAt={t < 247.4 ? 241.9 : 247.4} />
     <Lbl x={960} y={240} text={t < 247.4 ? "THEY GUESSED: 5 OF 10" : "REALLY: ABOUT 3"} size={64} color={GOLD} weight={800} w={1200} o={fin(t, 241.9, .4)} /></> },
   // 69-71 when it tasted good the illusion vanished
-  { from: W(69), r: (u, t) => <><Stage u={u} beam={960} warm /><Char img="you-laugh-profile" x={960} u={u} a={0} h={460} /></> },
-  { from: W(71), r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-lie-nervous" x={960} u={u} a={0} h={450} /></> },
+  { from: W(69), r: (u, t) => <><Stage u={u} beam={960} warm bg="bg-cafeteria" bgDim={.5} /><Char img="you-laugh-profile" x={960} u={u} a={0} h={460} anim="talk" /></> },
+  { from: W(71), r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-cover-face" x={960} u={u} a={0} h={460} anim="shake" /></> },
   // 72-73 written across your face, but nobody can read it
-  { from: W(72), r: (u, t) => <><Stage u={u} beam={960} />
-    <Char img="you-stand" x={960} u={u} a={0} h={460} glow="rgba(242,196,107,.7)" />
-    <Char img="girl-bob-stare" x={440} u={u} a={.5} h={330} dim={.3} /><Char img="boy-red-conversation" x={1480} u={u} a={.7} h={360} flip dim={.3} />
+  { from: W(72), r: (u, t) => <><Stage u={u} beam={960} bg="bg-hallway" bgDim={.4} />
+    <Char img="you-stand" x={960} u={u} a={0} h={460} glow="rgba(242,196,107,.7)" anim="breathe" />
+    <Char img="girl-bob-stare" x={440} u={u} a={.5} h={330} dim={.3} slide={-150} /><Char img="boy-red-conversation" x={1480} u={u} a={.7} h={360} flip dim={.3} slide={150} />
     <Lbl x={440} y={360} text="?" size={90} color="#8fa6d6" o={fin(t, at(73), .3)} weight={800} w={200} /><Lbl x={1480} y={330} text="?" size={90} color="#8fa6d6" o={fin(t, at(73) + .3, .3)} weight={800} w={200} /></> },
   // 74-80 the speech study
-  { from: W(74), r: (u, t) => <><Stage u={u} beam={960} />
+  { from: W(74), cam: [1.0, 1.15, 55, 50], r: (u, t) => <><Stage u={u} beam={960} />
     <Img src={staticFile("spot/char-master-spotlight.png")} style={{ position: "absolute", left: 120, top: 900, height: 250, transform: "translateY(-100%)", opacity: .5, filter: "brightness(.5)" }} />
-    <Char img="you-speech-nervous" x={1060} y={880} u={u} a={0} h={520} />
+    <Char img="you-speech-nervous" x={1060} y={880} u={u} a={0} h={520} anim="shake" />
     <Bubble t={t} a={at(76)} x={1430} y={420} w={420} text="They can't see your nerves as clearly as you feel them" size={26} warm /></> },
   { from: W(77), ...CH(80), r: (u, t) => <><Stage u={u} beam={960} warm />
     <Img src={staticFile("spot/char-master-spotlight.png")} style={{ position: "absolute", left: 120, top: 900, height: 250, transform: "translateY(-100%)", opacity: .5, filter: "brightness(.5)" }} />
-    <Char img="you-speech-confident" x={1060} y={880} u={u} a={0} h={520} /></> },
+    <Char img="you-speech-confident" x={1060} y={880} u={u} a={0} h={520} anim="talk" /></> },
   // ===== 4:49 The audience in your head =====
-  { from: at(81) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-phone-worried" x={960} u={u} a={.2} h={420} /></> },
+  { from: at(81) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={null} bg="bg-bedroom" bgDim={.7} /><Char img="you-phone-worried" x={960} u={u} a={.2} h={420} anim="breathe" /></> },
   { from: W(83), r: (u, t) => <><Stage u={u} beam={null} />
     <svg width={1920} height={1080} style={{ position: "absolute", opacity: fin(t, IMAG, .8) }}>
       {Array.from({ length: 3 }, (_, r) => Array.from({ length: 11 - r }, (_, c) => { const x = 960 + (c - (10 - r) / 2) * (150 + r * 10), y = 700 + r * 110;
@@ -392,7 +407,7 @@ const SH: Shot[] = [
     <Lbl x={960} y={500} text="SCHOOL STUDENTS" size={40} o={fin(t, at(86) + .7, .4)} />
     <Lbl x={960} y={640} text="Most self-conscious: 8th graders" size={52} color={GOLD} weight={800} w={1400} o={fin(t, at(87), .4)} /></> },
   // 88-90 into your pocket: social media
-  { from: W(88), r: (u, t) => <><Stage u={u} beam={760} /><Char img="you-phone-worried" x={760} u={u} a={0} h={440} />
+  { from: W(88), cam: [1.0, 1.12, 60, 50], r: (u, t) => <><Stage u={u} beam={null} bg="bg-bedroom" bgDim={.55} /><Char img="you-phone-worried" x={760} u={u} a={0} h={440} anim="shake" />
     <svg width={1920} height={1080} style={{ position: "absolute", opacity: fin(t, at(89), .5) }}>
       <g transform="translate(1340 520)"><rect x={-150} y={-280} width={300} height={560} rx={38} fill="#0d1a33" stroke="#cfd8ea" strokeWidth={6} />
         {Array.from({ length: 12 }, (_, i) => <Eye key={i} x={-80 + (i % 3) * 80} y={-180 + Math.floor(i / 3) * 110} s={.8} o={fin(t, at(89) + .3 + i * .12, .2)} />)}</g></svg></> },
@@ -410,35 +425,35 @@ const SH: Shot[] = [
       <line x1={725} y1={680} x2={1195} y2={680} stroke={GOLD} strokeWidth={6} strokeDasharray="16 12" /></svg>
     <Lbl x={600} y={650} text="IMAGINED AUDIENCE" size={22} w={200} o={fin(t, at(92), .5)} /><Lbl x={1320} y={650} text="FEELINGS OF DEPRESSION" size={22} w={200} o={fin(t, at(92), .5)} /></> },
   { from: W(94), r: (u, t) => <><Stage u={u} beam={null} /><Crowd u={u} a={0} n={24} cols={12} x={960} y={720} gap={130} s={1} />
-    <Char img="you-phone-worried" x={960} y={640} u={u} a={.2} h={360} /></> },
+    <Char img="you-phone-worried" x={960} y={640} u={u} a={.2} h={360} anim="breathe" /></> },
   // 95-98 Japan 77% vs international 56% (OECD PISA 2018)
   { from: W(95), ...CH(98), r: (u, t) => <><Stage u={u} beam={null} />
     <Bars t={t} bars={[{ label: "JAPAN (AGE 15)", v: 77, a: 347.4 }, { label: "INTERNATIONAL AVG.", v: 56, a: 355.2, col: "#dfe8ff" }]} gap={520} />
     <Lbl x={960} y={130} text="WORRY WHAT OTHERS THINK WHEN THEY FAIL" size={32} color="#8fa6d6" w={1400} o={fin(t, at(97), .4)} /></> },
   // ===== 5:58 The spotlight fades =====
-  { from: at(99) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} dim={eo((t - at(100)) / 3) * .7} /><Char img="you-relief" x={960} u={u} a={.2} h={450} /></> },
+  { from: at(99) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} dim={eo((t - at(100)) / 3) * .7} /><Char img="you-relief" x={960} u={u} a={.2} h={450} anim="breathe" /></> },
   { from: W(102), r: (u, t) => <><Stage u={u} beam={null} />
-    <Char img="you-shirt-embarrassing" x={560} u={u} a={0} h={330} y={590} /><Char img="you-shirt-embarrassing" x={1360} u={u} a={2.5} h={330} y={590} />
+    <Char img="you-cover-face" x={560} u={u} a={0} h={330} y={590} anim="shake" /><Char img="you-shirt-embarrassing" x={1360} u={u} a={2.5} h={330} y={590} anim="breathe" />
     <Lbl x={560} y={610} text="JUST PUT IT ON" size={30} o={fin(t, at(103), .4)} /><Lbl x={1360} y={610} text="AFTER 15 MINUTES" size={30} o={fin(t, 374.0, .4)} />
     <BigNum t={t} a={368.7} v={51} x={560} y={760} size={130} /><BigNum t={t} a={375.4} v={37} x={1360} y={760} size={130} color="#dfe8ff" /></> },
-  { from: W(106), r: (u, t) => <><Stage u={u} beam={960} dim={.4} /><Char img="you-relief" x={960} u={u} a={0} h={450} />
+  { from: W(106), r: (u, t) => <><Stage u={u} beam={960} dim={.4} bg="bg-hallway" bgDim={.45} /><Char img="you-relief" x={960} u={u} a={0} h={450} anim="breathe" />
     <svg width={1920} height={1080} style={{ position: "absolute" }}><Clock u={t} x={500} y={380} h0={10} h1={10.25} a={at(107)} d={2} /></svg></> },
   // 109-111 the makeup study
-  { from: W(109), r: (u, t) => <><Stage u={u} beam={760} /><Char img="girl-long-mirror" x={760} u={u} a={0} h={450} />
+  { from: W(109), r: (u, t) => <><Stage u={u} beam={760} /><Char img="girl-long-makeup" x={760} u={u} a={0} h={460} anim="nod" />
     {t > at(110) - .2 && <Bars t={t} bars={[{ label: "EXPECTED", v: 80, a: at(110) + 2 }, { label: "NOTICED", v: 30, a: at(111) + .5, col: "#dfe8ff" }]} x={1380} gap={260} H={380} base={800} />}
     <Illus o={fin(t, at(110) + 1.8, .4)} /></> },
   // 112-117 to be clear... narrower and kinder
   { from: W(112), r: (u, t) => <><Stage u={u} beam={null} /><Crowd u={t} a={at(112) - .2} n={16} cols={8} x={960} y={560} gap={150} s={1.25} lit={3} litAt={at(112) + 1.5} /></> },
   { from: W(113), r: (u, t) => <><Stage u={u} beam={960} />
-    <Char img="girl-bob-stare" x={620} u={u} a={0} h={360} /><Char img="you-speech-nervous" x={1220} y={820} u={u} a={.3} h={460} /></> },
+    <Char img="girl-bob-stare" x={620} u={u} a={0} h={360} anim="nod" /><Char img="you-speech-nervous" x={1220} y={820} u={u} a={.3} h={460} anim="shake" /></> },
   { from: NARROW - .3, r: (u, t) => <><Stage u={u} beam={null} /></> },
   { from: W(115), ...CH(117), r: (u, t) => <><Stage u={u} beam={null} />
     <Lbl x={960} y={240} text="WE OVERESTIMATE HOW MUCH OTHERS NOTICE" size={34} color="#cfd9f5" w={1500} o={fin(t, at(115), .4)} />
     <Lbl x={560} y={430} text="46% → 23%" size={96} color={GOLD} weight={800} w={800} o={fin(t, at(116), .4)} /><Lbl x={560} y={560} text="by half" size={36} w={600} o={fin(t, at(116), .4)} />
     <Lbl x={1360} y={430} text="48% → 8%" size={96} color={GOLD} weight={800} w={800} o={fin(t, at(117), .4)} /><Lbl x={1360} y={560} text="by much more" size={36} w={600} o={fin(t, at(117), .4)} /></> },
   // ===== 7:03 What everyone else remembers =====
-  { from: at(118) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} warm />
-    <Char img="you-talk-sit" x={780} u={u} a={.2} h={380} /><Char img="boy-red-conversation" x={1180} u={u} a={.4} h={400} flip /></> },
+  { from: at(118) - .35, fadeIn: .5, cam: [1.0, 1.15, 50, 55], r: (u, t) => <><Stage u={u} beam={960} warm bg="bg-room" bgDim={.45} />
+    <Char img="talk-pair-happy" x={960} u={u} a={.2} h={420} anim="talk" /></> },
   { from: LIKED - .2, r: (u, t) => <><Stage u={u} beam={null} warm /></> },
   { from: W(120), ...CH(120), r: (u, t) => <><Stage u={u} beam={null} />
     <svg width={1920} height={1080} style={{ position: "absolute" }}>
@@ -451,25 +466,25 @@ const SH: Shot[] = [
           <text x={460 + 10 * (g as number)} y={y + 100} textAnchor="middle" fontFamily={F} fontWeight={600} fontSize={24} fill="#fff">your guess</text></g>; })}</svg>
     <Illus o={fin(t, at(120), .4)} /></> },
   // ===== 7:22 What you can do with this =====
-  { from: at(121) - .3, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-stand" x={960} u={u} a={.2} h={440} /></> },
+  { from: at(121) - .3, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-think" x={960} u={u} a={.2} h={450} anim="nod" /><Lbl x={1050} y={410} text="?" size={80} weight={800} color="#dfe8ff" w={100} o={fin(u, .6, .3)} /></> },
   { from: W(122), r: (u, t) => <><Stage u={u} beam={1380} /><Tip t={t} a={at(122)} n="FIRST" text="Remember the T-shirt." />
-    <Char img="you-shirt-embarrassing" x={1380} u={u} a={.3} h={480} />
+    <Char img="you-shirt-embarrassing" x={1380} u={u} a={.3} h={480} anim="breathe" />
     <Lbl x={550} y={720} text="46% guessed → 23% real" size={44} color={GOLD} weight={800} w={800} o={fin(t, at(125), .4)} />
     <Lbl x={550} y={800} text="Your number is probably too high." size={36} w={800} o={fin(t, at(126), .4)} /></> },
   { from: at(127) - .2, r: (u, t) => <><Stage u={u} beam={1380} /><Tip t={t} a={at(127)} n="SECOND" text="Your nerves are louder inside than outside." />
-    <Char img={t < at(129) ? "you-speech-nervous" : "you-speech-confident"} x={1380} u={u} a={.3} h={500} /></> },
+    <Char img={t < at(129) ? "you-speech-nervous" : "you-speech-confident"} x={1380} u={u} a={t < at(129) ? .3 : at(129) - (t - u)} h={500} anim={t < at(129) ? "shake" : "talk"} /></> },
   { from: at(130) - .2, ...CH(134), r: (u, t) => <><Stage u={u} beam={1380} warm /><Tip t={t} a={at(130)} n="THIRD" text="Give them more credit. They liked you more than you think." />
-    <Char img="you-talk-sit" x={1240} u={u} a={.3} h={380} /><Char img="boy-red-conversation" x={1600} u={u} a={.5} h={400} flip /></> },
+    <Char img="talk-pair-happy" x={1420} u={u} a={.3} h={400} anim="talk" /></> },
   // ===== the ending =====
-  { from: at(135) - .5, fadeIn: .7, r: (u, t) => <><Stage u={u} beam={960} /><Lockers /><Char img="you-stand" x={960} u={u} a={.2} h={440} /></> },
-  { from: W(137), r: (u, t) => <><Stage u={u} beam={null} /><Tables />
-    <Char img="girl-bob-stare" x={330} u={u} a={0} h={350} /><Char img="boy-red-sit-watch" x={1590} u={u} a={0} h={340} flip />
-    <Char img="girl-long-clap" x={960} u={u} a={.2} h={360} /></> },
-  { from: W(139), r: (u, t) => <><Stage u={u} beam={null} />
-    <Char img="girl-long-mirror" x={420} u={u} a={0} h={380} /><Char img="boy-red-conversation" x={960} u={u} a={.2} h={390} /><Char img="girl-bob-stare" x={1500} u={u} a={.4} h={350} />
+  { from: at(135) - .5, fadeIn: .7, cam: [1.0, 1.12, 50, 55], r: (u, t) => <><Stage u={u} beam={960} bg="bg-hallway" /><Walk u={u} a={.3} b={2.8} x0={1400} x1={960} /></> },
+  { from: W(137), r: (u, t) => <><Stage u={u} beam={null} bg="bg-cafeteria" bgDim={.65} />
+    <Char img="talk-pair-happy" x={480} u={u} a={0} h={360} anim="talk" /><Char img="boy-red-phone" x={1500} u={u} a={.2} h={360} anim="breathe" />
+    <Walk u={u} a={.2} b={3.2} x0={1950} x1={1100} frames={["you-walk-1", "you-walk-2"]} stop="you-wave" h={380} /></> },
+  { from: W(139), r: (u, t) => <><Stage u={u} beam={null} bg="bg-cafeteria" bgDim={.4} />
+    <Char img="girl-long-makeup" x={420} u={u} a={0} h={390} anim="nod" /><Char img="boy-red-phone" x={960} u={u} a={.2} h={390} anim="breathe" /><Char img="girl-bob-check-clothes" x={1500} u={u} a={.4} h={390} anim="nod" />
     <Bubble t={t} a={at(139) + 2.5} x={420} y={500} w={300} text="My moment…" size={28} /><Bubble t={t} a={at(139) + 3} x={960} y={490} w={300} text="My moment…" size={28} /><Bubble t={t} a={at(139) + 3.5} x={1500} y={530} w={300} text="My moment…" size={28} /></> },
   { from: W(141), to: OUT0, fadeOut: .9, push: .08, r: (u, t) => { const off = fin(t, LAST - .2, .5);
-    return <><Stage u={u} beam={960} dim={off} /><AbsoluteFill style={{ opacity: 1 - .85 * off }}><Lockers o={.25} /><Char img="you-stand" x={960} u={u} a={0} h={440} /></AbsoluteFill></>; } },
+    return <><Stage u={u} beam={960} dim={off} bg="bg-hallway" bgDim={.55 - .4 * off} /><AbsoluteFill style={{ opacity: 1 - .85 * off }}><Char img="you-relief" x={960} u={u} a={0} h={440} anim="breathe" /></AbsoluteFill></>; } },
 ];
 
 // big key words (the bottom caption steps aside while one is up)
@@ -502,7 +517,7 @@ const SOURCES: [number, string, string?][] = [
 ];
 
 SH.push({ from: OUT0 - .1, to: SPOT_END, fadeIn: .7, push: .04, r: (u, t) => <><Stage u={u} beam={960} warm />
-  <Img src={staticFile("spot/char-master-spotlight.png")} style={{ position: "absolute", left: 960, top: 800, height: 300, transform: "translate(-50%,-100%)", opacity: fin(u, .3, .6), filter: "drop-shadow(0 0 18px rgba(255,226,170,.4))" }} /></> });
+  <Char img="you-wave" x={960} y={820} u={u} a={.3} h={380} anim="nod" /></> });
 export const SPOT_TEST_END = 44.4;
 export const SPOT_FRAMES = Math.round(SPOT_END * FPS);
 
@@ -514,10 +529,10 @@ export const SpotEpisode: React.FC = () => {
   const big = BIGS.find((b) => t >= b.a && t < b.b);
   let body: React.ReactNode = null, op = 1;
   if (idx >= 0) {
-    const sh = SH[idx], to = sh.to ?? (SH[idx + 1]?.from ?? SPOT_END), u = t - sh.from, k = u / (to - sh.from), z = 1 + (sh.push ?? .05) * ease(Math.min(1, k));
+    const sh = SH[idx], to = sh.to ?? (SH[idx + 1]?.from ?? SPOT_END), u = t - sh.from, k = u / (to - sh.from), z = sh.cam ? sh.cam[0] + (sh.cam[1] - sh.cam[0]) * ease(Math.min(1, k)) : 1 + (sh.push ?? .05) * ease(Math.min(1, k));
     op = (sh.fadeIn ? fin(u, 0, sh.fadeIn) : 1) * (sh.fadeOut ? fout(t, to, sh.fadeOut) : 1);
     const dir = idx % 3, dx = dir === 1 ? -30 * k : dir === 2 ? 30 * k : 0;
-    body = <AbsoluteFill style={{ transform: `translateX(${dx}px) scale(${z})`, transformOrigin: "50% 55%" }}>{sh.r(u, t)}</AbsoluteFill>;
+    body = <AbsoluteFill style={{ transform: `translateX(${sh.cam ? 0 : dx}px) scale(${z})`, transformOrigin: sh.cam ? `${sh.cam[2]}% ${sh.cam[3]}%` : "50% 55%" }}>{sh.r(u, t)}</AbsoluteFill>;
   }
   const endO = fin(t, LAST + .1, .9) * fout(t, OUT0 - .1, .8);
   const tv = t - TV_OFF, sy = tv < 0 ? 1 : Math.max(.004, 1 - eo(tv / .28)), sx = tv < .28 ? 1 : Math.max(.004, 1 - eo((tv - .28) / .22)), flash = tv < 0 ? 0 : Math.min(1, tv / .2);
