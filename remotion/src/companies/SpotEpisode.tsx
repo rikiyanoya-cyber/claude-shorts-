@@ -483,9 +483,11 @@ const BIGS: Big[] = [
 // study cards (top-right, ~3 s)
 const SOURCES: [number, string, string?][] = [
   [at(11), "Gilovich, Medvec & Savitsky (2000)", "Cornell University"],
+  [at(34), "Gilovich, Medvec & Savitsky (2000)", "Group discussion study"],
   [at(60), "Gilovich, Savitsky & Medvec (1998)", "The illusion of transparency"],
   [at(75), "Savitsky & Gilovich (2003)"],
   [at(86), "Elkind & Bowen (1979)"],
+  [at(90), "Choukas-Bradley et al. (2020)"],
   [at(96), "OECD PISA 2018"],
   [at(119), "Boothby et al. (2018)", "The liking gap"],
 ];
