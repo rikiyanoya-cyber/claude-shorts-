@@ -1,6 +1,6 @@
 # THE SPOTLIGHT EFFECT audio: narration (cut 1 s after the last line) + closing voice + soft symbolic effects
 # + one BGM looped with 4 s crossfades at a steady -20 dB under the voice (2 s in, 3 s out).
-# usage: python3 mix.py <narration> <closing voice> <bgm> <sfx dir> <out wav>
+# usage: python3 mix.py <narration> <closing voice> <bgm> <sfx dir (fam1 set + rise/fall from graph_sfx.py)> <out wav>
 # Times mirror SpotEpisode.tsx (OUT0 = last line end + 1.0, TV_OFF = OUT0 + 9.8 + 0.45, end = TV_OFF + 2.5).
 import sys, json, subprocess, numpy as np, soundfile as sf
 NAR, OUTRO, BGM, SFX, OUT = sys.argv[1:6]; SR = 48000
@@ -14,7 +14,12 @@ rms = lambda x: np.sqrt((x[np.abs(x).max(1) > 1e-4] ** 2).mean()); vr = rms(nv)
 C = []
 for t in (30.3, at(26) - .35, at(45) - .35, at(58) - .35, at(81) - .35, at(99) - .35, at(118) - .35, at(121) - .3): C.append((t, 'whoosh', -22, .6))
 for t in (14.95, 72.2, 153.3, 228.2, 300.5, 335.6, 411.4, 431.4): C.append((t, 'chime', -19, 1.6))      # a spotlight key word lights up
-for t in (57.85, 64.6, 92.2, 96.7, at(86) + .6, 327.9, 347.4, 355.2, 368.7, 375.4): C.append((t, 'count', -20, 1.2))
+for t in (at(86) + .6, 327.9, 368.7, 375.4): C.append((t, 'count', -20, 1.2))                          # stand-alone numbers
+# graphs (2026-11-17 review): a soft rising sweep when a bar grows, a falling one when it shrinks
+for t in (57.85, 64.6, 92.2, at(37) + .8, at(37) + 2.2, at(51), 168.5, 228.4, at(90) + .1, 347.4, 355.2,
+          at(110) + 2, at(111) + .5, at(120) + .5, at(120) + 3.1): C.append((t, 'rise', -18, .9))
+for t in (96.7, 169.0, 140.6): C.append((t, 'fall', -18, .9))                                              # 48% -> 8%, the guess adjusting, slip-up #2 -> #3
+C.append((134.5, 'pop', -20, .4))                                                                           # the slip-up row lights on the board
 for t in (70.2, 179.9, 241.9, 247.4): C.append((t, 'count', -22, .8))                                       # figures light up
 for a in (8.5, at(107)):
     for k in range(5): C.append((a + k * .28, 'tick', -21, .35))
