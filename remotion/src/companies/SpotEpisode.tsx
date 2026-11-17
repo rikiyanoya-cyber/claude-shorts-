@@ -332,7 +332,7 @@ const SH: Shot[] = [
     {t < at(55) - .1 ? <><Crowd u={t} a={at(54) - .3} n={4} cols={4} x={960} y={640} gap={220} s={2.2} lit={3} litAt={179.9} />
       <Lbl x={960} y={760} text="3 OUT OF 4" size={96} color={GOLD} weight={800} w={900} o={fin(t, 179.9, .4)} />
       <Lbl x={960} y={880} text="stopped to consider smaller numbers" size={32} w={900} o={fin(t, 181.6, .4)} /></>
-    : <BigNum t={t} a={at(55) + .1} v={50} x={960} y={480} label="STILL GUESSED ABOUT" suf="%" size={220} />}</> },
+    : <><Lbl x={960} y={330} text="THEY STILL GUESSED" size={34} o={fin(t, at(55), .4)} /><Lbl x={960} y={390} text="ABOUT HALF" size={180} color={GOLD} weight={800} w={1600} o={fin(t, at(55) + .3, .4)} /></>}</> },
   // 56-57 everyone is busy watching themselves
   { from: W(56), ...CH(57), r: (u, t) => <><Stage u={u} beam={null} />
     <Char img="girl-long-mirror" x={380} u={u} a={.2} h={380} /><Char img="boy-red-conversation" x={760} u={u} a={.5} h={390} />
