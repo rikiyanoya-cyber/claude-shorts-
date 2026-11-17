@@ -171,7 +171,7 @@ const House2: React.FC<{ t: number; a: number; eyes1: number; eyes2: number; l1:
   const o = fin(t, a, .5), n1 = grow !== undefined && t < grow ? Math.ceil(eyes1 / 2) : eyes1, x0 = 560, y0 = 900, W = 400, Hh = 380;
   const eyesIn = (cx: number, n: number, col: string, ga: number) => Array.from({ length: n }, (_, i) => { const r = Math.floor(i / 3), c = i % 3; return <Eye key={i} x={cx - 110 + c * 110} y={y0 - Hh + 90 + r * 80} s={.9} col={col} o={fin(t, ga + i * .06, .25)} />; });
   return <svg width={1920} height={1080} style={{ position: "absolute", opacity: o }}>
-    <path d={`M${x0 - 40} ${y0 - Hh} L960 ${y0 - Hh - 200} L${1400 + 40} ${y0 - Hh}`} fill="none" stroke="#cfd8ea" strokeWidth={5} />
+    <path d={`M${x0 - 40} ${y0 - Hh} L960 ${y0 - Hh - 110} L${1400 + 40} ${y0 - Hh}`} fill="none" stroke="#cfd8ea" strokeWidth={5} />
     <rect x={x0} y={y0 - Hh} width={W} height={Hh} fill="#2c5bbd" opacity={.55} /><rect x={x0 + W} y={y0 - Hh} width={W} height={Hh} fill="#b57a2c" opacity={.55} />
     <rect x={x0} y={y0 - Hh} width={W * 2} height={Hh} fill="none" stroke="#cfd8ea" strokeWidth={5} /><line x1={960} y1={y0 - Hh} x2={960} y2={y0} stroke="#cfd8ea" strokeWidth={5} />
     {[[x0 + 40, "1"], [x0 + W + 40, "2"]].map(([xx, n]) => <g key={n as string}><circle cx={xx as number} cy={y0 - Hh + 36} r={22} fill={GOLD} /><text x={xx as number} y={y0 - Hh + 47} textAnchor="middle" fontFamily={F} fontWeight={800} fontSize={28} fill={INK}>{n}</text></g>)}
@@ -196,7 +196,7 @@ const Tip: React.FC<{ t: number; a: number; n: string; text: string }> = ({ t, a
   const o = fin(t, a, .45);
   return <div style={{ position: "absolute", left: 170, top: 250, width: 760, opacity: o, transform: `translateX(${(1 - o) * -40}px)`, fontFamily: F, background: "rgba(10,20,52,.78)", border: "2px solid rgba(242,196,107,.6)", borderRadius: 28, padding: "40px 48px", boxShadow: "0 0 50px rgba(242,196,107,.18)" }}>
     <div style={{ fontWeight: 800, fontSize: 40, letterSpacing: 8, color: GOLD }}>{n}</div>
-    <div style={{ fontWeight: 800, fontSize: 62, lineHeight: 1.15, color: "#fff", marginTop: 16 }}>{text}</div>
+    <div style={{ fontWeight: 800, fontSize: 60, lineHeight: 1.15, color: "#fff", marginTop: 16 }}>{text.split(" ").map((w, i) => <span key={i} style={{ whiteSpace: "nowrap" }}>{w} </span>)}</div>
   </div>;
 };
 // volume meter
@@ -260,8 +260,8 @@ const SH: Shot[] = [
     {t > 66.0 && <Lbl x={1220} y={310} text="half" size={44} color={GOLD} o={fin(t, 66.1, .3)} />}</> },
   // 24 23% isn't zero
   { from: W(24), r: (u, t) => <><Stage u={u} beam={null} />
-    <Crowd u={u} a={0} n={13} cols={13} x={960} y={620} gap={115} s={1.15} lit={3} litAt={70.2} />
-    <Lbl x={960} y={720} text="23% — some people did notice" size={36} o={fin(t, 70.2, .4)} /></> },
+    <Crowd u={t} a={at(24) - .1} n={13} cols={13} x={960} y={620} gap={115} s={1.15} lit={3} litAt={70.2} />
+    <Lbl x={960} y={720} text="23% — some people did notice" size={36} w={1100} o={fin(t, 70.2, .4)} /></> },
   // 25 TWICE (room 1 in their minds, room 2 the real room)
   { from: W(25), ...CH(25), r: (u, t) => <><Stage u={u} beam={null} />
     <House2 t={t} a={at(25)} eyes1={8} eyes2={4} grow={TW + .2} l1="IN THEIR MINDS" l2="IN THE ROOM" /></> },
@@ -278,10 +278,10 @@ const SH: Shot[] = [
   { from: W(31), r: (u, t) => <><Stage u={u} beam={null} />
     <svg width={1920} height={1080} style={{ position: "absolute" }}>
       <defs><radialGradient id="cg"><stop offset="0" stopColor="#ffe6a8" stopOpacity=".45" /><stop offset="1" stopColor="#ffe6a8" stopOpacity="0" /></radialGradient></defs>
-      <circle cx={560} cy={640} r={330 * eo((t - at(32)) / 1.2) + 40} fill="url(#cg)" />
-      <circle cx={1360} cy={640} r={70 * eo((t - at(32) - 1) / 1) + 10} fill="url(#cg)" /></svg>
-    <Char img="you-shirt-star" x={560} y={860} u={u} a={0} h={400} /><Char img="you-shirt-star" x={1360} y={860} u={u} a={.4} h={400} />
-    <Lbl x={560} y={900} text="HOW IT FEELS TO YOU" size={30} o={fin(t, at(32), .4)} /><Lbl x={1360} y={900} text="WHAT OTHERS SEE" size={30} o={fin(t, at(32) + 1, .4)} /></> },
+      <circle cx={560} cy={590} r={330 * eo((t - at(32)) / 1.2) + 40} fill="url(#cg)" />
+      <circle cx={1360} cy={590} r={70 * eo((t - at(32) - 1) / 1) + 10} fill="url(#cg)" /></svg>
+    <Char img="you-shirt-star" x={560} y={780} u={u} a={0} h={380} /><Char img="you-shirt-star" x={1360} y={780} u={u} a={.4} h={380} />
+    <Lbl x={560} y={800} text="HOW IT FEELS TO YOU" size={30} o={fin(t, at(32), .4)} /><Lbl x={1360} y={800} text="WHAT OTHERS SEE" size={30} o={fin(t, at(32) + 1, .4)} /></> },
   // 33-36 the conversation study
   { from: W(33), r: (u, t) => <><Stage u={u} beam={960} />
     <Char img="girl-bob-stare" x={520} u={u} a={.2} h={330} dim={.15} /><Char img="you-talk-sit" x={860} u={u} a={0} h={380} />
@@ -309,7 +309,7 @@ const SH: Shot[] = [
   { from: at(45) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-stand" x={960} u={u} a={.2} h={440} />
     <svg width={1920} height={1080} style={{ position: "absolute" }}><circle cx={960} cy={530} r={95 + 8 * Math.sin(t * 2)} fill="none" stroke={GOLD} strokeWidth={3} opacity={.5 * fin(t, at(45) + 1, .5)} /></svg></> },
   // 46-47 inside, at FULL VOLUME
-  { from: W(46), r: (u, t) => <><Stage u={u} beam={760} /><Char img="you-speech-nervous" x={760} u={u} a={0} h={470} /><Meter t={t} a={FV - .4} x={1340} y={820} /></> },
+  { from: W(46), r: (u, t) => <><Stage u={u} beam={760} /><Char img="you-speech-nervous" x={760} u={u} a={0} h={470} /><Meter t={t} a={FV - .4} x={1340} y={860} /></> },
   { from: W(48), r: (u, t) => { const sh = 4 * Math.sin(t * 40) * (t > 156.6 ? 1 : 0);
     return <><Stage u={u} beam={960} warm={t < 156.6} />
       <div style={{ position: "absolute", inset: 0, transform: `translateX(${sh}px)` }}><Char img="you-speech-nervous" x={960} u={u} a={0} h={520} /></div>
@@ -329,7 +329,7 @@ const SH: Shot[] = [
       <Illus o={fin(t, at(51), .4)} /></>; } },
   // 52-55 3 out of 4 thought smaller — still guessed half
   { from: W(52), r: (u, t) => <><Stage u={u} beam={null} />
-    {t < at(55) - .1 ? <><Crowd u={u} a={1.5} n={4} cols={4} x={960} y={640} gap={220} s={2.2} lit={3} litAt={179.9} />
+    {t < at(55) - .1 ? <><Crowd u={t} a={at(54) - .3} n={4} cols={4} x={960} y={640} gap={220} s={2.2} lit={3} litAt={179.9} />
       <Lbl x={960} y={760} text="3 OUT OF 4" size={96} color={GOLD} weight={800} w={900} o={fin(t, 179.9, .4)} />
       <Lbl x={960} y={880} text="stopped to consider smaller numbers" size={32} w={900} o={fin(t, 181.6, .4)} /></>
     : <BigNum t={t} a={at(55) + .1} v={50} x={960} y={480} label="STILL GUESSED ABOUT" suf="%" size={220} />}</> },
@@ -358,7 +358,7 @@ const SH: Shot[] = [
   // 65-68 vinegar: 5 of 10 guessed, really ~3
   { from: W(65), r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-drink-disgust" x={960} u={u} a={0} h={470} /></> },
   { from: W(67), r: (u, t) => <><Stage u={u} beam={null} />
-    <Crowd u={u} a={0} n={10} cols={10} x={960} y={600} gap={150} s={1.5} lit={t < 247.4 ? 5 : 3} litAt={241.9} />
+    <Crowd u={t} a={at(67) - .2} n={10} cols={10} x={960} y={600} gap={150} s={1.5} lit={t < 247.4 ? 5 : 3} litAt={t < 247.4 ? 241.9 : 247.4} />
     <Lbl x={960} y={240} text={t < 247.4 ? "THEY GUESSED: 5 OF 10" : "REALLY: ABOUT 3"} size={64} color={GOLD} weight={800} w={1200} o={fin(t, 241.9, .4)} /></> },
   // 69-71 when it tasted good the illusion vanished
   { from: W(69), r: (u, t) => <><Stage u={u} beam={960} warm /><Char img="you-laugh-profile" x={960} u={u} a={0} h={460} /></> },
@@ -370,22 +370,22 @@ const SH: Shot[] = [
     <Lbl x={440} y={360} text="?" size={90} color="#8fa6d6" o={fin(t, at(73), .3)} weight={800} w={200} /><Lbl x={1480} y={330} text="?" size={90} color="#8fa6d6" o={fin(t, at(73) + .3, .3)} weight={800} w={200} /></> },
   // 74-80 the speech study
   { from: W(74), r: (u, t) => <><Stage u={u} beam={960} />
-    <Img src={staticFile("spot/char-master-spotlight.png")} style={{ position: "absolute", left: 960, top: 1080, height: 300, transform: "translate(-50%,-62%)", opacity: .45, filter: "brightness(.45)" }} />
-    <Char img="you-speech-nervous" x={960} y={760} u={u} a={0} h={520} />
+    <Img src={staticFile("spot/char-master-spotlight.png")} style={{ position: "absolute", left: 120, top: 900, height: 250, transform: "translateY(-100%)", opacity: .5, filter: "brightness(.5)" }} />
+    <Char img="you-speech-nervous" x={1060} y={880} u={u} a={0} h={520} />
     <Bubble t={t} a={at(76)} x={1430} y={420} w={420} text="They can't see your nerves as clearly as you feel them" size={26} warm /></> },
   { from: W(77), ...CH(80), r: (u, t) => <><Stage u={u} beam={960} warm />
-    <Img src={staticFile("spot/char-master-spotlight.png")} style={{ position: "absolute", left: 960, top: 1080, height: 300, transform: "translate(-50%,-62%)", opacity: .45, filter: "brightness(.45)" }} />
-    <Char img="you-speech-confident" x={960} y={760} u={u} a={0} h={520} /></> },
+    <Img src={staticFile("spot/char-master-spotlight.png")} style={{ position: "absolute", left: 120, top: 900, height: 250, transform: "translateY(-100%)", opacity: .5, filter: "brightness(.5)" }} />
+    <Char img="you-speech-confident" x={1060} y={880} u={u} a={0} h={520} /></> },
   // ===== 4:49 The audience in your head =====
   { from: at(81) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} /><Char img="you-phone-worried" x={960} u={u} a={.2} h={420} /></> },
   { from: W(83), r: (u, t) => <><Stage u={u} beam={null} />
     <svg width={1920} height={1080} style={{ position: "absolute", opacity: fin(t, IMAG, .8) }}>
       {Array.from({ length: 3 }, (_, r) => Array.from({ length: 11 - r }, (_, c) => { const x = 960 + (c - (10 - r) / 2) * (150 + r * 10), y = 700 + r * 110;
         return <g key={`${r}-${c}`} fill="#050a1c" opacity={.9}><circle cx={x} cy={y - 50} r={34} /><rect x={x - 48} y={y - 16} width={96} height={130} rx={40} /><circle cx={x - 12} cy={y - 54} r={4} fill="#8fa6d6" /><circle cx={x + 12} cy={y - 54} r={4} fill="#8fa6d6" /></g>; }))}</svg>
-    <Lbl x={960} y={420} text="David Elkind, 1967" size={40} color="#cfd9f5" w={900} o={fin(t, IMAG + .3, .4)} weight={600} /></> },
+    </> },
   { from: W(86), r: (u, t) => <><Stage u={u} beam={null} />
-    <BigNum t={t} a={at(86) + 1.2} v={700} suf="" x={960} y={360} label="NEARLY" size={200} />
-    <Lbl x={960} y={500} text="SCHOOL STUDENTS" size={40} o={fin(t, at(86) + 1.3, .4)} />
+    <BigNum t={t} a={at(86) + .6} v={700} suf="" x={960} y={360} label="NEARLY" size={200} />
+    <Lbl x={960} y={500} text="SCHOOL STUDENTS" size={40} o={fin(t, at(86) + .7, .4)} />
     <Lbl x={960} y={640} text="Most self-conscious: 8th graders" size={52} color={GOLD} weight={800} w={1400} o={fin(t, at(87), .4)} /></> },
   // 88-90 into your pocket: social media
   { from: W(88), r: (u, t) => <><Stage u={u} beam={760} /><Char img="you-phone-worried" x={760} u={u} a={0} h={440} />
@@ -400,11 +400,11 @@ const SH: Shot[] = [
     <Lbl x={960} y={420} text="HOW MUCH YOU THINK ABOUT YOUR ONLINE AUDIENCE" size={34} w={1500} o={fin(t, at(90) + 1, .4)} /></> },
   // 91-94 1,200+ students; a link, not proof
   { from: W(91), r: (u, t) => <><Stage u={u} beam={null} />
-    <BigNum t={t} a={327.9} v={1200} plus suf="" x={960} y={300} label="HIGH SCHOOL STUDENTS" size={170} />
+    {t < LINK - .5 && <BigNum t={t} a={327.9} v={1200} plus suf="" x={960} y={300} label="HIGH SCHOOL STUDENTS" size={170} />}
     <svg width={1920} height={1080} style={{ position: "absolute", opacity: fin(t, at(92), .5) }}>
-      <circle cx={600} cy={680} r={95} fill="none" stroke="#cfd8ea" strokeWidth={4} /><circle cx={1320} cy={680} r={95} fill="none" stroke="#cfd8ea" strokeWidth={4} />
-      <line x1={700} y1={680} x2={1220} y2={680} stroke={GOLD} strokeWidth={6} strokeDasharray="16 12" /></svg>
-    <Lbl x={600} y={650} text="IMAGINED AUDIENCE" size={24} w={180} o={fin(t, at(92), .5)} /><Lbl x={1320} y={650} text="FEELINGS OF DEPRESSION" size={24} w={180} o={fin(t, at(92), .5)} /></> },
+      <circle cx={600} cy={680} r={120} fill="none" stroke="#cfd8ea" strokeWidth={4} /><circle cx={1320} cy={680} r={120} fill="none" stroke="#cfd8ea" strokeWidth={4} />
+      <line x1={725} y1={680} x2={1195} y2={680} stroke={GOLD} strokeWidth={6} strokeDasharray="16 12" /></svg>
+    <Lbl x={600} y={650} text="IMAGINED AUDIENCE" size={22} w={200} o={fin(t, at(92), .5)} /><Lbl x={1320} y={650} text="FEELINGS OF DEPRESSION" size={22} w={200} o={fin(t, at(92), .5)} /></> },
   { from: W(94), r: (u, t) => <><Stage u={u} beam={null} /><Crowd u={u} a={0} n={24} cols={12} x={960} y={720} gap={130} s={1} />
     <Char img="you-phone-worried" x={960} y={640} u={u} a={.2} h={360} /></> },
   // 95-98 Japan 77% vs international 56% (OECD PISA 2018)
@@ -414,8 +414,8 @@ const SH: Shot[] = [
   // ===== 5:58 The spotlight fades =====
   { from: at(99) - .35, fadeIn: .5, r: (u, t) => <><Stage u={u} beam={960} dim={eo((t - at(100)) / 3) * .7} /><Char img="you-relief" x={960} u={u} a={.2} h={450} /></> },
   { from: W(102), r: (u, t) => <><Stage u={u} beam={null} />
-    <Char img="you-shirt-embarrassing" x={560} u={u} a={0} h={380} y={560} /><Char img="you-shirt-embarrassing" x={1360} u={u} a={2.5} h={380} y={560} />
-    <Lbl x={560} y={580} text="JUST PUT IT ON" size={30} o={fin(t, at(103), .4)} /><Lbl x={1360} y={580} text="AFTER 15 MINUTES" size={30} o={fin(t, 374.0, .4)} />
+    <Char img="you-shirt-embarrassing" x={560} u={u} a={0} h={330} y={590} /><Char img="you-shirt-embarrassing" x={1360} u={u} a={2.5} h={330} y={590} />
+    <Lbl x={560} y={610} text="JUST PUT IT ON" size={30} o={fin(t, at(103), .4)} /><Lbl x={1360} y={610} text="AFTER 15 MINUTES" size={30} o={fin(t, 374.0, .4)} />
     <BigNum t={t} a={368.7} v={51} x={560} y={760} size={130} /><BigNum t={t} a={375.4} v={37} x={1360} y={760} size={130} color="#dfe8ff" /></> },
   { from: W(106), r: (u, t) => <><Stage u={u} beam={960} dim={.4} /><Char img="you-relief" x={960} u={u} a={0} h={450} />
     <svg width={1920} height={1080} style={{ position: "absolute" }}><Clock u={t} x={500} y={380} h0={10} h1={10.25} a={at(107)} d={2} /></svg></> },
@@ -424,7 +424,7 @@ const SH: Shot[] = [
     {t > at(110) - .2 && <Bars t={t} bars={[{ label: "EXPECTED", v: 80, a: at(110) + 2 }, { label: "NOTICED", v: 30, a: at(111) + .5, col: "#dfe8ff" }]} x={1380} gap={260} H={380} base={800} />}
     <Illus o={fin(t, at(110) + 1.8, .4)} /></> },
   // 112-117 to be clear... narrower and kinder
-  { from: W(112), r: (u, t) => <><Stage u={u} beam={null} /><Crowd u={u} a={0} n={16} cols={8} x={960} y={560} gap={150} s={1.25} lit={3} litAt={at(112) + 1.5} /></> },
+  { from: W(112), r: (u, t) => <><Stage u={u} beam={null} /><Crowd u={t} a={at(112) - .2} n={16} cols={8} x={960} y={560} gap={150} s={1.25} lit={3} litAt={at(112) + 1.5} /></> },
   { from: W(113), r: (u, t) => <><Stage u={u} beam={960} />
     <Char img="girl-bob-stare" x={620} u={u} a={0} h={360} /><Char img="you-speech-nervous" x={1220} y={820} u={u} a={.3} h={460} /></> },
   { from: NARROW - .3, r: (u, t) => <><Stage u={u} beam={null} /></> },
@@ -472,13 +472,13 @@ const SH: Shot[] = [
 type Big = { a: number; b: number; pre?: string; big: string; post?: string; size?: number; y?: number; color?: string };
 const BIGS: Big[] = [
   { a: 14.85, b: 16.25, pre: "Everyone", big: "SAW IT", size: 250, y: 330 },
-  { a: 72.1, b: 77.0, pre: "the room was filled with", big: "TWICE", post: "as many watching eyes", size: 170, y: 225 },
-  { a: 153.2, b: 155.6, pre: "at", big: "FULL VOLUME", size: 190, y: 300 },
+  { a: 72.1, b: 77.0, pre: "the room was filled with", big: "TWICE", post: "as many watching eyes", size: 150, y: 200 },
+  { a: 153.2, b: 155.6, pre: "at", big: "FULL VOLUME", size: 160, y: 190 },
   { a: 228.1, b: 230.6, pre: "only slightly better than", big: "CHANCE", size: 210, y: 300 },
-  { a: 300.4, b: 302.5, pre: "the", big: "IMAGINARY AUDIENCE", size: 150, y: 280 },
-  { a: 335.5, b: 338.4, pre: "That's", big: "A LINK, NOT PROOF", post: "of cause and effect", size: 150, y: 420 },
-  { a: 411.3, b: 414.2, pre: "The point is", big: "NARROWER. KINDER.", size: 160, y: 470 },
-  { a: 431.3, b: 434.2, pre: "after real conversations", big: "THEY LIKED YOU MORE", post: "than we think", size: 140, y: 470 },
+  { a: 300.4, b: 302.5, pre: "the", big: "IMAGINARY AUDIENCE", post: "David Elkind, 1967", size: 118, y: 300 },
+  { a: 335.5, b: 338.4, pre: "That's", big: "A LINK, NOT PROOF", post: "of cause and effect", size: 130, y: 400 },
+  { a: 411.3, b: 414.2, pre: "The point is", big: "NARROWER. KINDER.", size: 132, y: 470 },
+  { a: 431.3, b: 434.2, pre: "after real conversations", big: "THEY LIKED YOU MORE", post: "than we think", size: 116, y: 470 },
 ];
 // study cards (top-right, ~3 s)
 const SOURCES: [number, string, string?][] = [
@@ -513,6 +513,6 @@ export const SpotEpisode: React.FC = () => {
     {big && <SpotWord u={t} a={big.a} b={big.b} pre={big.pre} big={big.big} post={big.post} size={big.size} y={big.y} color={big.color} />}
     {SOURCES.map(([a, x, s], i) => <Source key={i} u={t} a={a} d={3.2} text={x} sub={s} />)}
     {!big && <Caption t={t} caps={caps} />}
-    {t > LAST && <div style={{ position: "absolute", left: 0, right: 0, top: 500, textAlign: "center", fontFamily: F, fontWeight: 600, fontSize: 64, color: "#fff", opacity: endO, textShadow: "0 0 24px rgba(220,232,255,.35)" }}>It was only ever in your head.</div>}
+    {t > LAST && <div style={{ position: "absolute", left: 0, right: 0, top: 300, textAlign: "center", fontFamily: F, fontWeight: 600, fontSize: 68, color: "#fff", opacity: endO, textShadow: "0 0 24px rgba(220,232,255,.35)" }}>It was only ever in your head.</div>}
   </AbsoluteFill>);
 };
