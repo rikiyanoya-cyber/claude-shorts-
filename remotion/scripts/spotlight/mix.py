@@ -11,6 +11,7 @@ load = lambda p: np.frombuffer(subprocess.run(['ffmpeg', '-v', 'error', '-i', p,
 voice = np.zeros((N, 2), np.float32); nv = load(NAR)[:int(OUT0 * SR)]; voice[:len(nv)] = nv
 ov = load(OUTRO); i0 = int(OUT0 * SR); voice[i0:i0 + len(ov)] = ov[:N - i0]
 rms = lambda x: np.sqrt((x[np.abs(x).max(1) > 1e-4] ** 2).mean()); vr = rms(nv)
+W_ = lambda i: at(i) - .15
 C = []; TW_ = 74.54   # 'twice' in the narration (SpotEpisode.tsx TW)
 for t in (30.3, at(26) - .35, at(45) - .35, at(58) - .35, at(81) - .35, at(99) - .35, at(118) - .35, at(121) - .3): C.append((t, 'whoosh', -22, .6))
 for t in (14.95, 72.2, 153.3, 228.2, 300.5, 335.6, 411.4, 431.4): C.append((t, 'chime', -19, 1.6))      # a spotlight key word lights up
@@ -37,9 +38,18 @@ cache = {}; fx = np.zeros((N, 2), np.float32)
 for t, n, db in ((30.6, 'count', -20), (at(25), 'pop', -20), (TW_ + .25, 'pop', -19), (at(41), 'whoosh', -22), (172.4, 'tick', -20),
                  (at(54) - .3, 'pop', -21), (at(55) + .3, 'pop', -19), (at(87), 'pop', -20), (at(92), 'pop', -20),
                  (at(112) + 1.5, 'count', -22), (at(115), 'pop', -21), (at(116), 'count', -20), (at(117), 'count', -20)): C.append((t, n, db, 1.0))
+# character moves (2026-11-17): side characters sliding in get a soft whoosh, the proud hop and the face-cover a pop
+for t in (3.05 + 1.6, 3.05 + 2.0, 36.25 + 4.2, 36.25 + 4.5, at(28), at(33) - .15 + .4, W_(56) + .2, W_(56) + .5, W_(56) + .8, W_(56) + 1.1,
+          W_(60) + .3, W_(60) + .5, W_(72) + .5, W_(72) + .7): C.append((t, 'whoosh', -21, .5))
+for t in (at(26) - .35 + .2, 41.6): C.append((t, 'pop', -19, .5))
+CHAR = {'bubble', 'notify', 'step', 'question'}   # sounds that belong to a character
+CHAR_TIMES = set(round(t, 2) for t in (3.05 + 1.6, 3.05 + 2.0, 36.25 + 4.2, 36.25 + 4.5, at(28), at(33) - .15 + .4, W_(56) + .2, W_(56) + .5, W_(56) + .8, W_(56) + 1.1,
+          W_(60) + .3, W_(60) + .5, W_(72) + .5, W_(72) + .7, at(26) - .35 + .2, 41.6))
+CHAR_BOOST = 4.0   # 2026-11-17 review: character sounds louder again on top of SFX_BOOST
 SFX_BOOST = 4.0   # 2026-11-17 review: effects 4 dB louder (the TV switch-off stays as it was)
 for t, n, db, mx in C:
     db += 0 if n == 'tvoff' else SFX_BOOST
+    db += CHAR_BOOST if (n in CHAR or round(t, 2) in CHAR_TIMES) else 0
     if n not in cache: cache[n] = load(f'{SFX}/{n}.wav')
     x = cache[n][:int(mx * SR)].copy(); fo = min(len(x) // 3, int(.15 * SR)); x[-fo:] *= np.linspace(1, 0, fo)[:, None]
     i = int(t * SR); j = min(N, i + len(x)); fx[i:j] += x[:j - i] * (10 ** (db / 20) * vr / rms(cache[n]))
