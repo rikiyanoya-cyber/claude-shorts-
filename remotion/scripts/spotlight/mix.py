@@ -1,6 +1,6 @@
 # THE SPOTLIGHT EFFECT audio: narration (cut 1 s after the last line) + closing voice + soft symbolic effects
 # + one BGM looped with 4 s crossfades at a steady -20 dB under the voice (2 s in, 3 s out).
-# usage: python3 mix.py <narration> <closing voice> <bgm> <sfx dir (fam1 set + bubble.wav)> <out wav>
+# usage: python3 mix.py <narration> <closing voice> <bgm> <sfx dir (fam1 set + bubble.wav, question.wav)> <out wav>
 # Times mirror SpotEpisode.tsx (OUT0 = last line end + 1.0, TV_OFF = OUT0 + 9.8 + 0.45, end = TV_OFF + 2.5).
 import sys, json, subprocess, numpy as np, soundfile as sf
 NAR, OUTRO, BGM, SFX, OUT = sys.argv[1:6]; SR = 48000
@@ -42,6 +42,8 @@ for t, n, db in ((30.6, 'count', -20), (at(25), 'pop', -20), (TW_ + .25, 'pop', 
 for t in (3.05 + 1.6, 3.05 + 2.0, 36.25 + 4.2, 36.25 + 4.5, at(28), at(33) - .15 + .4, W_(56) + .2, W_(56) + .5, W_(56) + .8, W_(56) + 1.1,
           W_(60) + .3, W_(60) + .5, W_(72) + .5, W_(72) + .7): C.append((t, 'whoosh', -21, .5))
 for t in (at(26) - .35 + .2, 41.6): C.append((t, 'pop', -19, .5))
+# question marks (2026-11-17): the user's 'question.wav'
+for t in (18.05 + 3.3, 23.75 + .6, at(45) - .35 + .8, at(73), at(121) - .3 + .6): C.append((t, 'question', -18, 1.0))
 CHAR = {'bubble', 'notify', 'step', 'question'}   # sounds that belong to a character
 CHAR_TIMES = set(round(t, 2) for t in (3.05 + 1.6, 3.05 + 2.0, 36.25 + 4.2, 36.25 + 4.5, at(28), at(33) - .15 + .4, W_(56) + .2, W_(56) + .5, W_(56) + .8, W_(56) + 1.1,
           W_(60) + .3, W_(60) + .5, W_(72) + .5, W_(72) + .7, at(26) - .35 + .2, 41.6))
