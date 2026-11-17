@@ -484,11 +484,16 @@ const BIGS: Big[] = [
 const SOURCES: [number, string, string?][] = [
   [at(11), "Gilovich, Medvec & Savitsky (2000)", "Cornell University"],
   [at(34), "Gilovich, Medvec & Savitsky (2000)", "Group discussion study"],
+  [at(54), "Gilovich, Medvec & Savitsky (2000)", "Study 4"],
   [at(60), "Gilovich, Savitsky & Medvec (1998)", "The illusion of transparency"],
   [at(75), "Savitsky & Gilovich (2003)"],
+  [at(83), "Elkind (1967)", "Egocentrism in adolescence"],
   [at(86), "Elkind & Bowen (1979)"],
   [at(90), "Choukas-Bradley et al. (2020)"],
   [at(96), "OECD PISA 2018"],
+  [at(102), "Gilovich, Medvec & Savitsky (2000)", "Study 5"],
+  [at(109), "Fujishima & Machida (2005/2006)", "Makeup and the spotlight effect"],
+  [at(113), "Brown & Stopa (2007)"],
   [at(119), "Boothby et al. (2018)", "The liking gap"],
 ];
 
