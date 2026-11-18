@@ -214,12 +214,12 @@ export const CUTS: Cut[] = [
   { a: 5.3, b: 6.6, r: (u) => <ClockCard u={u} /> },
   { a: 6.6, b: 9.6, r: (u, d) => <Pic src="curb_first.png" u={u} dur={d} z={[1.02, 1.14]} o={[70, 40]} blur={[NEON]} /> },
   { a: 9.6, b: 12.3, r: (u) => <BookScreen u={u} /> },
-  // 2026-11-18: no approach clip (it read as the taxi driving into him); the far taxi still, headlights flaring as it "pulls up"
-  { a: 12.3, b: 14.9, r: (u, d) => <AbsoluteFill><Pic src="curb_first.png" u={u} dur={d} z={[1.14, 1.3]} o={[22, 40]} blur={[NEON]} />
-    <AbsoluteFill style={{ background: `radial-gradient(circle at ${12 + 4 * ease(Math.min(1, u / d))}% 41%, rgba(255,236,190,${.15 + .35 * ease(Math.min(1, u / d))}) 0%, rgba(255,220,160,0) 14%)`, mixBlendMode: "screen" }} /></AbsoluteFill> },
+  // 2026-11-18: the taxi already stopped in front of you (user's still), headlights glowing
+  { a: 12.3, b: 14.9, r: (u, d) => <Pic src="taxi_front.png" u={u} dur={d} z={[1.0, 1.1]} o={[35, 55]} blur={[[.05, .2, .07, .12], [.445, .22, .05, .09], [.12, .595, .12, .05]]} /> },
   { a: 14.9, b: 17.7, r: (u) => <Same u={u} /> },
-  { a: 17.7, b: 19.7, r: (u, d) => <AbsoluteFill style={{ filter: `blur(${2 + 6 * ease(Math.min(1, u / d))}px)` }}><Pic src="curb_last.png" u={u} dur={d} z={[1.3, 1.6]} o={[40, 50]} blur={[FORD]} /></AbsoluteFill> },
-  { a: 19.7, b: 21.05, r: (u, d) => <Pic src="s7_seat.png" u={u} dur={d} z={[1.0, 1.08]} bright={.7} /> },
+  { a: 17.7, b: 19.0, r: (u, d) => <AbsoluteFill style={{ filter: `blur(${2 + 6 * ease(Math.min(1, u / d))}px)` }}><Pic src="curb_last.png" u={u} dur={d} z={[1.3, 1.6]} o={[40, 50]} blur={[FORD]} /></AbsoluteFill> },
+  // the hand on the rear door handle (user's still), then the door shuts as you get in
+  { a: 19.0, b: 21.05, r: (u, d) => <Pic src="door_hand.png" u={u} dur={d} z={[1.0, 1.12]} o={[55, 55]} blur={[[.62, .17, .05, .1], [.91, .25, .05, .1]]} /> },
   { a: 21.05, b: 23.4, video: true, r: (u, d) => <Clip src="mirror.mp4" dur={d} z={[1.0, 1.05]} o={[50, 20]} blur={TREE_MIRROR} /> },
   { a: 23.4, b: 25.0, r: (u, d) => <Pic src="mirror_last.png" u={u} dur={d} z={[1.5, 1.62]} o={[50, 17]} blur={[[.45, .66, .3, .46]]} /> },
   { a: 25.0, b: 26.5, video: true, r: (u, d) => <Clip src="ride.mp4" dur={d} z={[1.0, 1.06]} /> },
