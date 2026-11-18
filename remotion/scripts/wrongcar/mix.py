@@ -25,11 +25,11 @@ def bed(name, a, b, db, fi=.8, fo=.8):
 S = lambda n: f'{WSFX}/{n}.mp3'
 # beds
 bed(f'{SSFX}/rain.wav', 5.3, 19.7, -23)                        # the street before you get in
-bed(S('road_a'), 19.7, END, -19, 1.0, 1.5)                     # inside the taxi from here on
+bed(S('road_a'), 19.7, END, -25, 1.0, 1.5)   # 2026-11-18: was too loud at -19                     # inside the taxi from here on
 bed(S('heart'), 55.5, END, -15, 1.5, 1.0)                      # from the photo to the end
 # hits
-put(load(S('impact'))[: int(1.8 * SR)], 0.0, -9)
-put(load(S('lock')), 0.12, -5)                                 # hook: the doors lock
+put(load(S('impact'))[: int(1.8 * SR)], 0.0, -16)   # 2026-11-18: the opening was too loud
+put(load(S('lock')), 0.12, -11)                                 # hook: the doors lock
 put(load(S('lock')), word(23, 'Click.') - .02, -3)             # "Click." the doors lock
 put(load(S('door')), 20.25, -12)                               # you get in
 put(load(f'{SSFX}/notify.wav')[: int(1.0 * SR)], 10.85, -16)    # driver found
