@@ -24,8 +24,8 @@ def bed(name, a, b, db, fi=.8, fo=.8):
     x = loadq(name); n = int((b - a) * SR); x = np.concatenate([x] * (n // len(x) + 2))[:n]; put(x, a, db, fi, fo, BED_BOOST)
 S = lambda n: f'{WSFX}/{n}.mp3'
 # beds
-bed(f'{SSFX}/rain.wav', 5.3, 19.7, -27)                        # the street before you get in
-bed(S('road_a'), 19.7, END, -24, 1.0, 1.5)                     # inside the taxi from here on
+bed(f'{SSFX}/rain.wav', 5.3, 19.7, -23)                        # the street before you get in
+bed(S('road_a'), 19.7, END, -19, 1.0, 1.5)                     # inside the taxi from here on
 bed(S('heart'), 55.5, END, -15, 1.5, 1.0)                      # from the photo to the end
 # hits
 put(load(S('impact'))[: int(1.8 * SR)], 0.0, -9)
