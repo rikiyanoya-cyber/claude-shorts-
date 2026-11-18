@@ -214,7 +214,9 @@ export const CUTS: Cut[] = [
   { a: 5.3, b: 6.6, r: (u) => <ClockCard u={u} /> },
   { a: 6.6, b: 9.6, r: (u, d) => <Pic src="curb_first.png" u={u} dur={d} z={[1.02, 1.14]} o={[70, 40]} blur={[NEON]} /> },
   { a: 9.6, b: 12.3, r: (u) => <BookScreen u={u} /> },
-  { a: 12.3, b: 14.9, video: true, r: (u, d) => <><Clip src="curb.mp4" from={2.2} dur={d} z={[1.0, 1.05]} blur={[[2.2, [.25, .6, .04, .025]], [3.3, [.33, .615, .06, .03]], [4.3, [.4, .625, .085, .04]], [5.1, FORD]]} /><Blur r={NEON} /></> },
+  // 2026-11-18: no approach clip (it read as the taxi driving into him); the far taxi still, headlights flaring as it "pulls up"
+  { a: 12.3, b: 14.9, r: (u, d) => <AbsoluteFill><Pic src="curb_first.png" u={u} dur={d} z={[1.14, 1.3]} o={[22, 40]} blur={[NEON]} />
+    <AbsoluteFill style={{ background: `radial-gradient(circle at ${12 + 4 * ease(Math.min(1, u / d))}% 41%, rgba(255,236,190,${.15 + .35 * ease(Math.min(1, u / d))}) 0%, rgba(255,220,160,0) 14%)`, mixBlendMode: "screen" }} /></AbsoluteFill> },
   { a: 14.9, b: 17.7, r: (u) => <Same u={u} /> },
   { a: 17.7, b: 19.7, r: (u, d) => <AbsoluteFill style={{ filter: `blur(${2 + 6 * ease(Math.min(1, u / d))}px)` }}><Pic src="curb_last.png" u={u} dur={d} z={[1.3, 1.6]} o={[40, 50]} blur={[FORD]} /></AbsoluteFill> },
   { a: 19.7, b: 21.05, r: (u, d) => <Pic src="s7_seat.png" u={u} dur={d} z={[1.0, 1.08]} bright={.7} /> },
