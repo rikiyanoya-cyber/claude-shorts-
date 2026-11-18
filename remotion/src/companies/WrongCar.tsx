@@ -384,10 +384,11 @@ export const WC_STORY1_LEN = 6;
 export const WrongCarStory1Video: React.FC = () => {
   useWcFonts();
   const t = useCurrentFrame() / FPS, LOCK = 2.0;
-  const flash = Math.max(0, 1 - Math.abs(t - LOCK - .03) / .14), shake = Math.max(0, 1 - Math.abs(t - LOCK) / .25);
+  const flash = Math.max(0, 1 - Math.abs(t - LOCK - .03) / .14);
   return <AbsoluteFill style={{ background: "#000" }}>
-    <AbsoluteFill style={{ opacity: fin(t, 0, .5), transform: `translate(${shake * 8 * Math.sin(t * 70)}px, ${shake * 10}px) scale(${1.3 + .12 * ease(Math.min(1, t / WC_STORY1_LEN))})`, transformOrigin: "70% 36%" }}>
-      <OffthreadVideo src={staticFile("wc/handle.mp4")} muted playbackRate={.8} style={{ width: 1080, height: 1920 }} />
+    {/* 2026-11-18: the picture holds still (the story 1 image); only the words and the light move */}
+    <AbsoluteFill style={{ opacity: fin(t, 0, .5), transform: "scale(1.45)", transformOrigin: "70% 34%" }}>
+      <Img src={staticFile("wc/handle_first.png")} style={{ width: 1080, height: 1920 }} />
     </AbsoluteFill>
     <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.05) 32%, rgba(0,0,0,.1) 55%, rgba(0,0,0,.8) 100%)" }} />
     <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(10,40,60,.18), rgba(60,30,0,.12))", mixBlendMode: "soft-light" }} />
