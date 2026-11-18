@@ -324,3 +324,22 @@ export const WrongCarEpisode: React.FC = () => {
     <Captions t={t} />
   </AbsoluteFill>;
 };
+
+// =================== cover (1080x1920; the profile grid crops to 3:4, so everything sits between y 240 and 1680) ===================
+export const WrongCarCover: React.FC<{ v?: string }> = ({ v = "A" }) => {
+  useWcFonts();
+  const eyes = v === "A";
+  return <AbsoluteFill style={{ background: "#000" }}>
+    {eyes
+      ? <AbsoluteFill style={{ transform: "scale(1.55)", transformOrigin: "50% 17%" }}><Img src={staticFile("wc/mirror_last.png")} style={{ width: 1080, height: 1920 }} /><Blur r={[.45, .66, .3, .46]} px={40} /></AbsoluteFill>
+      : <AbsoluteFill style={{ transform: "scale(1.12)", transformOrigin: "35% 55%" }}><Img src={staticFile("wc/taxi_front.png")} style={{ width: 1080, height: 1920 }} /><Blur r={[.05, .2, .07, .12]} /><Blur r={[.445, .22, .05, .09]} /><Blur r={[.12, .595, .12, .05]} /></AbsoluteFill>}
+    <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,.55) 62%, rgba(0,0,0,.85) 100%)" }} />
+    <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 50%, rgba(0,0,0,.6) 100%)" }} />
+    <Img src={staticFile("wc/pollo_logo.png")} style={{ position: "absolute", left: 676, top: 294, width: 341, height: 77 }} />
+    <div style={{ position: "absolute", left: 60, top: 300, fontFamily: "monospace", fontWeight: 700, fontSize: 48, letterSpacing: 3, color: "#ff5a3a", textShadow: "0 0 14px rgba(255,80,50,.7), 0 2px 6px #000" }}>2:07 AM</div>
+    <div style={{ position: "absolute", left: 60, right: 60, top: 1110, textAlign: "center", fontFamily: "WCM", fontWeight: 900, fontSize: 150, lineHeight: 1, color: "#fff", textShadow: "0 6px 30px rgba(0,0,0,.95)" }}>THIS ISN'T<br /><span style={{ color: "#f2c46b" }}>YOUR TAXI.</span></div>
+    <div style={{ position: "absolute", left: 0, right: 0, top: 1460, textAlign: "center", fontFamily: "WCM", fontWeight: 800, fontSize: 46, letterSpacing: 10, color: "#fff", opacity: .9 }}>WRONG CAR · EP 1</div>
+    <div style={{ position: "absolute", left: 0, right: 0, top: 1545, display: "flex", justifyContent: "center", gap: 26, fontFamily: "WCM", fontWeight: 900, fontSize: 52, color: "#fff" }}>
+      <div style={{ background: "#e8463b", borderRadius: 18, padding: "8px 30px" }}>A</div><div style={{ alignSelf: "center", fontSize: 40, opacity: .85 }}>or</div><div style={{ background: "#2b6ef2", borderRadius: 18, padding: "8px 30px" }}>B</div></div>
+  </AbsoluteFill>;
+};
