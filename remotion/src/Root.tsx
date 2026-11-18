@@ -13,7 +13,7 @@ import { NintendoEpisode, NINTENDO_EP_FRAMES } from "./companies/NintendoEpisode
 import { ConsoleRace, RACE_FRAMES } from "./companies/ConsoleRace";
 import { SpotEpisode, SPOT_TEST_END, SPOT_FRAMES } from "./companies/SpotEpisode";
 import { SpotThumb } from "./companies/SpotThumb";
-import { WrongCarStills, WC_S5, WC_S7_END, WrongCarEpisode, WC_END, WrongCarCover } from "./companies/WrongCar";
+import { WrongCarStills, WC_S5, WC_S7_END, WrongCarEpisode, WC_END, WrongCarCover, WrongCarStory } from "./companies/WrongCar";
 import { Fam1Episode, FAM1_SAMPLE_END, FAM1_FRAMES } from "./companies/Fam1Episode";
 
 export const Root: React.FC = () => {
@@ -74,6 +74,7 @@ export const Root: React.FC = () => {
       <Composition id="NikeEpisode" component={NikeEpisode} width={1920} height={1080} fps={30} durationInFrames={NIKE_EP_FRAMES} />
       <Composition id="SpotEpisode" component={SpotEpisode} width={1920} height={1080} fps={30} durationInFrames={SPOT_FRAMES} />
       <Composition id="WrongCarEpisode" component={WrongCarEpisode} width={1080} height={1920} fps={30} durationInFrames={Math.round(WC_END * 30)} />
+      <Composition id="WrongCarStory" component={WrongCarStory} width={1080} height={1920} fps={30} durationInFrames={1} defaultProps={{ v: "1" }} />
       <Composition id="WrongCarCover" component={WrongCarCover} width={1080} height={1920} fps={30} durationInFrames={1} defaultProps={{ v: "A" }} />
       <Composition id="WrongCarStills" component={WrongCarStills} width={1080} height={1920} fps={30} durationInFrames={Math.round((WC_S7_END - WC_S5) * 30)} />
       <Composition id="SpotThumb" component={SpotThumb} width={1280} height={720} fps={30} durationInFrames={1} defaultProps={{ v: "A" }} />

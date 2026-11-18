@@ -343,3 +343,38 @@ export const WrongCarCover: React.FC<{ v?: string }> = ({ v = "A" }) => {
       <div style={{ background: "#e8463b", borderRadius: 18, padding: "8px 30px" }}>A</div><div style={{ alignSelf: "center", fontSize: 40, opacity: .85 }}>or</div><div style={{ background: "#2b6ef2", borderRadius: 18, padding: "8px 30px" }}>B</div></div>
   </AbsoluteFill>;
 };
+
+// =================== Instagram stories (1080x1920; nothing important in the top 250 px or bottom 340 px; space left for a sticker) ===================
+const StoryText: React.FC<{ top: number; size?: number; children: React.ReactNode; color?: string }> = ({ top, size = 120, children, color = "#fff" }) => (
+  <div style={{ position: "absolute", left: 60, right: 60, top, textAlign: "center", fontFamily: "WCM", fontWeight: 900, fontSize: size, lineHeight: 1.02, color, textShadow: "0 6px 30px rgba(0,0,0,.95)" }}>{children}</div>
+);
+export const WrongCarStory: React.FC<{ v?: string }> = ({ v = "1" }) => {
+  useWcFonts();
+  const shade = <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.05) 30%, rgba(0,0,0,.1) 55%, rgba(0,0,0,.8) 100%)" }} />;
+  const clock = <div style={{ position: "absolute", left: 0, right: 0, top: 290, textAlign: "center", fontFamily: "monospace", fontWeight: 700, fontSize: 64, letterSpacing: 4, color: "#ff5a3a", textShadow: "0 0 16px rgba(255,80,50,.75), 0 2px 6px #000" }}>2:07 AM</div>;
+  if (v === "1") return <AbsoluteFill style={{ background: "#000" }}>
+    <AbsoluteFill style={{ transform: "scale(1.45)", transformOrigin: "70% 34%" }}><Img src={staticFile("wc/handle_first.png")} style={{ width: 1080, height: 1920 }} /></AbsoluteFill>
+    {shade}{clock}
+    <StoryText top={430} size={128}>THE DOORS<br /><span style={{ color: "#f2c46b" }}>JUST LOCKED.</span></StoryText>
+    <div style={{ position: "absolute", left: 0, right: 0, top: 1420, textAlign: "center", fontFamily: "WCM", fontWeight: 800, fontSize: 44, letterSpacing: 10, color: "#fff" }}>NEW SERIES · WRONG CAR · EP 1</div>
+  </AbsoluteFill>;
+  if (v === "2") return <AbsoluteFill style={{ background: "#000" }}>
+    <AbsoluteFill style={{ transform: "scale(1.7)", transformOrigin: "56% 62%", filter: "brightness(1.35)" }}><Scene7 u={5.6} dur={10.1} /></AbsoluteFill>
+    {shade}
+    <StoryText top={330} size={140}>WHO TOOK<br /><span style={{ color: "#f2c46b" }}>THIS?</span></StoryText>
+    <div style={{ position: "absolute", left: 0, right: 0, top: 650, textAlign: "center", fontFamily: "WCM", fontWeight: 800, fontSize: 44, letterSpacing: 8, color: "#fff" }}>WRONG CAR · EP 1</div>
+  </AbsoluteFill>;
+  return <AbsoluteFill style={{ background: "#000" }}>
+    <AbsoluteFill style={{ transform: "scale(1.15)", transformOrigin: "55% 22%" }}><Img src={staticFile("wc/lean_last.png")} style={{ width: 1080, height: 1920 }} /><Blur r={[.8, .33, .13, .14]} px={40} /></AbsoluteFill>
+    <AbsoluteFill style={{ background: "radial-gradient(ellipse at 85% 18%, rgba(255,30,20,.35) 0%, rgba(255,0,0,0) 60%)", mixBlendMode: "screen" }} />
+    <AbsoluteFill style={{ background: "rgba(0,0,0,.45)" }} />
+    <div style={{ position: "absolute", left: 0, right: 0, top: 280, textAlign: "center", fontFamily: "monospace", fontWeight: 700, color: "#ff3b30", textShadow: "0 0 18px rgba(255,40,30,.8), 0 2px 6px #000" }}>
+      <div style={{ fontSize: 44, letterSpacing: 6 }}>RED LIGHT</div><div style={{ fontSize: 150 }}>0:10</div></div>
+    <div style={{ position: "absolute", left: 70, right: 70, top: 640, display: "flex", flexDirection: "column", gap: 30 }}>
+      {([["A", "Grab the wheel", "#e8463b"], ["B", "Jump out at the light", "#2b6ef2"]] as const).map(([k, t, c]) => <div key={k} style={{ display: "flex", alignItems: "center", gap: 30, background: "rgba(10,10,14,.85)", border: "3px solid rgba(255,255,255,.85)", borderRadius: 34, padding: "34px 40px", fontFamily: "WCM" }}>
+        <div style={{ width: 110, height: 110, borderRadius: 26, background: c, color: "#fff", fontWeight: 900, fontSize: 80, display: "flex", alignItems: "center", justifyContent: "center" }}>{k}</div>
+        <div style={{ fontWeight: 900, fontSize: 64, color: "#fff", lineHeight: 1.05 }}>{t}</div></div>)}
+    </div>
+    <StoryText top={1080} size={70}>Vote in the comments.<br /><span style={{ color: "#f2c46b" }}>EP 2 depends on you.</span></StoryText>
+  </AbsoluteFill>;
+};
