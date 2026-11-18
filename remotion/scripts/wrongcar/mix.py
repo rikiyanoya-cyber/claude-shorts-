@@ -51,6 +51,6 @@ if os.path.exists(BGM):
         j0 = min(N, i0 + len(seg)); out[i0:j0] += seg[:j0 - i0]
     g = np.full(N, 10 ** (-12 / 20) * vr / rms(b[int(28 * SR):])); tt = np.arange(N) / SR
     g *= np.clip(tt / .8, 0, 1) * np.clip((END - tt) / .8, 0, 1); fx += out * g[:, None]
-VOICE_DB = -4.0   # 2026-11-18 review: the narration sat too far on top; everything else stays where it was
+VOICE_DB = -8.0   # 2026-11-18 review: the narration sat too far on top (-4, then -8); everything else stays where it was
 mix = voice * 10 ** (VOICE_DB / 20) + fx
 sf.write(OUT, mix / max(1, np.abs(mix).max() / .95), SR); print('end', END)
