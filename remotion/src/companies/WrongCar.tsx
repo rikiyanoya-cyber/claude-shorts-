@@ -4,7 +4,8 @@
 // 7 the print photo of you on the seat ("TODAY 4:12 PM"), revealed by a streetlight sweeping across.
 // No real app, map, taxi company or brand designs.
 import React from "react";
-import { AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame, delayRender, continueRender } from "remotion";
+import { AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame, delayRender, continueRender, OffthreadVideo, Sequence } from "remotion";
+import WORDS from "./wc_words.json";
 
 export const FPS = 30;
 const cl = { extrapolateLeft: "clamp" as const, extrapolateRight: "clamp" as const };
@@ -125,5 +126,189 @@ export const WrongCarStills: React.FC = () => {
   const t = useCurrentFrame() / FPS + WC_S5;
   return <AbsoluteFill style={{ background: "#000" }}>
     {t < WC_S6 ? <Scene5 u={t - WC_S5} dur={WC_S6 - WC_S5} /> : t < WC_S7 ? <Scene6 u={t - WC_S6} dur={WC_S7 - WC_S6} /> : <Scene7 u={t - WC_S7} dur={WC_S7_END - WC_S7} />}
+  </AbsoluteFill>;
+};
+
+// =================== the full episode ===================
+const WD = WORDS as [number, string, number][];
+export const WC_NAR = 75.47, WC_END = WC_NAR + 2.0;
+const fout = (u: number, b: number, d = .4) => 1 - fin(u, b - d, d);
+const lerp = (k: [number, number[]][], t: number) => { let i = 0; while (i < k.length - 2 && t > k[i + 1][0]) i++; const [t0, a] = k[i], [t1, b] = k[i + 1], q = Math.max(0, Math.min(1, (t - t0) / (t1 - t0))); return a.map((v, j) => v + (b[j] - v) * q); };
+
+// blur patches (air freshener shapes, a car badge, readable neon), in fractions of the 1080x1920 layer
+const Blur: React.FC<{ r: number[]; px?: number }> = ({ r, px = 34 }) => <div style={{ position: "absolute", left: (r[0] - r[2] / 2) * 1080, top: (r[1] - r[3] / 2) * 1920, width: r[2] * 1080, height: r[3] * 1920, borderRadius: "45%", backdropFilter: `blur(${px}px) brightness(.75)`, WebkitBackdropFilter: `blur(${px}px) brightness(.75)` }} />;
+
+// a Pollo clip (muted), placed at [a, b) on the narration clock, played from `from` at `rate`
+const Clip: React.FC<{ src: string; from?: number; rate?: number; z?: [number, number]; o?: [number, number]; dur: number; blur?: [number, number[]][]; bright?: number }> = ({ src, from = 0, rate = 1, z = [1.0, 1.06], o = [50, 45], dur, blur, bright = 1 }) => {
+  const f = useCurrentFrame() / FPS, k = ease(Math.min(1, f / dur)), s = z[0] + (z[1] - z[0]) * k;
+  return <AbsoluteFill style={{ transform: `scale(${s})`, transformOrigin: `${o[0]}% ${o[1]}%`, filter: `brightness(${bright})` }}>
+    <OffthreadVideo src={staticFile(`wc/${src}`)} muted startFrom={Math.round(from * FPS)} playbackRate={rate} style={{ width: 1080, height: 1920 }} />
+    {blur && <Blur r={lerp(blur, from + f * rate)} />}
+  </AbsoluteFill>;
+};
+// a frame (or still) with a slow push
+const Pic: React.FC<{ src: string; u: number; dur: number; z?: [number, number]; o?: [number, number]; blur?: number[][]; bright?: number; children?: React.ReactNode; dx?: number }> = ({ src, u, dur, z = [1.05, 1.18], o = [50, 45], blur, bright = 1, children, dx = 0 }) => {
+  const k = ease(Math.min(1, Math.max(0, u / dur))), s = z[0] + (z[1] - z[0]) * k;
+  return <AbsoluteFill style={{ transform: `translateX(${dx * k}px) scale(${s})`, transformOrigin: `${o[0]}% ${o[1]}%`, filter: `brightness(${bright})` }}>
+    <Img src={staticFile(`wc/${src}`)} style={{ width: 1080, height: 1920, objectFit: "cover" }} />
+    {blur?.map((r, i) => <Blur key={i} r={r} />)}{children}
+  </AbsoluteFill>;
+};
+const TREE_MIRROR: [number, number[]][] = [[0, [.49, .47, .15, .22]], [2.5, [.49, .57, .2, .32]], [4, [.46, .64, .24, .38]], [5.1, [.44, .68, .27, .42]]];
+const TREE_LEAN: [number, number[]][] = [[0, [.72, .32, .06, .08]], [5.1, [.8, .33, .13, .14]]];
+const TREE_LAST = [.8, .33, .13, .14], FORD = [.444, .629, .1, .045], NEON = [.06, .24, .09, .12], TREE_S5 = [.49, .13, .2, .2], TREE_S6 = [.72, .29, .04, .05];
+
+// made-up booking screen, full frame
+const BookScreen: React.FC<{ u: number }> = ({ u }) => {
+  const found = u > 1.2;
+  return <AbsoluteFill style={{ background: "#0c0f15", alignItems: "center", paddingTop: 190, fontFamily: UI }}>
+    <div style={{ width: 760, height: 1060, borderRadius: 70, background: "#e9edf3", overflow: "hidden", position: "relative", boxShadow: "0 0 80px rgba(80,140,255,.25)", transform: `scale(${1.04 - .04 * ease(Math.min(1, u / 1.5))})` }}>
+      <svg width={760} height={1060} style={{ position: "absolute" }}>{Array.from({ length: 14 }, (_, i) => <line key={i} x1={0} y1={60 + i * 90} x2={760} y2={40 + i * 90} stroke="#fff" strokeWidth={18} />)}{Array.from({ length: 9 }, (_, i) => <line key={`v${i}`} x1={40 + i * 95} y1={0} x2={60 + i * 95} y2={1360} stroke="#fff" strokeWidth={18} />)}
+        <circle cx={380} cy={420} r={30 + 16 * Math.sin(u * 5)} fill="#2b6ef2" opacity={.2} /><circle cx={380} cy={420} r={18} fill="#2b6ef2" stroke="#fff" strokeWidth={6} /></svg>
+      <div style={{ position: "absolute", left: 30, right: 30, bottom: 40, background: "#fff", borderRadius: 40, padding: "44px 44px 50px", boxShadow: "0 -8px 40px rgba(0,0,0,.12)" }}>
+        <div style={{ fontSize: 30, color: "#7a8396", letterSpacing: 2 }}>{found ? "DRIVER FOUND" : "FINDING YOUR RIDE…"}</div>
+        <div style={{ fontSize: 66, color: "#10131a", marginTop: 10 }}>{found ? "2 min away" : "Home"}</div>
+        <div style={{ height: 14, borderRadius: 7, background: "#e3e8f0", marginTop: 30 }}><div style={{ width: `${found ? 100 : 30 + 50 * (u / 1.2)}%`, height: 14, borderRadius: 7, background: "#2b6ef2" }} /></div>
+      </div>
+    </div>
+  </AbsoluteFill>;
+};
+// "Your street is a left at this light." -> LEFT, then the arrow swings RIGHT
+const TurnCard: React.FC<{ u: number; right?: boolean }> = ({ u, right }) => (
+  <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 45%, #1a1e26 0%, #07080b 75%)", alignItems: "center", justifyContent: "center" }}>
+    <svg width={700} height={700} style={{ transform: `scaleX(${right ? -1 : 1}) scale(${.9 + .1 * ease(Math.min(1, u / .5))})` }}>
+      <path d="M520 600 L520 330 Q520 260 450 260 L250 260 L250 160 L80 330 L250 500 L250 400 L380 400 L380 600Z" fill={right ? "#e8463b" : "#3fd07a"} style={{ filter: `drop-shadow(0 0 30px ${right ? "#e8463b" : "#3fd07a"})` }} /></svg>
+    <div style={{ position: "absolute", top: 380, fontFamily: "WCM", fontWeight: 900, fontSize: 120, letterSpacing: 6, color: right ? "#e8463b" : "#3fd07a" }}>{right ? "RIGHT" : "HOME: LEFT"}</div>
+  </AbsoluteFill>
+);
+// passing city lights through the side window
+const Lights: React.FC<{ u: number }> = ({ u }) => (
+  <AbsoluteFill style={{ background: "#05060a", overflow: "hidden" }}>
+    {Array.from({ length: 26 }, (_, i) => { const sd = (i * .618) % 1, x = ((sd * 2600 - u * (380 + 520 * sd)) % 2600 + 2600) % 2600 - 600, y = 300 + ((i * 137) % 1300), r = 40 + 120 * ((i * .37) % 1), c = ["#ffb35c", "#ff8a2a", "#ffe2a8", "#7fb2ff", "#ff6b6b"][i % 5];
+      return <div key={i} style={{ position: "absolute", left: x, top: y, width: r * 2.6, height: r, borderRadius: r, background: c, opacity: .35 + .3 * sd, filter: `blur(${18 + 20 * sd}px)` }} />; })}
+    <AbsoluteFill style={{ background: "linear-gradient(90deg, rgba(0,0,0,.85) 0%, rgba(0,0,0,0) 18%, rgba(0,0,0,0) 82%, rgba(0,0,0,.85) 100%)" }} />
+    <svg width={1080} height={1920} style={{ position: "absolute" }}>{Array.from({ length: 30 }, (_, i) => <line key={i} x1={(i * 97) % 1080} y1={(i * 211) % 1920} x2={(i * 97) % 1080 + 2} y2={(i * 211) % 1920 + 26} stroke="#9fb3d6" strokeWidth={2} opacity={.35} />)}</svg>
+  </AbsoluteFill>
+);
+// the big clock card
+const ClockCard: React.FC<{ u: number }> = ({ u }) => (
+  <AbsoluteFill style={{ background: "#040507", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ fontFamily: "monospace", fontWeight: 700, fontSize: 250, letterSpacing: 10, color: "#ff5a3a", textShadow: "0 0 40px rgba(255,80,50,.7)", opacity: fin(u, 0, .15) * (u % 1 < .5 || u < .6 ? 1 : .85) }}>2:07<span style={{ fontSize: 110 }}> AM</span></div>
+  </AbsoluteFill>
+);
+// "Every taxi in this city looks the same": the same taxi, three times
+const Same: React.FC<{ u: number }> = ({ u }) => (
+  <AbsoluteFill style={{ background: "#000" }}>
+    {[0, 1, 2].map((i) => <div key={i} style={{ position: "absolute", left: 0, top: i * 640, width: 1080, height: 636, overflow: "hidden", opacity: fin(u, i * .35, .2) }}>
+      <Img src={staticFile("wc/curb_last.png")} style={{ position: "absolute", width: 1620, height: 2880, left: -360 + (i - 1) * 60 - 20 * u, top: -1380, filter: `brightness(${.95 - i * .08}) hue-rotate(${i * 4}deg)` }} />
+      <div style={{ position: "absolute", left: (.444 * 1620 - 360 + (i - 1) * 60 - 20 * u) - 85, top: .629 * 2880 - 1380 - 45, width: 170, height: 90, borderRadius: "45%", backdropFilter: "blur(30px) brightness(.75)" }} /></div>)}
+  </AbsoluteFill>
+);
+
+type Cut = { a: number; b: number; r: (u: number, d: number) => React.ReactNode; video?: boolean; flash?: boolean; shake?: number };
+const A = (i: number) => WD.find((w) => w[0] === i)![2];
+export const CUTS: Cut[] = [
+  { a: 0, b: 1.45, flash: true, r: (u, d) => <Pic src="handle_first.png" u={u} dur={d} z={[1.5, 1.62]} o={[70, 30]} /> },
+  { a: 1.45, b: 3.6, video: true, r: (u, d) => <Clip src="handle.mp4" dur={d} z={[1.0, 1.08]} o={[55, 45]} /> },
+  { a: 3.6, b: 5.3, r: (u, d) => <Pic src="mirror_last.png" u={u} dur={d} z={[1.25, 1.4]} o={[50, 18]} blur={[[.45, .66, .3, .46]]} /> },
+  { a: 5.3, b: 6.6, r: (u) => <ClockCard u={u} /> },
+  { a: 6.6, b: 9.6, r: (u, d) => <Pic src="curb_first.png" u={u} dur={d} z={[1.02, 1.14]} o={[70, 40]} blur={[NEON]} /> },
+  { a: 9.6, b: 12.3, r: (u) => <BookScreen u={u} /> },
+  { a: 12.3, b: 14.9, video: true, r: (u, d) => <><Clip src="curb.mp4" from={2.2} dur={d} z={[1.0, 1.05]} blur={[[2.2, [.25, .6, .04, .025]], [3.3, [.33, .615, .06, .03]], [4.3, [.4, .625, .085, .04]], [5.1, FORD]]} /><Blur r={NEON} /></> },
+  { a: 14.9, b: 17.7, r: (u) => <Same u={u} /> },
+  { a: 17.7, b: 19.7, r: (u, d) => <AbsoluteFill style={{ filter: `blur(${2 + 6 * ease(Math.min(1, u / d))}px)` }}><Pic src="curb_last.png" u={u} dur={d} z={[1.3, 1.6]} o={[40, 50]} blur={[FORD]} /></AbsoluteFill> },
+  { a: 19.7, b: 21.05, r: (u, d) => <Pic src="s7_seat.png" u={u} dur={d} z={[1.0, 1.08]} bright={.7} /> },
+  { a: 21.05, b: 23.4, video: true, r: (u, d) => <Clip src="mirror.mp4" dur={d} z={[1.0, 1.05]} o={[50, 20]} blur={TREE_MIRROR} /> },
+  { a: 23.4, b: 25.0, r: (u, d) => <Pic src="mirror_last.png" u={u} dur={d} z={[1.5, 1.62]} o={[50, 17]} blur={[[.45, .66, .3, .46]]} /> },
+  { a: 25.0, b: 26.5, video: true, r: (u, d) => <Clip src="ride.mp4" dur={d} z={[1.0, 1.06]} /> },
+  { a: 26.5, b: 30.4, r: (u) => <Lights u={u} /> },
+  { a: 30.4, b: 32.1, r: (u, d) => <Pic src="ride_mid.png" u={u} dur={d} z={[1.1, 1.3]} o={[60, 25]} /> },
+  { a: 32.1, b: 33.95, r: (u) => <TurnCard u={u} /> },
+  { a: 33.95, b: 34.75, r: (u) => <TurnCard u={u} right /> },
+  { a: 34.75, b: 36.1, video: true, r: (u, d) => <Clip src="turn.mp4" from={1.2} rate={1.3} dur={d} blur={[[0, NEON], [5.1, NEON]]} /> },
+  { a: 36.1, b: 38.4, video: true, r: (u, d) => <Clip src="lean.mp4" from={1.0} rate={1.2} dur={d} blur={TREE_LEAN} /> },
+  { a: 38.4, b: 44.2, r: (u, d) => <AbsoluteFill><Scene5 u={u} dur={d} /><Blur r={TREE_S5} /></AbsoluteFill> },
+  { a: 44.2, b: 52.2, r: (u, d) => <AbsoluteFill><Scene6 u={u} dur={d} /><Blur r={TREE_S6} px={8} /></AbsoluteFill> },
+  { a: 52.2, b: 56.75, r: (u) => <Scene7 u={u} dur={10.1} /> },
+  { a: 56.75, b: 58.0, flash: true, r: (u, d) => <Pic src="s7_photo.png" u={u} dur={d} z={[1.6, 1.75]} o={[48, 42]} /> },
+  { a: 58.0, b: 60.45, r: (u, d) => <Pic src="s7_photo.png" u={u} dur={d} z={[1.15, 1.0]} o={[50, 40]} /> },
+  { a: 60.45, b: 62.3, r: (u) => <Scene7 u={u + 6.5} dur={10.1} /> },
+  { a: 62.3, b: 63.3, flash: true, r: (u, d) => <Pic src="handle_first.png" u={u} dur={d} z={[1.7, 1.8]} o={[70, 32]} /> },
+  { a: 63.3, b: 64.75, video: true, r: (u, d) => <Clip src="handle.mp4" from={2.8} dur={d} z={[1.05, 1.12]} /> },
+  { a: 64.75, b: WC_END, shake: 67.6, r: (u, d) => <Pic src="lean_last.png" u={u} dur={d} z={[1.0, 1.25]} o={[55, 22]} blur={[TREE_LAST]} /> },
+];
+
+// captions: word by word, chunked by punctuation (max 4 words); a few beats get one big word
+const BIGW = new Set(["Of you,", "this afternoon.", "Click."]);
+type Chunk = { words: [string, number][]; big: boolean; end: number };
+const CHUNKS: Chunk[] = (() => {
+  const out: Chunk[] = []; let cur: [string, number][] = [];
+  const lines = new Map<number, [string, number][]>(); WD.forEach(([l, w, t]) => { if (!lines.has(l)) lines.set(l, []); lines.get(l)!.push([w, t]); });
+  for (const [l, ws] of lines) {
+    if (l >= 27) continue;   // the A / B lines are carried by the vote cards
+    const flush = () => { if (cur.length) { const txt = cur.map((c) => c[0]).join(" "); out.push({ words: cur, big: BIGW.has(txt), end: 0 }); cur = []; } };
+    ws.forEach(([w, t], i) => {
+      const next = [...cur, [w, t] as [string, number]].map((c) => c[0]).join(" ");
+      if (l === 22 && w === "this") flush();                     // "Taken" | "this afternoon."
+      cur.push([w, t]);
+      if (BIGW.has(next)) flush();
+      else if (/[,.?!…:]$/.test(w) || cur.length >= 4) flush();
+    });
+    flush();
+  }
+  out.forEach((c, i) => { const last = c.words[c.words.length - 1][1]; c.end = Math.min(out[i + 1]?.words[0][1] ?? last + 1, last + 1.1); });
+  return out;
+})();
+const Captions: React.FC<{ t: number }> = ({ t }) => {
+  if (t < 1.5) return null;
+  const c = CHUNKS.find((c) => t >= c.words[0][1] - .05 && t < c.end);
+  if (!c) return null;
+  const size = c.big ? 150 : 76;
+  return <div style={{ position: "absolute", left: 60, right: 60, top: c.big ? 820 : 1310, textAlign: "center", fontFamily: "WCM", fontWeight: 900, fontSize: size, lineHeight: 1.1, color: "#fff", textShadow: "0 0 3px #000, 0 4px 14px rgba(0,0,0,.95), 0 0 30px rgba(0,0,0,.7)", WebkitTextStroke: c.big ? "2px rgba(0,0,0,.6)" : "1.5px rgba(0,0,0,.55)" }}>
+    {c.words.map(([w, wt], i) => { const o = fin(t, wt - .04, .08); return <span key={i} style={{ opacity: o, display: "inline-block", transform: `translateY(${(1 - o) * 10}px) scale(${c.big ? 1.15 - .15 * o : 1})`, marginRight: 18 }}>{w}</span>; })}
+  </div>;
+};
+const VoteCard: React.FC<{ t: number; a: number; k: string; text: string; y: number }> = ({ t, a, k, text, y }) => {
+  const o = fin(t, a - .05, .25);
+  return <div style={{ position: "absolute", left: 70, right: 70, top: y, opacity: o, transform: `translateX(${(1 - o) * -60}px)`, display: "flex", alignItems: "center", gap: 30, background: "rgba(10,10,14,.82)", border: "3px solid rgba(255,255,255,.85)", borderRadius: 34, padding: "34px 40px", fontFamily: "WCM", boxShadow: "0 10px 40px rgba(0,0,0,.6)" }}>
+    <div style={{ width: 110, height: 110, borderRadius: 26, background: k === "A" ? "#f2c46b" : "#e8463b", color: "#0b0b0f", fontWeight: 900, fontSize: 80, display: "flex", alignItems: "center", justifyContent: "center" }}>{k}</div>
+    <div style={{ fontWeight: 900, fontSize: 64, color: "#fff", lineHeight: 1.05 }}>{text}</div>
+  </div>;
+};
+
+export const WrongCarEpisode: React.FC = () => {
+  useWcFonts();
+  const f = useCurrentFrame(), t = f / FPS;
+  const cut = CUTS.find((c) => t >= c.a && t < c.b) ?? CUTS[CUTS.length - 1];
+  const sh = cut.shake ? Math.max(0, 1 - Math.abs(t - cut.shake) / .35) : 0;
+  const flash = cut.flash ? Math.max(0, 1 - (t - cut.a) / .25) : 0;
+  const lockFlash = Math.max(0, 1 - Math.abs(t - A(23) - .05) / .12);
+  const heart = t > 55.5 ? Math.pow(Math.max(0, Math.sin(((t - 55.5) * 1.17) * Math.PI * 2)), 8) : 0;   // ~70 bpm pulse
+  const RED0 = 66.55, cd = Math.max(0, 10 - Math.floor(t - RED0)), redBlink = cd === 0 ? (Math.floor(t * 4) % 2 ? 1 : .25) : 1;
+  return <AbsoluteFill style={{ background: "#000" }}>
+    <AbsoluteFill style={{ transform: `translate(${sh * 10 * Math.sin(t * 60)}px, ${sh * 22}px) scale(${1 + heart * .012})`, filter: "contrast(1.08) saturate(.92)" }}>
+      {CUTS.map((c, i) => c.video ? <Sequence key={i} from={Math.round(c.a * FPS)} durationInFrames={Math.round((c.b - c.a) * FPS)}>{c.r(0, c.b - c.a)}</Sequence> : (cut === c ? <React.Fragment key={i}>{c.r(t - c.a, c.b - c.a)}</React.Fragment> : null))}
+    </AbsoluteFill>
+    {/* the red light grows over the last scene */}
+    {t > 64.75 && <AbsoluteFill style={{ background: `radial-gradient(ellipse at 85% 18%, rgba(255,30,20,${.12 + .28 * fin(t, A(25) + 1.0, 1.2) * (.8 + .2 * Math.sin(t * 6))}) 0%, rgba(255,0,0,0) 60%)`, mixBlendMode: "screen" }} />}
+    {t > 68.4 && <AbsoluteFill style={{ background: `rgba(0,0,0,${.45 * fin(t, 68.4, .6)})` }} />}
+    {/* grade: warm/teal split, vignette, grain */}
+    <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(10,40,60,.18), rgba(60,30,0,.12))", mixBlendMode: "soft-light" }} />
+    <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,.6) 100%)" }} />
+    <AbsoluteFill style={{ opacity: .09, mixBlendMode: "overlay" }}><svg width={1080} height={1920}><filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves={2} seed={f % 30} /></filter><rect width={1080} height={1920} filter="url(#g)" /></svg></AbsoluteFill>
+    {heart > 0 && <AbsoluteFill style={{ background: `radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 40%, rgba(120,0,0,${heart * .35}) 100%)` }} />}
+    {(flash > 0 || lockFlash > 0) && <AbsoluteFill style={{ background: "#fff", opacity: Math.max(flash * .7, lockFlash * .5) }} />}
+    {/* the hook title */}
+    {t < 1.5 && <div style={{ position: "absolute", left: 50, right: 50, top: 760, textAlign: "center", fontFamily: "WCM", fontWeight: 900, fontSize: 132, lineHeight: 1.02, color: "#fff", letterSpacing: 1, textShadow: "0 6px 26px rgba(0,0,0,.9)", transform: `scale(${1.12 - .12 * ease(Math.min(1, t / .25))})`, opacity: fout(t, 1.5, .2) }}>THIS ISN'T<br /><span style={{ color: "#f2c46b" }}>YOUR TAXI.</span></div>}
+    {/* small clock at the top (the big 2:07 card carries it on its own) */}
+    {!(t >= 5.3 && t < 6.6) && <div style={{ position: "absolute", left: 60, top: 110, fontFamily: "monospace", fontWeight: 700, fontSize: 44, letterSpacing: 3, color: "#ff5a3a", textShadow: "0 0 12px rgba(255,80,50,.7), 0 2px 6px #000" }}>2:07 AM</div>}
+    {/* the countdown to green */}
+    {t > RED0 - .3 && <div style={{ position: "absolute", right: 60, top: 420, textAlign: "right", fontFamily: "monospace", fontWeight: 700, color: "#ff3b30", opacity: fin(t, RED0 - .3, .3) * redBlink, textShadow: "0 0 18px rgba(255,40,30,.8), 0 2px 6px #000" }}>
+      <div style={{ fontSize: 36, letterSpacing: 4 }}>RED LIGHT</div><div style={{ fontSize: 110 }}>0:{String(cd).padStart(2, "0")}</div></div>}
+    {/* the vote */}
+    <VoteCard t={t} a={A(27)} k="A" text="Grab the wheel" y={1080} />
+    <VoteCard t={t} a={WD.find((w) => w[0] === 28 && w[1] === "B.")![2]} k="B" text="Jump out at the light" y={1300} />
+    {t > A(27) - .3 && <div style={{ position: "absolute", left: 0, right: 0, top: 960, textAlign: "center", fontFamily: "WCM", fontWeight: 800, fontSize: 40, letterSpacing: 6, color: "#fff", opacity: fin(t, A(27) - .3, .3), textShadow: "0 2px 8px #000" }}>COMMENT A OR B</div>}
+    <Captions t={t} />
   </AbsoluteFill>;
 };
