@@ -36,13 +36,21 @@ put(load(f'{SSFX}/notify.wav')[: int(1.0 * SR)], 10.85, -16)    # driver found
 put(load(S('blinker')), 32.3, -12)                             # right turn
 put(load(S('brake')), 67.3, -9)                                # he starts to slow down
 for k in range(11): put(load(f'{SSFX}/tick.wav')[: int(.3 * SR)], 66.55 + k, -17)   # the red-light countdown
-# BGM 'Unresolved Ride' (user, 2026-11-18): its silence + hit (68.5 s in the track) lands on "Click."; louder than usual
-BGM = f'{WSFX}/bgm.mp3'
+# BGM 'Back Seat Unresolved' (user, 2026-11-18): used from 28 s in. From there the track runs out at about 62 s of video,
+# so two more passes of its own middle are joined with 1.5 s crossfades; the second pass puts the track's hit (80 s) on "Click."
+BGM = f'{WSFX}/bgm2.mp3'
 import os
 if os.path.exists(BGM):
-    b = load(BGM); off = 68.5 - word(23, 'Click.'); b = b[int(off * SR):][:N]; b = np.pad(b, ((0, N - len(b)), (0, 0)))
-    g = np.full(N, 10 ** (-12 / 20) * vr / rms(b)); tt = np.arange(N) / SR
-    g *= np.clip(tt / 1.5, 0, 1) * np.clip((END - tt) / .8, 0, 1); fx += b * g[:, None]
+    b = load(BGM); click = word(23, 'Click.')
+    segs = [(0.0, 54.5, 28.0), (54.5, 64.9, 80.0 - (click - 54.5)), (64.9, END, 67.0)]   # (video from, video to, track from)
+    out = np.zeros((N, 2), np.float32); X = int(1.5 * SR)
+    for k, (v0, v1, t0) in enumerate(segs):
+        i0 = int(v0 * SR); n = int((v1 - v0) * SR) + (X if k < len(segs) - 1 else 0); seg = b[int(t0 * SR): int(t0 * SR) + n].copy()
+        if k > 0: seg[:X] *= np.linspace(0, 1, X)[:, None]
+        if k < len(segs) - 1: seg[-X:] *= np.linspace(1, 0, X)[:, None]
+        j0 = min(N, i0 + len(seg)); out[i0:j0] += seg[:j0 - i0]
+    g = np.full(N, 10 ** (-12 / 20) * vr / rms(b[int(28 * SR):])); tt = np.arange(N) / SR
+    g *= np.clip(tt / .8, 0, 1) * np.clip((END - tt) / .8, 0, 1); fx += out * g[:, None]
 VOICE_DB = -4.0   # 2026-11-18 review: the narration sat too far on top; everything else stays where it was
 mix = voice * 10 ** (VOICE_DB / 20) + fx
 sf.write(OUT, mix / max(1, np.abs(mix).max() / .95), SR); print('end', END)
