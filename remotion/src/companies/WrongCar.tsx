@@ -270,10 +270,11 @@ const Captions: React.FC<{ t: number }> = ({ t }) => {
     {c.words.map(([w, wt], i) => { const o = fin(t, wt - .04, .08); return <span key={i} style={{ opacity: o, display: "inline-block", transform: `translateY(${(1 - o) * 10}px) scale(${c.big ? 1.15 - .15 * o : 1})`, marginRight: 18 }}>{w}</span>; })}
   </div>;
 };
+// A = red, B = blue (2026-11-18)
 const VoteCard: React.FC<{ t: number; a: number; k: string; text: string; y: number }> = ({ t, a, k, text, y }) => {
   const o = fin(t, a - .05, .25);
   return <div style={{ position: "absolute", left: 70, right: 70, top: y, opacity: o, transform: `translateX(${(1 - o) * -60}px)`, display: "flex", alignItems: "center", gap: 30, background: "rgba(10,10,14,.82)", border: "3px solid rgba(255,255,255,.85)", borderRadius: 34, padding: "34px 40px", fontFamily: "WCM", boxShadow: "0 10px 40px rgba(0,0,0,.6)" }}>
-    <div style={{ width: 110, height: 110, borderRadius: 26, background: k === "A" ? "#f2c46b" : "#e8463b", color: "#0b0b0f", fontWeight: 900, fontSize: 80, display: "flex", alignItems: "center", justifyContent: "center" }}>{k}</div>
+    <div style={{ width: 110, height: 110, borderRadius: 26, background: k === "A" ? "#e8463b" : "#2b6ef2", color: "#fff", fontWeight: 900, fontSize: 80, display: "flex", alignItems: "center", justifyContent: "center" }}>{k}</div>
     <div style={{ fontWeight: 900, fontSize: 64, color: "#fff", lineHeight: 1.05 }}>{text}</div>
   </div>;
 };
