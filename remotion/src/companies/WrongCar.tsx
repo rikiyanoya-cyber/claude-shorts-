@@ -226,8 +226,10 @@ export const CUTS: Cut[] = [
   { a: 26.5, b: 30.4, r: (u) => <Lights u={u} /> },
   { a: 30.4, b: 32.1, r: (u, d) => <Pic src="ride_mid.png" u={u} dur={d} z={[1.1, 1.3]} o={[60, 25]} /> },
   { a: 32.1, b: 33.95, r: (u) => <TurnCard u={u} /> },
-  { a: 33.95, b: 34.75, r: (u) => <TurnCard u={u} right /> },
-  { a: 34.75, b: 36.1, video: true, r: (u, d) => <Clip src="turn.mp4" from={1.2} rate={1.3} dur={d} blur={[[0, NEON], [5.1, NEON]]} /> },
+  { a: 33.95, b: 34.3, r: (u) => <TurnCard u={u} right /> },
+  // 2026-11-18: the driver turns the wheel right (user's clip), then the taxi from outside
+  { a: 34.3, b: 35.4, video: true, r: (u, d) => <Clip src="wheel.mp4" from={1.4} rate={1.1} dur={d} z={[1.0, 1.05]} /> },
+  { a: 35.4, b: 36.1, video: true, r: (u, d) => <Clip src="turn.mp4" from={2.0} rate={1.3} dur={d} blur={[[0, NEON], [5.1, NEON]]} /> },
   { a: 36.1, b: 38.4, video: true, r: (u, d) => <Clip src="lean.mp4" from={1.0} rate={1.2} dur={d} blur={TREE_LEAN} /> },
   { a: 38.4, b: 44.2, r: (u, d) => <AbsoluteFill><Scene5 u={u} dur={d} /><Blur r={TREE_S5} /></AbsoluteFill> },
   { a: 44.2, b: 52.2, r: (u, d) => <AbsoluteFill><Scene6 u={u} dur={d} /><Blur r={TREE_S6} px={8} /></AbsoluteFill> },
@@ -301,6 +303,8 @@ export const WrongCarEpisode: React.FC = () => {
     <AbsoluteFill style={{ opacity: .09, mixBlendMode: "overlay" }}><svg width={1080} height={1920}><filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves={2} seed={f % 30} /></filter><rect width={1080} height={1920} filter="url(#g)" /></svg></AbsoluteFill>
     {heart > 0 && <AbsoluteFill style={{ background: `radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 40%, rgba(120,0,0,${heart * .35}) 100%)` }} />}
     {(flash > 0 || lockFlash > 0) && <AbsoluteFill style={{ background: "#fff", opacity: Math.max(flash * .7, lockFlash * .5) }} />}
+    {/* the Pollo logo stays top-right on every cut (CPP posting condition) */}
+    <Img src={staticFile("wc/pollo_logo.png")} style={{ position: "absolute", left: 676, top: 294, width: 341, height: 77 }} />
     {/* the hook title */}
     {t < 1.5 && <div style={{ position: "absolute", left: 50, right: 50, top: 760, textAlign: "center", fontFamily: "WCM", fontWeight: 900, fontSize: 132, lineHeight: 1.02, color: "#fff", letterSpacing: 1, textShadow: "0 6px 26px rgba(0,0,0,.9)", transform: `scale(${1.12 - .12 * ease(Math.min(1, t / .25))})`, opacity: fout(t, 1.5, .2) }}>THIS ISN'T<br /><span style={{ color: "#f2c46b" }}>YOUR TAXI.</span></div>}
     {/* small clock at the top (the big 2:07 card carries it on its own) */}
