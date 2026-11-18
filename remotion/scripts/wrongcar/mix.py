@@ -24,14 +24,14 @@ def bed(name, a, b, db, fi=.8, fo=.8):
     x = loadq(name); n = int((b - a) * SR); x = np.concatenate([x] * (n // len(x) + 2))[:n]; put(x, a, db, fi, fo, BED_BOOST)
 S = lambda n: f'{WSFX}/{n}.mp3'
 # beds
-bed(f'{SSFX}/rain.wav', 5.3, 19.7, -23)                        # the street before you get in
+bed(f'{SSFX}/rain.wav', 5.3, 19.7, -30)   # 2026-11-18: too loud from 0:07                        # the street before you get in
 bed(S('road_a'), 19.7, END, -25, 1.0, 1.5)   # 2026-11-18: was too loud at -19                     # inside the taxi from here on
-bed(S('heart'), 55.5, END, -15, 1.5, 1.0)                      # from the photo to the end
+bed(S('heart'), 55.5, END, -12, 1.5, 1.0)   # sounds the picture can't show stay loud                      # from the photo to the end
 # hits
 put(load(S('impact'))[: int(1.8 * SR)], 0.0, -16)   # 2026-11-18: the opening was too loud
 put(load(S('lock')), 0.12, -11)                                 # hook: the doors lock
 put(load(S('lock')), word(23, 'Click.') - .02, -3)             # "Click." the doors lock
-put(load(S('door')), 20.25, -12)                               # you get in
+put(load(S('door')), 20.25, -8)                               # you get in
 put(load(f'{SSFX}/notify.wav')[: int(1.0 * SR)], 10.85, -16)    # driver found
 put(load(S('blinker')), 32.3, -12)                             # right turn
 put(load(S('brake')), 67.3, -9)                                # he starts to slow down
@@ -49,7 +49,7 @@ if os.path.exists(BGM):
         if k > 0: seg[:X] *= np.linspace(0, 1, X)[:, None]
         if k < len(segs) - 1: seg[-X:] *= np.linspace(1, 0, X)[:, None]
         j0 = min(N, i0 + len(seg)); out[i0:j0] += seg[:j0 - i0]
-    g = np.full(N, 10 ** (-12 / 20) * vr / rms(b[int(28 * SR):])); tt = np.arange(N) / SR
+    g = np.full(N, 10 ** (-15 / 20) * vr / rms(b[int(28 * SR):])); tt = np.arange(N) / SR   # 2026-11-18: BGM 3 dB down
     g *= np.clip(tt / .8, 0, 1) * np.clip((END - tt) / .8, 0, 1); fx += out * g[:, None]
 VOICE_DB = -8.0   # 2026-11-18 review: the narration sat too far on top (-4, then -8); everything else stays where it was
 mix = voice * 10 ** (VOICE_DB / 20) + fx
