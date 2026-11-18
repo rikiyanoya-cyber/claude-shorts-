@@ -36,5 +36,12 @@ put(load(f'{SSFX}/notify.wav')[: int(1.0 * SR)], 10.85, -16)    # driver found
 put(load(S('blinker')), 32.3, -12)                             # right turn
 put(load(S('brake')), 67.3, -9)                                # he starts to slow down
 for k in range(11): put(load(f'{SSFX}/tick.wav')[: int(.3 * SR)], 66.55 + k, -17)   # the red-light countdown
+# BGM 'Unresolved Ride' (user, 2026-11-18): its silence + hit (68.5 s in the track) lands on "Click."; louder than usual
+BGM = f'{WSFX}/bgm.mp3'
+import os
+if os.path.exists(BGM):
+    b = load(BGM); off = 68.5 - word(23, 'Click.'); b = b[int(off * SR):][:N]; b = np.pad(b, ((0, N - len(b)), (0, 0)))
+    g = np.full(N, 10 ** (-12 / 20) * vr / rms(b)); tt = np.arange(N) / SR
+    g *= np.clip(tt / 1.5, 0, 1) * np.clip((END - tt) / .8, 0, 1); fx += b * g[:, None]
 mix = voice + fx
 sf.write(OUT, mix / max(1, np.abs(mix).max() / .95), SR); print('end', END)
