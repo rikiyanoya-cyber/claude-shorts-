@@ -378,3 +378,26 @@ export const WrongCarStory: React.FC<{ v?: string }> = ({ v = "1" }) => {
     <StoryText top={1080} size={70}>Vote in the comments.<br /><span style={{ color: "#f2c46b" }}>EP 2 depends on you.</span></StoryText>
   </AbsoluteFill>;
 };
+
+// story 1 as a short clip (6 s): the hand on the handle, "THE DOORS" ... clunk + flash ... "JUST LOCKED."
+export const WC_STORY1_LEN = 6;
+export const WrongCarStory1Video: React.FC = () => {
+  useWcFonts();
+  const t = useCurrentFrame() / FPS, LOCK = 2.0;
+  const flash = Math.max(0, 1 - Math.abs(t - LOCK - .03) / .14), shake = Math.max(0, 1 - Math.abs(t - LOCK) / .25);
+  return <AbsoluteFill style={{ background: "#000" }}>
+    <AbsoluteFill style={{ opacity: fin(t, 0, .5), transform: `translate(${shake * 8 * Math.sin(t * 70)}px, ${shake * 10}px) scale(${1.3 + .12 * ease(Math.min(1, t / WC_STORY1_LEN))})`, transformOrigin: "70% 36%" }}>
+      <OffthreadVideo src={staticFile("wc/handle.mp4")} muted playbackRate={.8} style={{ width: 1080, height: 1920 }} />
+    </AbsoluteFill>
+    <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.05) 32%, rgba(0,0,0,.1) 55%, rgba(0,0,0,.8) 100%)" }} />
+    <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(10,40,60,.18), rgba(60,30,0,.12))", mixBlendMode: "soft-light" }} />
+    <div style={{ position: "absolute", left: 0, right: 0, top: 290, textAlign: "center", fontFamily: "monospace", fontWeight: 700, fontSize: 64, letterSpacing: 4, color: "#ff5a3a", textShadow: "0 0 16px rgba(255,80,50,.75), 0 2px 6px #000", opacity: fin(t, .4, .3) * (t > 4.6 && Math.floor(t * 2) % 2 ? .55 : 1) }}>2:07 AM</div>
+    <div style={{ position: "absolute", left: 60, right: 60, top: 430, textAlign: "center", fontFamily: "WCM", fontWeight: 900, fontSize: 128, lineHeight: 1.02, color: "#fff", textShadow: "0 6px 30px rgba(0,0,0,.95)" }}>
+      <div style={{ opacity: fin(t, .9, .25), transform: `translateY(${(1 - fin(t, .9, .25)) * 20}px)` }}>THE DOORS</div>
+      <div style={{ color: "#f2c46b", opacity: t >= LOCK ? 1 : 0, transform: `scale(${t >= LOCK ? 1.18 - .18 * ease(Math.min(1, (t - LOCK) / .2)) : 1})` }}>JUST LOCKED.</div>
+    </div>
+    <div style={{ position: "absolute", left: 0, right: 0, top: 1420, textAlign: "center", fontFamily: "WCM", fontWeight: 800, fontSize: 40, letterSpacing: 6, color: "#fff", opacity: fin(t, 2.8, .4) }}>NEW SERIES · WRONG CAR · EP 1</div>
+    <AbsoluteFill style={{ opacity: .08, mixBlendMode: "overlay" }}><svg width={1080} height={1920}><filter id="g1"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves={2} seed={Math.floor(t * 30) % 30} /></filter><rect width={1080} height={1920} filter="url(#g1)" /></svg></AbsoluteFill>
+    {flash > 0 && <AbsoluteFill style={{ background: "#fff", opacity: flash * .55 }} />}
+  </AbsoluteFill>;
+};
