@@ -205,6 +205,10 @@ const Same: React.FC<{ u: number }> = ({ u }) => (
   </AbsoluteFill>
 );
 
+const Swing: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, children }) => {
+  const k = ease(Math.min(1, useCurrentFrame() / FPS / dur));
+  return <AbsoluteFill style={{ transform: `translateX(${-70 * k}px) rotate(${-2.5 * Math.sin(Math.PI * k)}deg)`, transformOrigin: "50% 70%" }}>{children}</AbsoluteFill>;
+};
 type Cut = { a: number; b: number; r: (u: number, d: number) => React.ReactNode; video?: boolean; flash?: boolean; shake?: number };
 const A = (i: number) => WD.find((w) => w[0] === i)![2];
 export const CUTS: Cut[] = [
@@ -228,8 +232,9 @@ export const CUTS: Cut[] = [
   { a: 32.1, b: 33.95, r: (u) => <TurnCard u={u} /> },
   { a: 33.95, b: 34.3, r: (u) => <TurnCard u={u} right /> },
   // 2026-11-18: the driver turns the wheel right (user's clip), then the taxi from outside
-  { a: 34.3, b: 35.4, video: true, r: (u, d) => <Clip src="wheel.mp4" from={1.4} rate={1.1} dur={d} z={[1.0, 1.05]} /> },
-  { a: 35.4, b: 36.1, video: true, r: (u, d) => <Clip src="turn.mp4" from={2.0} rate={1.3} dur={d} blur={[[0, NEON], [5.1, NEON]]} /> },
+  // the car swings hard, so the wheel does too: the clip's turn (0.9-2.9 s) at 2.2x, with a quick camera swing
+  { a: 34.3, b: 35.2, video: true, r: (u, d) => <Swing dur={d}><Clip src="wheel.mp4" from={0.9} rate={2.2} dur={d} z={[1.04, 1.1]} /></Swing> },
+  { a: 35.2, b: 36.1, video: true, r: (u, d) => <Clip src="turn.mp4" from={2.0} rate={1.3} dur={d} blur={[[0, NEON], [5.1, NEON]]} /> },
   { a: 36.1, b: 38.4, video: true, r: (u, d) => <Clip src="lean.mp4" from={1.0} rate={1.2} dur={d} blur={TREE_LEAN} /> },
   { a: 38.4, b: 44.2, r: (u, d) => <AbsoluteFill><Scene5 u={u} dur={d} /><Blur r={TREE_S5} /></AbsoluteFill> },
   { a: 44.2, b: 52.2, r: (u, d) => <AbsoluteFill><Scene6 u={u} dur={d} /><Blur r={TREE_S6} px={8} /></AbsoluteFill> },
