@@ -43,5 +43,6 @@ if os.path.exists(BGM):
     b = load(BGM); off = 68.5 - word(23, 'Click.'); b = b[int(off * SR):][:N]; b = np.pad(b, ((0, N - len(b)), (0, 0)))
     g = np.full(N, 10 ** (-12 / 20) * vr / rms(b)); tt = np.arange(N) / SR
     g *= np.clip(tt / 1.5, 0, 1) * np.clip((END - tt) / .8, 0, 1); fx += b * g[:, None]
-mix = voice + fx
+VOICE_DB = -4.0   # 2026-11-18 review: the narration sat too far on top; everything else stays where it was
+mix = voice * 10 ** (VOICE_DB / 20) + fx
 sf.write(OUT, mix / max(1, np.abs(mix).max() / .95), SR); print('end', END)
