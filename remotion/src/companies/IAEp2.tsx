@@ -15,9 +15,13 @@ const fin = (u: number, a: number, d = .35) => interpolate(u, [a, a + d], [0, 1]
 const fout = (u: number, b: number, d = .35) => 1 - fin(u, b - d, d);
 const src = (n: string) => staticFile(`ia/${n}`);
 
+const NUM = "IAN", LAB = "IAI";
 const useFont = () => {
   const [h] = React.useState(() => delayRender("font"));
-  React.useEffect(() => { new FontFace(F, `url(${staticFile("fonts/Montserrat.ttf")})`, { weight: "100 900" }).load().then((x) => { document.fonts.add(x); continueRender(h); }).catch(() => continueRender(h)); }, [h]);
+  React.useEffect(() => {
+    Promise.all([new FontFace(F, `url(${staticFile("fonts/Montserrat.ttf")})`, { weight: "100 900" }).load(), new FontFace(NUM, `url(${staticFile("fonts/Anton.ttf")})`).load(), new FontFace(LAB, `url(${staticFile("fonts/Inter-Bold.ttf")})`, { weight: "700" }).load()])
+      .then((fs) => { fs.forEach((x) => document.fonts.add(x)); continueRender(h); }).catch(() => continueRender(h));
+  }, [h]);
 };
 
 // ---------- building blocks ----------
@@ -90,10 +94,11 @@ const Studio: React.FC<{ warm?: boolean }> = ({ warm }) => (
 const Words: React.FC<{ u: number; a?: number; b: number; children: React.ReactNode; size?: number; y?: number; sub?: string }> = ({ u, a = .1, b, children, size = 150, y = 230, sub }) => {
   const o = fin(u, a, .3) * fout(u, b, .3);
   return <div style={{ position: "absolute", left: 0, right: 0, top: y, textAlign: "center", opacity: o, transform: `translateY(${(1 - fin(u, a, .4)) * 24}px) scale(${1.04 - .04 * fin(u, a, .5)})` }}>
-    <div style={{ display: "inline-block", fontFamily: F, fontWeight: 900, fontSize: size, lineHeight: 1.02, color: "#fff", letterSpacing: 2, textShadow: "0 6px 30px rgba(0,0,0,.75), 0 0 2px rgba(0,0,0,.6)" }}>{children}</div>
-    {sub && <div style={{ fontFamily: F, fontWeight: 700, fontSize: 46, color: "#dfe6ff", marginTop: 16, letterSpacing: 3, textShadow: "0 3px 16px rgba(0,0,0,.8)" }}>{sub}</div>}
+    <div style={{ display: "inline-block", fontFamily: NUM, fontWeight: 400, fontSize: size * 1.08, lineHeight: 1.02, color: "#fff", letterSpacing: 3, textShadow: "0 6px 30px rgba(0,0,0,.75), 0 0 2px rgba(0,0,0,.6)" }}>{children}</div>
+    {sub && <div style={{ fontFamily: LAB, fontWeight: 700, fontSize: 40, color: "#dfe6ff", marginTop: 16, letterSpacing: 6, textShadow: "0 3px 16px rgba(0,0,0,.8)" }}>{sub}</div>}
   </div>;
 };
+const R: React.FC<{ children: React.ReactNode }> = ({ children }) => <span style={{ color: "#E57A6E" }}>{children}</span>;
 const G: React.FC<{ children: React.ReactNode }> = ({ children }) => <span style={{ color: GOLD }}>{children}</span>;
 const Count: React.FC<{ u: number; a: number; to: number; pre?: string; suf?: string; d?: number }> = ({ u, a, to, pre = "", suf = "", d = .9 }) => {
   const v = Math.round(to * ease(Math.min(1, Math.max(0, (u - a) / d))));
@@ -102,11 +107,92 @@ const Count: React.FC<{ u: number; a: number; to: number; pre?: string; suf?: st
 // study card, bottom-left, ~4 s
 const Study: React.FC<{ u: number; a: number; d?: number; text: string; sub?: string }> = ({ u, a, d = 4, text, sub }) => {
   const o = fin(u, a, .4) * fout(u, a + d, .4);
-  return <div style={{ position: "absolute", left: 70, bottom: 70, opacity: o, fontFamily: F, background: "rgba(8,14,40,.78)", borderLeft: `5px solid ${GOLD}`, borderRadius: 10, padding: "14px 24px" }}>
+  return <div style={{ position: "absolute", left: 70, bottom: 70, opacity: o, fontFamily: LAB, background: "rgba(8,14,40,.78)", borderLeft: `5px solid ${GOLD}`, borderRadius: 10, padding: "14px 24px" }}>
     <div style={{ fontWeight: 700, fontSize: 18, letterSpacing: 4, color: GOLD }}>STUDY</div>
-    <div style={{ fontWeight: 800, fontSize: 32, color: "#fff", marginTop: 2 }}>{text}</div>
-    {sub && <div style={{ fontWeight: 600, fontSize: 24, color: "#b9c4e6", marginTop: 2 }}>{sub}</div>}
+    <div style={{ fontWeight: 700, fontSize: 30, color: "#fff", marginTop: 2 }}>{text}</div>
+    {sub && <div style={{ fontWeight: 700, fontSize: 22, color: "#b9c4e6", marginTop: 2 }}>{sub}</div>}
   </div>;
+};
+
+
+// ---------- graphs (code): clean lines on the navy studio, gold = what matters, labels in Inter ----
+const GW = 1300, GH = 560, GX = 310, GY = 300;   // plot box
+const Axis: React.FC<{ u: number; x: string; y: string }> = ({ u, x, y }) => <>
+  <svg width={1920} height={1080} style={{ position: "absolute", opacity: fin(u, 0, .4) }}>
+    <line x1={GX} y1={GY + GH} x2={GX + GW} y2={GY + GH} stroke="#8fa0cc" strokeWidth={4} /><line x1={GX} y1={GY} x2={GX} y2={GY + GH} stroke="#8fa0cc" strokeWidth={4} /></svg>
+  <div style={{ position: "absolute", left: GX + GW - 400, width: 400, top: GY + GH + 18, textAlign: "right", fontFamily: LAB, fontWeight: 700, fontSize: 28, letterSpacing: 4, color: "#8fa0cc", opacity: fin(u, 0, .4) }}>{x}</div>
+  <div style={{ position: "absolute", left: GX - 30, top: GY - 58, fontFamily: LAB, fontWeight: 700, fontSize: 28, letterSpacing: 4, color: "#8fa0cc", opacity: fin(u, 0, .4) }}>{y}</div></>;
+// a polyline that draws itself between a and a+d (seconds of u)
+const Draw: React.FC<{ u: number; a: number; d?: number; pts: [number, number][]; c: string; w?: number; dash?: boolean }> = ({ u, a, d = 1.6, pts, c, w = 10, dash }) => {
+  const P = pts.map(([x, y]) => [GX + x * GW, GY + GH - y * GH]), len = P.slice(1).reduce((s, p, i) => s + Math.hypot(p[0] - P[i][0], p[1] - P[i][1]), 0), k = ease(Math.min(1, Math.max(0, (u - a) / d)));
+  return <svg width={1920} height={1080} style={{ position: "absolute" }}><polyline points={P.map((p) => p.join(",")).join(" ")} fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={dash ? "18 16" : len} strokeDashoffset={dash ? 0 : len * (1 - k)} opacity={dash ? k : 1} style={{ filter: `drop-shadow(0 0 10px ${c}88)` }} /></svg>;
+};
+const Tag: React.FC<{ u: number; a: number; x: number; y: number; c?: string; size?: number; children: React.ReactNode; anchor?: "l" | "r" | "c" }> = ({ u, a, x, y, c = "#fff", size = 34, children, anchor = "l" }) => (
+  <div style={{ position: "absolute", left: GX + x * GW + (anchor === "r" ? -700 : anchor === "c" ? -350 : 0), width: 700, top: GY + GH - y * GH, transform: "translateY(-50%)", textAlign: anchor === "r" ? "right" : anchor === "c" ? "center" : "left", fontFamily: LAB, fontWeight: 700, fontSize: size, color: c, letterSpacing: 2, opacity: fin(u, a, .35), textShadow: "0 2px 10px rgba(0,0,0,.6)" }}>{children}</div>
+);
+const Graph: React.FC<{ children: React.ReactNode }> = ({ children }) => <><Studio />{children}</>;
+// 1: two kinds of happiness (life evaluation keeps rising, daily mood levels off near $75k)
+const TwoKinds: React.FC<{ u: number; life?: number; mood?: number; flat?: number; mark?: number }> = ({ u, life = 99, mood = 99, flat = 99, mark = 99 }) => <Graph>
+  <Axis u={u} x="HOUSEHOLD INCOME →" y="HAPPINESS" />
+  <Draw u={u} a={life} d={2.2} c={GOLD} pts={[[0, .12], [.25, .32], [.5, .5], [.75, .66], [1, .82]]} />
+  <Tag u={u} a={life + 1.6} x={.80} y={.92} c={GOLD}>HOW YOU RATE YOUR LIFE</Tag>
+  <Draw u={u} a={mood} d={1.4} c="#9fd3ff" pts={[[0, .1], [.18, .26], [.36, .38], [.5, .43]]} />
+  <Draw u={u} a={flat} d={1.2} c="#9fd3ff" pts={[[.5, .43], [.75, .44], [1, .44]]} />
+  <Tag u={u} a={mood + 1.0} x={.62} y={.33} c="#9fd3ff">DAILY MOOD</Tag>
+  <svg width={1920} height={1080} style={{ position: "absolute", opacity: fin(u, mark, .4) }}><line x1={GX + .5 * GW} y1={GY + 20} x2={GX + .5 * GW} y2={GY + GH} stroke="#fff" strokeWidth={3} strokeDasharray="10 10" /></svg>
+  <Tag u={u} a={mark} x={.5} y={-.08} anchor="c" size={42}>~$75,000</Tag>
+</Graph>;
+// 2: the bracket — the plateau sits somewhere below $90k; $75k is only the midpoint; ≈$110k in today's money
+const Bracket: React.FC<{ u: number; mid?: number; today?: number }> = ({ u, mid = 99, today = 99 }) => {
+  const x0 = 460, x1 = 1460, y = 560, k = fin(u, .2, .6);
+  return <Graph>
+    <svg width={1920} height={1080} style={{ position: "absolute" }}>
+      <rect x={x0} y={y - 50} width={(x1 - x0) * k} height={100} rx={50} fill="rgba(159,211,255,.18)" stroke="#9fd3ff" strokeWidth={4} />
+      <line x1={(x0 + x1) / 2} y1={y - 90} x2={(x0 + x1) / 2} y2={y + 90} stroke={GOLD} strokeWidth={6} opacity={fin(u, mid, .3)} /></svg>
+    <div style={{ position: "absolute", left: x0 - 200, width: 400, top: y + 80, textAlign: "center", fontFamily: NUM, fontSize: 70, color: "#9fd3ff", opacity: k }}>$60,000</div>
+    <div style={{ position: "absolute", left: x1 - 200, width: 400, top: y + 80, textAlign: "center", fontFamily: NUM, fontSize: 70, color: "#9fd3ff", opacity: k }}>$90,000</div>
+    <div style={{ position: "absolute", left: 0, right: 0, top: 230, textAlign: "center", fontFamily: LAB, fontWeight: 700, fontSize: 40, letterSpacing: 6, color: "#dfe6ff", opacity: fin(u, .4, .4) }}>DAILY MOOD LEVELED OFF SOMEWHERE IN HERE</div>
+    <div style={{ position: "absolute", left: 0, right: 0, top: y - 210, textAlign: "center", fontFamily: NUM, fontSize: 110, color: GOLD, opacity: fin(u, mid, .3), transform: `scale(${1.1 - .1 * fin(u, mid, .4)})` }}>$75,000 <span style={{ fontFamily: LAB, fontSize: 36, color: "#fff", letterSpacing: 4 }}>= THE MIDPOINT</span></div>
+    <div style={{ position: "absolute", left: 0, right: 0, top: y + 200, textAlign: "center", fontFamily: LAB, fontWeight: 700, fontSize: 44, color: "#fff", opacity: fin(u, today, .4) }}>IN TODAY'S MONEY ≈ <span style={{ fontFamily: NUM, fontSize: 76, color: GOLD }}>$110,000</span></div>
+  </Graph>;
+};
+// 3: ratio, not amount — on a ratio scale $20k→$60k and $60k→$180k are the same step
+const Ratio: React.FC<{ u: number; s1?: number; s2?: number; eq?: number }> = ({ u, s1 = 99, s2 = 99, eq = 99 }) => {
+  const X = (v: number) => 260 + (Math.log(v / 20000) / Math.log(9)) * 1400, y = 640;
+  const Step: React.FC<{ a: number; from: number; to: number }> = ({ a, from, to }) => { const k = ease(Math.min(1, Math.max(0, (u - a) / .9))); return <svg width={1920} height={1080} style={{ position: "absolute" }}>
+    <path d={`M${X(from)} ${y - 30} Q ${(X(from) + X(to)) / 2} ${y - 260} ${X(from) + (X(to) - X(from)) * k} ${y - 30 - (k < 1 ? 230 * Math.sin(Math.PI * k) : 0)}`} fill="none" stroke={GOLD} strokeWidth={8} strokeLinecap="round" opacity={u > a ? 1 : 0} /></svg>; };
+  return <Graph>
+    <svg width={1920} height={1080} style={{ position: "absolute", opacity: fin(u, 0, .4) }}><line x1={200} y1={y} x2={1720} y2={y} stroke="#8fa0cc" strokeWidth={5} />
+      {[20000, 60000, 180000].map((v) => <circle key={v} cx={X(v)} cy={y} r={16} fill="#fff" />)}</svg>
+    {[20000, 60000, 180000].map((v) => <div key={v} style={{ position: "absolute", left: X(v) - 200, width: 400, top: y + 40, textAlign: "center", fontFamily: NUM, fontSize: 72, color: "#fff", opacity: fin(u, .2, .4) }}>${v / 1000}K</div>)}
+    <Step a={s1} from={20000} to={60000} /><Step a={s2} from={60000} to={180000} />
+    {[[s1, 20000, 60000], [s2, 60000, 180000]].map(([a, f, t], i) => <div key={i} style={{ position: "absolute", left: (X(f) + X(t)) / 2 - 150, width: 300, top: y - 330, textAlign: "center", fontFamily: NUM, fontSize: 90, color: GOLD, opacity: fin(u, a + .6, .3) }}>×3</div>)}
+    <div style={{ position: "absolute", left: 0, right: 0, top: 180, textAlign: "center", fontFamily: LAB, fontWeight: 700, fontSize: 44, letterSpacing: 4, color: "#fff", opacity: fin(u, eq, .4) }}>THE SAME BOOST OF HAPPINESS</div>
+  </Graph>;
+};
+// 4: 2023 — mood flattens only for the least happy 15-20 %; most keep rising; the happiest 30 % rise faster
+const Three: React.FC<{ u: number; low?: number; most?: number; top?: number }> = ({ u, low = 99, most = 99, top = 99 }) => <Graph>
+  <Axis u={u} x="HOUSEHOLD INCOME →" y="DAILY MOOD" />
+  <Draw u={u} a={top} d={1.8} c={GOLD} pts={[[0, .5], [.3, .6], [.6, .75], [1, 1.0]]} />
+  <Tag u={u} a={top + 1.2} x={.72} y={1.04} c={GOLD}>HAPPIEST 30% — RISES FASTER</Tag>
+  <Draw u={u} a={most} d={1.8} c="#ffffff" pts={[[0, .3], [.3, .4], [.6, .5], [1, .6]]} />
+  <Tag u={u} a={most + 1.2} x={.72} y={.67} c="#fff">MOST PEOPLE — KEEPS RISING</Tag>
+  <Draw u={u} a={low} d={1.8} c="#E57A6E" pts={[[0, .05], [.3, .14], [.48, .2], [1, .2]]} />
+  <Tag u={u} a={low + 1.2} x={.62} y={.12} c="#E57A6E">LEAST HAPPY 15–20% — FLAT AFTER ~$100K</Tag>
+</Graph>;
+// 5: only about five points on a 100-point scale between $15k and $250k households
+const Five: React.FC<{ u: number; b?: number; gap?: number }> = ({ u, b = 99, gap = 99 }) => {
+  const x0 = 360, w = 1200, k1 = ease(Math.min(1, Math.max(0, (u - b) / 1))), k2 = ease(Math.min(1, Math.max(0, (u - b - .6) / 1)));
+  const Bar: React.FC<{ y: number; v: number; k: number; label: string; c: string }> = ({ y, v, k, label, c }) => <>
+    <div style={{ position: "absolute", left: x0, top: y, width: w, height: 70, borderRadius: 35, background: "rgba(255,255,255,.08)" }} />
+    <div style={{ position: "absolute", left: x0, top: y, width: w * v / 100 * k, height: 70, borderRadius: 35, background: c, boxShadow: `0 0 20px ${c}88` }} />
+    <div style={{ position: "absolute", left: x0 - 330, width: 300, top: y + 2, textAlign: "right", fontFamily: NUM, fontSize: 60, color: "#fff", opacity: fin(u, b, .3) }}>{label}</div></>;
+  return <Graph>
+    <div style={{ position: "absolute", left: 0, right: 0, top: 200, textAlign: "center", fontFamily: LAB, fontWeight: 700, fontSize: 40, letterSpacing: 6, color: "#dfe6ff", opacity: fin(u, 0, .4) }}>HAPPINESS, OUT OF 100</div>
+    <Bar y={430} v={67} k={k1} label="$15K" c="#9fd3ff" /><Bar y={560} v={72} k={k2} label="$250K" c={GOLD} />
+    <svg width={1920} height={1080} style={{ position: "absolute", opacity: fin(u, gap, .3) }}><line x1={x0 + w * .67} y1={400} x2={x0 + w * .67} y2={660} stroke="#fff" strokeWidth={3} strokeDasharray="8 8" /><line x1={x0 + w * .72} y1={400} x2={x0 + w * .72} y2={660} stroke="#fff" strokeWidth={3} strokeDasharray="8 8" /></svg>
+    <div style={{ position: "absolute", left: x0 + w * .695 - 300, width: 600, top: 690, textAlign: "center", fontFamily: NUM, fontSize: 120, color: GOLD, opacity: fin(u, gap, .3), transform: `scale(${1.15 - .15 * fin(u, gap, .4)})` }}>~5 POINTS</div>
+  </Graph>;
 };
 
 // ---------- the shot list (first half: 0:00-2:24) ----------
@@ -174,9 +260,110 @@ const SH: Shot[] = [
       return <g key={i} opacity={o} fill="#e9e6ee"><circle cx={x} cy={y - 40} r={26} /><rect x={x - 30} y={y - 10} width={60} height={80} rx={26} /></g>; })}</svg></> },
   { a: at(42) - .05, tone: "study", r: (u, d) => <><Still n="K2_winners_jump.jpg" k={u / d} kb={{ z: [1.0, 1.0] }} dim={.7} /><Words u={u} a={.4} b={d} y={760} size={110}>SMALL STUDY,<br /><G>FAMOUS FINDING</G></Words></> },
   { a: at(43) - .05, r: (u, d) => <Still n="M5_last.jpg" k={u / d} kb={{ z: [1.3, 1.7], o: [55, 55], dx: -120 }} /> },
-  { a: at(44) + .9, b: 144.55, fadeOut: .8, tone: "work", r: (u, d) => <Still n="B2_office.jpg" k={u / d} kb={{ z: [1.3, 1.7], o: [86, 60] }} /> },
+  { a: at(44) + .9, b: 144.6, fadeOut: .6, tone: "work", r: (u, d) => <Still n="B2_office.jpg" k={u / d} kb={{ z: [1.3, 1.7], o: [86, 60] }} /> },
 ];
 export const IA2_PART1_END = 144.6;
+export const IA2_END = 514.0;   // the narration ends at 508.06; 6 s of quiet tail under the end screen
+// ---------- the shot list (second half: 2:24-end) ----------
+const SH2: Shot[] = [
+  // the coworker
+  { a: 144.6, fadeIn: .5, tone: "work", r: (u, d) => <Still n="N4_senpai_walk.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [35, 45], dx: -80 }} /> },
+  { a: 148.0, tone: "warm", r: (u, d) => <><Scene u={u} d={d} studio cam={{ z: [1.0, 1.2], pan: 120 }} ch={{ n: "P11_senpai_key", h: 900, x: 1180, y: 1060, act: "nod" }} /><Words u={u} a={1.0} b={d} y={260} size={200} sub="YOUR PAY"><G>×3</G></Words></> },
+  { a: 151.75, tone: "warm", r: (u, d) => <Still n="B9_house.jpg" k={u / d} kb={{ z: [1.25, 1.5], o: [45, 55], dx: 90 }} /> },
+  { a: 153.9, tone: "warm", r: (u, d) => <Still n="B7_parking.jpg" k={u / d} kb={{ z: [1.4, 1.7], o: [50, 62], dx: -90 }} /> },
+  { a: 156.4, tone: "warm", r: (u, d) => <Scene u={u} d={d} studio cam={{ z: [1.0, 1.3], pan: -120 }} ch={{ n: "P1_dream_b", h: 900, x: 900, y: 1080, act: "nod" }} /> },
+  { a: 160.9, tone: "warm", r: (u, d) => <Still n="N4_senpai_walk.jpg" k={u / d} kb={{ z: [1.9, 2.1], o: [30, 25] }} /> },
+  { a: 164.5, r: (u, d) => <Still n="B6_coffee.jpg" k={u / d} kb={{ z: [1.2, 1.45], o: [50, 55] }} /> },
+  { a: 167.35, tone: "sad", r: (u, d) => <Still n="N1_senpai_sigh.jpg" k={u / d} kb={{ z: [1.0, 1.18], o: [50, 45] }} /> },
+  { a: 171.0, tone: "work", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.2, 1.45], o: [50, 40] }} ch={{ n: "P13_senpai_phone", h: 900, x: 960, y: 1080, act: "shake" }} glow="rgba(170,200,255,.5)" /> },
+  { a: 175.15, tone: "sad", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.9, 2.1], o: [60, 30] }} ch={{ n: "P13_senpai_phone", h: 900, x: 960, y: 1080 }} /> },
+  // two kinds of happiness
+  { a: 177.4, r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.4, 1.75], o: [50, 30] }} ch={{ n: "P10_think", h: 900, y: 1060, act: "tilt" }} /> },
+  { a: 179.4, b: 189.85, r: (u, d) => <><TwoKinds u={u} life={2.7} mood={5.3} flat={99} /><Words u={u} a={.05} b={2.4} y={140} size={110}>TWO KINDS OF <G>HAPPINESS</G></Words></> },
+  { a: 189.85, r: (u, d) => <Still n="M11_two_balloons.jpg" k={u / d} kb={{ z: [1.4, 1.7], o: [50, 38], dx: 80 }} /> },
+  { a: 192.8, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={2.2} b={d} y={300} size={240}><G>2010</G></Words></> },
+  { a: 194.85, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={2.5} b={d} y={250} size={200} sub="AMERICANS SURVEYED"><G><Count u={u} a={2.5} to={450000} suf="+" d={1.2} /></G></Words></> },
+  { a: 200.4, b: 218.1, r: (u, d) => <TwoKinds u={u} life={.4} mood={8.3} flat={12.9} mark={13.2} /> },
+  { a: 218.1, b: 231.05, r: (u, d) => <Bracket u={u} mid={4.3} today={8.4} /> },
+  { a: 231.05, r: (u, d) => <><Studio /><Words u={u} b={d} y={360} size={210}>ONLY <span style={{ opacity: .3 }}>HALF</span> <G>TRUE</G></Words></> },
+  { a: 233.95, video: true, r: (u, d) => <Clip n="M2.mp4" k={u / d} from={1.2} kb={{ z: [1.3, 1.55], o: [62, 45], dx: 100 }} /> },
+  { a: 236.7, b: 239.3, r: (u, d) => <><Studio /><Words u={u} a={.7} b={d + 1} y={360} size={170}>ONLY YOUR <G>DAILY MOOD</G></Words></> },
+  // misfortune hurts more (after the mid-roll break)
+  { a: 239.3, fadeIn: .5, r: (u, d) => <Still n="G3_bills.jpg" k={u / d} kb={{ z: [1.2, 1.4], o: [50, 55] }} /> },
+  { a: 241.4, video: true, r: (u, d) => <><Clip n="M7.mp4" k={u / d} kb={{ z: [1.3, 1.55], o: [50, 58] }} /><Words u={u} a={1.0} b={d} y={140} size={120}>LESS MONEY = <R>HURTS MORE</R></Words></> },
+  { a: 244.95, tone: "sad", r: (u, d) => <Still n="N5_awake_top.jpg" k={u / d} kb={{ z: [1.0, 1.35], o: [48, 40] }} /> },
+  { a: 250.65, video: true, r: (u, d) => <Clip n="V4.mp4" k={u / d} kb={{ z: [1.25, 1.55], o: [40, 50] }} /> },
+  { a: 254.9, r: (u, d) => <Still n="G4_car_smoke.jpg" k={u / d} kb={{ z: [1.6, 1.9], o: [38, 45] }} /> },
+  { a: 258.6, tone: "sad", r: (u, d) => <Still n="G3_bills.jpg" k={u / d} kb={{ z: [1.7, 2.1], o: [50, 55], dx: -80 }} /> },
+  // income triples
+  { a: 264.4, tone: "warm", video: true, r: (u, d) => <><Clip n="M1.mp4" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 60] }} /><Words u={u} a={1.4} b={d} y={150} size={220}><G>×3</G></Words></> },
+  { a: 267.55, tone: "warm", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.3, 1.7], o: [50, 30] }} ch={{ n: "P6_amazed", h: 950, y: 1080 }} glow="rgba(255,220,160,.65)" /> },
+  { a: 270.9, tone: "sad", r: (u, d) => <Still n="B1_apt1.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [50, 50] }} dim={.25} /> },
+  { a: 275.6, tone: "warm", r: (u, d) => <Still n="N6_bags.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [48, 45], dx: 90 }} /> },
+  { a: 278.6, tone: "warm", r: (u, d) => <Still n="N6_bags.jpg" k={u / d} kb={{ z: [1.9, 2.1], o: [50, 30] }} /> },
+  { a: 281.7, tone: "warm", r: (u, d) => <Still n="N7_restaurant.jpg" k={u / d} kb={{ z: [1.2, 1.45], o: [52, 45] }} /> },
+  { a: 283.35, video: true, r: (u, d) => <Clip n="M7.mp4" k={u / d} from={1.5} kb={{ z: [1.4, 1.6], o: [50, 58] }} /> },
+  { a: 287.8, tone: "warm", r: (u, d) => <Still n="N7_restaurant.jpg" k={u / d} kb={{ z: [2.0, 2.2], o: [60, 30] }} /> },
+  { a: 289.3, video: true, r: (u, d) => <Clip n="M3.mp4" k={u / d} kb={{ z: [1.9, 2.1], o: [50, 64] }} /> },
+  { a: 294.95, r: (u, d) => <Still n="M1_last.jpg" k={u / d} kb={{ z: [1.6, 1.9], o: [55, 60], dx: -90 }} /> },
+  // ratio, not amount
+  { a: 298.1, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={.3} b={d} y={330} size={200}><G>RATIO</G>, NOT AMOUNT</Words></> },
+  { a: 303.5, b: 315.55, r: (u, d) => <Ratio u={u} s1={1.6} s2={5.4} eq={6.6} /> },
+  { a: 315.55, r: (u, d) => <><Studio /><Words u={u} b={d} y={300} size={150}>PAY <G>×3</G> ≠ HAPPINESS <G>×3</G></Words></> },
+  { a: 318.75, video: true, r: (u, d) => <Clip n="M5.mp4" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 58] }} /> },
+  // the hardest stretch
+  { a: 322.7, tone: "warm", r: (u, d) => <Still n="N8_sofa.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [48, 45] }} /> },
+  { a: 325.25, tone: "sad", video: true, r: (u, d) => <Clip n="V5.mp4" k={u / d} kb={{ z: [1.0, 1.15], o: [70, 55] }} /> },
+  { a: 326.9, tone: "sad", r: (u, d) => <Still n="N9_alone_high.jpg" k={u / d} kb={{ z: [1.0, 1.25], o: [68, 50] }} /> },
+  { a: 330.75, tone: "sad", r: (u, d) => <Still n="G5_takeout.jpg" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 55] }} /> },
+  { a: 333.85, tone: "sad", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.0, 1.25], pan: 100 }} ch={{ n: "P8_table_alone", h: 760, x: 960, y: 1060, act: "droop" }} /> },
+  { a: 337.4, tone: "sad", r: (u, d) => <Still n="G5_takeout.jpg" k={u / d} kb={{ z: [2.2, 2.4], o: [50, 50] }} /> },
+  { a: 340.3, tone: "sad", r: (u, d) => <Still n="N2_you_sad.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [50, 42] }} /> },
+  { a: 344.45, tone: "sad", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.2, 1.45], o: [50, 30] }} ch={{ n: "P12_senpai_coffee", h: 900, y: 1070, act: "droop" }} /> },
+  { a: 348.8, tone: "sad", video: true, r: (u, d) => <Clip n="V6.mp4" k={u / d} kb={{ z: [1.2, 1.9], o: [45, 55] }} /> },
+  { a: 357.9, b: 362.2, tone: "sad", video: true, r: (u, d) => <Clip n="M8.mp4" k={u / d} kb={{ z: [1.2, 1.45], o: [50, 58] }} /> },
+  // 2023
+  { a: 362.2, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={.7} b={d} y={300} size={240}><G>2023</G></Words></> },
+  { a: 365.25, r: (u, d) => <Still n="M9_scale.jpg" k={u / d} kb={{ z: [1.2, 1.5], o: [50, 55], dx: -80 }} /> },
+  { a: 368.4, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={.1} b={d} y={200} size={120}>"<G>IT PLATEAUS</G>"</Words><Words u={u} a={2.3} b={d} y={520} size={120}>"<span style={{ color: "#9fd3ff" }}>IT KEEPS RISING</span>"</Words></> },
+  { a: 372.6, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={.2} b={d} y={330} size={130} sub="WITH A NEUTRAL THIRD PARTY">BOTH SIDES, <G>ONE DATASET</G></Words></> },
+  { a: 379.05, b: 396.9, r: (u, d) => <Three u={u} low={.4} most={10.9} top={13.5} /> },
+  { a: 396.9, tone: "sad", r: (u, d) => <Still n="M8_last.jpg" k={u / d} kb={{ z: [1.3, 1.7], o: [50, 55] }} /> },
+  { a: 402.7, tone: "sad", r: (u, d) => <><Still n="N8_sofa.jpg" k={u / d} kb={{ z: [1.0, 1.05], o: [50, 50] }} dim={.6} /><Words u={u} a={.05} b={d} y={420} size={150}>A BREAKUP.</Words></> },
+  { a: 403.65, tone: "sad", r: (u, d) => <><Still n="V6_first.jpg" k={u / d} kb={{ z: [1.3, 1.35], o: [45, 55] }} dim={.6} /><Words u={u} a={.05} b={d} y={420} size={150}>GRIEF.</Words></> },
+  { a: 404.4, tone: "sad", r: (u, d) => <><Still n="N2_you_sad.jpg" k={u / d} kb={{ z: [1.0, 1.05], o: [50, 45] }} dim={.6} /><Words u={u} a={.05} b={d} y={420} size={150}>MENTAL ILLNESS.</Words></> },
+  { a: 406.05, tone: "sad", r: (u, d) => <Still n="M8_last.jpg" k={u / d} kb={{ z: [1.9, 2.0], o: [50, 52] }} /> },
+  // spending differently
+  { a: 408.0, r: (u, d) => <Still n="M6_wallet.jpg" k={u / d} kb={{ z: [1.4, 1.7], o: [58, 56], dx: 80 }} /> },
+  { a: 411.75, r: (u, d) => <Still n="M3_gift.jpg" k={u / d} kb={{ z: [1.4, 1.2], o: [50, 63] }} dim={.25} /> },
+  { a: 415.85, r: (u, d) => <><Studio /><Words u={u} a={2.4} b={d} y={330} size={150}>SHRINK THE <G>SMALL</G><br />DAILY FRICTIONS</Words></> },
+  { a: 419.8, tone: "warm", r: (u, d) => <Still n="N10_box.jpg" k={u / d} kb={{ z: [1.5, 1.7], o: [36, 50] }} /> },
+  { a: 422.05, tone: "warm", video: true, r: (u, d) => <Clip n="V7.mp4" k={u / d} kb={{ z: [1.4, 1.75], o: [52, 45] }} /> },
+  { a: 427.2, r: (u, d) => <Still n="G6_laptop.jpg" k={u / d} kb={{ z: [1.3, 1.55], o: [50, 50] }} /> },
+  { a: 429.25, tone: "warm", r: (u, d) => <Still n="N11_fix.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [55, 50], dx: -70 }} /> },
+  { a: 433.7, tone: "warm", r: (u, d) => <Still n="N12_window_back.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [55, 45] }} /> },
+  // the research: real but modest
+  { a: 438.25, tone: "study", video: true, r: (u, d) => <><Clip n="M9.mp4" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 55] }} /><Words u={u} a={3.0} b={d} y={150} size={140}>REAL, BUT <G>MODEST</G></Words></> },
+  { a: 444.4, b: 454.35, r: (u, d) => <Five u={u} b={.5} gap={7.0} /> },
+  { a: 454.35, video: true, r: (u, d) => <Clip n="M10.mp4" k={u / d} kb={{ z: [1.3, 1.55], o: [50, 55] }} /> },
+  { a: 460.0, r: (u, d) => <><Still n="M10_last.jpg" k={u / d} kb={{ z: [1.6, 1.9], o: [50, 58] }} dim={.4} /><Words u={u} a={1.4} b={d} y={180} size={150}><G>$35K</G> – <G>$125K</G></Words></> },
+  { a: 465.85, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={1.6} b={d} y={260} size={140}>MONEY → HAPPY<span style={{ color: "#9fd3ff" }}>?</span></Words><Words u={u} a={4.5} b={d} y={500} size={140}>HAPPY → MONEY<span style={{ color: "#9fd3ff" }}>?</span></Words></> },
+  { a: 472.7, video: true, r: (u, d) => <Clip n="M11.mp4" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 40] }} /> },
+  // the answer
+  { a: 476.6, r: (u, d) => <><Still n="M11_two_balloons.jpg" k={u / d} kb={{ z: [1.5, 1.8], o: [50, 38] }} dim={.3} /><Words u={u} a={.4} b={d} y={680} size={120}>PAY <G>×2</G> = HAPPINESS <G>×2</G>?</Words></> },
+  { a: 480.0, b: 483.3, r: (u, d) => <><Studio /><Words u={u} a={.75} b={d} y={260} size={260}>NO.</Words><Words u={u} a={2.0} b={d} y={580} size={120}>BUT <G>NOT ZERO</G>.</Words></> },
+  { a: 483.3, tone: "warm", r: (u, d) => <Still n="F12_proud.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [55, 40] }} /> },
+  { a: 486.9, video: true, r: (u, d) => <><Clip n="M7.mp4" k={u / d} from={1.0} kb={{ z: [1.4, 1.6], o: [50, 58] }} /><Words u={u} a={.3} b={d} y={140} size={110}>MONEY <G>SOFTENS PAIN</G></Words></> },
+  { a: 489.35, r: (u, d) => <><Studio /><Words u={u} b={d} y={330} size={190}><G>RATIO</G>, NOT AMOUNT</Words></> },
+  { a: 492.15, tone: "sad", r: (u, d) => <Still n="M8_last.jpg" k={u / d} kb={{ z: [1.4, 1.7], o: [50, 55] }} /> },
+  { a: 495.0, tone: "sad", r: (u, d) => <Still n="N1_senpai_sigh.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [50, 45] }} /> },
+  { a: 498.5, tone: "warm", r: (u, d) => <Still n="B9_house.jpg" k={u / d} kb={{ z: [1.4, 1.5], o: [45, 55] }} /> },
+  { a: 499.35, tone: "warm", r: (u, d) => <Still n="B7_parking.jpg" k={u / d} kb={{ z: [1.6, 1.7], o: [50, 62] }} /> },
+  { a: 500.25, tone: "warm", r: (u, d) => <Still n="N4_senpai_walk.jpg" k={u / d} kb={{ z: [1.6, 1.7], o: [30, 30] }} /> },
+  { a: 501.55, r: (u, d) => <Still n="N3_two_sigh.jpg" k={u / d} kb={{ z: [1.0, 1.25], o: [50, 45] }} /> },
+  { a: 505.1, b: IA2_END, fadeOut: 1.2, tone: "warm", r: (u, d) => <Still n="N12_window_back.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [55, 45] }} /> },
+];
+
 // the new opening (user's line, 2026-11-19): "Your alarm went off in the dark this morning, and you got up for a paycheck.
 // But here's the question: if that paycheck doubled, would you be twice as happy?" — 8.75 s + 0.55 s breath.
 // It is placed before the old opening, and the old line 6 (the same question) is cut out at the splice (11.34-14.65 s).
@@ -192,8 +379,14 @@ const INTRO: Shot[] = [
 ];
 
 
-export const IAEp2: React.FC<{ intro?: boolean }> = ({ intro }) => {
-  const SH_ = intro ? INTRO : SH, END_ = intro ? IA2_OPEN : IA2_PART1_END;
+// pauses before key lines (also inserted into the narration): [time on the narration clock, length]
+export const IA2_GAPS: [number, number][] = [[236.7, .7], [238.7, 1.0], [357.9, .8], [480.0, .7]];
+const shift = (x: number) => x + IA2_GAPS.reduce((s, [g, d]) => s + (x > g ? d : 0), 0);
+export const IA2_FULL_END = shift(IA2_END);
+export const IAEp2: React.FC<{ intro?: boolean; full?: boolean }> = ({ intro, full }) => {
+  const SRC = intro ? INTRO : full ? [...SH, ...SH2] : SH;
+  const SH_ = SRC.map((s) => ({ ...s, a: full ? shift(s.a) : s.a, b: s.b === undefined ? undefined : full ? shift(s.b) : s.b }));
+  const END_ = intro ? IA2_OPEN : full ? IA2_FULL_END : IA2_PART1_END;
   useFont();
   const f = useCurrentFrame(), t = f / FPS;
   const i = SH_.findIndex((s, k) => t >= s.a && t < (s.b ?? SH_[k + 1]?.a ?? END_));
@@ -206,6 +399,9 @@ export const IAEp2: React.FC<{ intro?: boolean }> = ({ intro }) => {
     <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 58%, rgba(0,0,0,.5) 100%)", pointerEvents: "none" }} />
     <AbsoluteFill style={{ opacity: .06, mixBlendMode: "overlay" }}><svg width={1920} height={1080}><filter id="gr"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves={2} seed={f % 24} /></filter><rect width={1920} height={1080} filter="url(#gr)" /></svg></AbsoluteFill>
     {!intro && <Study u={t} a={at(31) + .3} d={5} text="Brickman, Coates & Janoff-Bulman (1978)" sub="Lottery winners and accident victims" />}
+    {full && <Study u={t} a={shift(195.2)} d={5} text="Kahneman & Deaton (2010)" sub="High income improves evaluation of life but not emotional well-being" />}
+    {full && <Study u={t} a={shift(372.8)} d={5} text="Killingsworth, Kahneman & Mellers (2023)" sub="Income and emotional well-being: a conflict resolved" />}
+    {full && <Study u={t} a={shift(460.2)} d={4.5} text="Jebb et al. (2018)" sub="Happiness, income satiation and turning points around the world" />}
   </AbsoluteFill>;
 };
 const Shell: React.FC<{ s: Shot; d: number }> = ({ s, d }) => { const u = useCurrentFrame() / FPS; return <>{s.r(u, d)}</>; };
