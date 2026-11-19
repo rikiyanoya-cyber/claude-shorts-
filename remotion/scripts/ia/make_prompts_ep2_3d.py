@@ -166,9 +166,31 @@ V = [
    "Soft steam rises from the mug; YOU slowly lifts it and takes one calm sip; the sunlight gently brightens. The camera stays still. The room stays the same."),
 ]
 
+import re as _re, base64 as _b64, io as _io, os as _os
+REF_DIR = _os.environ.get("REF_DIR", "/home/user/ia_ep2")
+SET_FILES = {"B1": "B1_apt1", "B2": "B2_office", "B3": "B3_grocery", "B4": "B4_street", "B5": "B5_bedroom", "B6": "B6_coffee", "B7": "B7_parking", "B8": "B8_apt2", "B9": "B9_house", "B10": "B10_apt3"}
+WHO_JA = {"YOU": "主人公（茶髪）", "SENPAI": "先輩（メガネ）", "BLONDE": "金髪の子", "RED": "赤い巻き毛の子", "BOB": "ボブの子"}
+_IMGS = {}
+def _ref(tok):
+    from PIL import Image
+    if tok in SET_FILES: path, label = f"{REF_DIR}/sets/{SET_FILES[tok]}.jpg", f"背景 {tok}"
+    else:
+        who, part = tok.split("_"); path = f"{REF_DIR}/canon/{tok}.png"; label = f"{WHO_JA[who]}の{'顔' if part == 'face' else '全身'}"
+    if tok not in _IMGS and _os.path.exists(path):
+        im = Image.open(path).convert("RGB"); im.thumbnail((1400, 1400)); b = _io.BytesIO(); im.save(b, "JPEG", quality=88)
+        _IMGS[tok] = "data:image/jpeg;base64," + _b64.b64encode(b.getvalue()).decode()
+    return label
+def refs_html(att):
+    toks = []
+    for t in _re.findall(r"(?:YOU|SENPAI|BLONDE|RED|BOB)_(?:face|front)|B10|B\d", att):
+        if t not in toks: toks.append(t)
+    if not toks: return ""
+    items = "".join(f'<figure><img data-ref="{t}" alt=""><figcaption>{html.escape(_ref(t))}</figcaption></figure>' for t in toks)
+    return f'<div class="refs">{items}</div><p class="hint">↑この画像を添付（長押しで写真に保存できる）。左から Image 1、Image 2…の順。</p>'
+
 def card(i, title, star, att, when, blocks):
     b = "".join(f'<div class="lab">{html.escape(l)}</div><div class="pr"><pre>{html.escape(t)}</pre><button onclick="cp(this)">コピー</button></div>' for l, t in blocks)
-    return f'<section class="card"><h3><span class="id">{i}</span> {html.escape(title)}{" <span class=star>★</span>" if star else ""}</h3><p class="meta">添付：{html.escape(att)}<br>使う場所：{html.escape(when)}</p>{b}</section>'
+    return f'<section class="card"><h3><span class="id">{i}</span> {html.escape(title)}{" <span class=star>★</span>" if star else ""}</h3><p class="meta">使う場所：{html.escape(when)}</p>{refs_html(att) or f'<p class="meta">添付：{html.escape(att)}</p>'}{b}</section>'
 body = ""
 SECTIONS.sort(key=lambda x: {"P":0,"G":1,"M":2,"B":8,"S":9}[x[0]])
 for k, name, items in [x for x in SECTIONS if x[0] in "PGM"]:
@@ -199,9 +221,12 @@ nav a{{display:inline-block;margin:4px 10px 4px 0;color:var(--acc);text-decorati
 h3{{font-size:16px;margin:0 0 4px}} .id{{color:var(--acc);font-weight:700}} .star{{color:#e0a020}} .meta{{color:var(--mute);font-size:13px;margin:0 0 8px}} .lab{{font-size:12px;color:var(--mute);margin:8px 0 4px}}
 .pr{{position:relative}} pre{{white-space:pre-wrap;word-break:break-word;background:var(--pre);border-radius:8px;padding:10px 10px 38px;margin:0;font:13px/1.5 ui-monospace,Menlo,monospace}}
 button{{position:absolute;right:8px;bottom:8px;border:0;border-radius:6px;padding:5px 12px;background:var(--acc);color:#fff;font-size:13px}}
+.refs{{display:flex;gap:8px;overflow-x:auto;margin:4px 0}} figure{{margin:0;flex:0 0 auto;width:110px}} figure img{{width:110px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:#9097a6}} figcaption{{font-size:11px;color:var(--mute);line-height:1.3;margin-top:3px}} .hint{{font-size:12px;color:var(--mute);margin:2px 0 8px}}
 .note{{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14px}}
 </style></head><body><main><h1>The Invisible Audience 第2本　3D版プロンプト</h1><div class="note">{NOTE}</div>
 <nav><a href="#P">2 ポーズ</a><a href="#G">3 小物</a><a href="#M">4 お金と幸せ</a><a href="#V">5 キャラ動画</a><a href="#B">1 背景（済）</a><a href="#S">0 設定画（済）</a></nav>{body}</main>
-<script>function cp(b){{const p=b.previousElementSibling;(navigator.clipboard?navigator.clipboard.writeText(p.innerText):Promise.reject()).then(()=>{{b.textContent='コピーしました';setTimeout(()=>b.textContent='コピー',1500)}}).catch(()=>{{const r=document.createRange();r.selectNodeContents(p);const s=getSelection();s.removeAllRanges();s.addRange(r);}})}}</script></body></html>"""
+<script>const IMGS=__IMGS__;document.querySelectorAll("img[data-ref]").forEach(i=>{{i.src=IMGS[i.dataset.ref]||""}});function cp(b){{const p=b.previousElementSibling;(navigator.clipboard?navigator.clipboard.writeText(p.innerText):Promise.reject()).then(()=>{{b.textContent='コピーしました';setTimeout(()=>b.textContent='コピー',1500)}}).catch(()=>{{const r=document.createRange();r.selectNodeContents(p);const s=getSelection();s.removeAllRanges();s.addRange(r);}})}}</script></body></html>"""
+import json as _json
+page = page.replace("__IMGS__", _json.dumps(_IMGS))
 open(sys.argv[1], "w", encoding="utf-8").write(page)
 print("cards", sum(len(s[2]) for s in SECTIONS) + len(V))
