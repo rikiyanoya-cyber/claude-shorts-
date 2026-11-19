@@ -6,7 +6,7 @@
 import sys, json, subprocess, random, numpy as np, soundfile as sf
 W, OUT = sys.argv[1], sys.argv[2]; SR = 48000; random.seed(2)
 GAPS = [(236.7, .7), (238.7, 1.0), (357.9, .8), (480.0, .7)]
-OPEN, CUT0, CUT1, END_ORIG = 9.3, 11.3333, 14.6667, 514.0 + sum(d for _, d in GAPS)
+OPEN, CUT0, CUT1, END_ORIG = 9.3, 11.3333, 14.6667, 511.0 + sum(d for _, d in GAPS)
 ld = lambda p: np.frombuffer(subprocess.run(['ffmpeg', '-v', 'error', '-i', p, '-f', 'f32le', '-ac', '2', '-ar', str(SR), '-'], capture_output=True, check=True).stdout, np.float32).reshape(-1, 2).copy()
 rms = lambda x: np.sqrt((x[np.abs(x).max(1) > 1e-4] ** 2).mean())
 shift = lambda x: x + sum(d for g, d in GAPS if x > g)
@@ -34,7 +34,8 @@ EV = [(3.2, 'coins', -13), (30.15, 'wahwah', -13), (51.1, 'sparkle', -14), (68.5
       (148.9, 'coins', -14), (167.5, 'sigh', -13), (177.5, 'sparkle', -15), (194.9, 'xylo', -15), (213.5, 'boing', -12),
       (222.4, 'pop', -14), (237.4, 'freeze', -12), (245.1, 'heart', -14), (264.5, 'coins', -13), (275.7, 'pop', -15),
       (300.1, 'xylo', -15), (313.1, 'boing', -12), (325.3, 'sad', -14), (353.9, 'sigh', -14), (362.3, 'xylo', -15),
-      (384.6, 'boing', -12), (433.8, 'sparkle', -16), (438.3, 'xylo', -15), (451.4, 'boing', -12), (480.75, 'freeze', -12)]
+      (384.6, 'boing', -12), (433.8, 'sparkle', -16), (438.3, 'xylo', -15), (451.4, 'boing', -12), (480.75, 'freeze', -12), (509.0, 'tvoff', -10)]
+TVOFF = 509.0   # the picture switches off here (IA2_TVOFF): BGM cuts with it, silence after
 for t, n, db in EV: put(n, vt(t), db)
 # BGM: fixed 26 dB under the voice, looped with 4 s crossfades, dipped 10 dB around the key-line pauses
 bg = ld(f'{W}/bgm.mp3'); Y = 4 * SR; loop = bg.copy()
@@ -43,6 +44,6 @@ g = np.full(N, 10 ** (-26 / 20) * vr / rms(bg)); tt = np.arange(N) / SR
 for gg, d in GAPS:
     s0, s1 = vt(gg) - .4, vt(gg) + d + .3
     g *= 1 - (1 - 10 ** (-10 / 20)) * np.clip(np.minimum((tt - s0) / .3, (s1 - tt) / .3), 0, 1)
-g *= np.clip(tt / 2, 0, 1) * np.clip((N / SR - tt) / 4, 0, 1)
+g *= np.clip(tt / 2, 0, 1) * np.clip((vt(TVOFF) + .05 - tt) / .08, 0, 1)
 mix = voice + fx + loop[:N] * g[:, None]
 sf.write(OUT, mix / max(1, np.abs(mix).max() / .95), SR); print('len', N / SR)
