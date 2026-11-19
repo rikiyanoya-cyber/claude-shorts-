@@ -78,18 +78,20 @@ def thumb(r):
     who = r if r in SETS else f"{JA[r.split('_')[0]]}の{'顔' if r.endswith('face') else '全身'}"
     label = f"背景 {r}" if r in SETS else who
     return f'<figure><img src="data:image/jpeg;base64,{base64.b64encode(b.getvalue()).decode()}"><figcaption>{html.escape(label)}</figcaption></figure>'
-if len(sys.argv) > 3 and sys.argv[3] == "first": IMGS = FIRST
-cards = "".join(f'''<section class="card"><h3><span class="id">{i}</span> {html.escape(t)}{" <span class=star>★</span>" if st else ""}</h3><p class="meta">使う場所：{w}</p>
+MODE = sys.argv[3] if len(sys.argv) > 3 else "second"
+if MODE == "first": IMGS = FIRST
+elif MODE == "all": IMGS = FIRST + IMGS
+cards = "".join((f'<h2>前半（0:00〜2:30）</h2>' if MODE == 'all' and i == 'F1' else f'<h2>後半（2:30〜8:34）</h2>' if MODE == 'all' and i == 'N1' else '') + f'''<section class="card"><h3><span class="id">{i}</span> {html.escape(t)}{" <span class=star>★</span>" if st else ""}</h3><p class="meta">使う場所：{w}</p>
 <div class="refs">{"".join(thumb(r) for r in refs)}</div><p class="hint">↑この順に添付（長押しで保存）。左から Image 1、2、3。</p>
 <div class="pr"><pre>{html.escape(prompt(refs, who, sc, cam, bg))}</pre><button onclick="cp(this)">コピー</button></div></section>''' for i, t, st, w, refs, who, sc, cam, bg in IMGS)
 page = f'''<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IA第2本 追加の画像</title>
 <style>:root{{--bg:#f6f7fb;--card:#fff;--fg:#151a26;--mute:#5d667a;--line:#dde2ec;--acc:#2b6ef2;--pre:#f1f3f8}}
 @media (prefers-color-scheme:dark){{:root{{--bg:#0d111a;--card:#161c28;--fg:#e8ecf5;--mute:#98a3b8;--line:#263044;--acc:#7aa7ff;--pre:#0f1520}}}}
-body{{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 -apple-system,"Hiragino Sans",system-ui,sans-serif}} main{{max-width:760px;margin:0 auto;padding:16px}} h1{{font-size:20px;margin:8px 0}}
+body{{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 -apple-system,"Hiragino Sans",system-ui,sans-serif}} main{{max-width:760px;margin:0 auto;padding:16px}} h1{{font-size:20px;margin:8px 0}} h2{{font-size:17px;margin:26px 0 8px;padding-top:6px;border-top:2px solid var(--line)}}
 .card{{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0}} h3{{font-size:16px;margin:0 0 4px}} .id{{color:var(--acc);font-weight:700}} .star{{color:#e0a020}}
 .meta,.hint{{color:var(--mute);font-size:13px;margin:2px 0 6px}} .refs{{display:flex;gap:8px;overflow-x:auto}} figure{{margin:0;flex:0 0 auto;width:110px}} figure img{{width:110px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:#9097a6}} figcaption{{font-size:11px;color:var(--mute)}}
 .pr{{position:relative}} pre{{white-space:pre-wrap;word-break:break-word;background:var(--pre);border-radius:8px;padding:10px 10px 38px;margin:0;font:13px/1.5 ui-monospace,Menlo,monospace}}
 button{{position:absolute;right:8px;bottom:8px;border:0;border-radius:6px;padding:5px 12px;background:var(--acc);color:#fff;font-size:13px}} .note{{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14px}}</style></head><body><main>
-<h1>{"前半" if IMGS is FIRST else "後半"}用の追加画像 {len(IMGS)}枚</h1><div class="note">単調にならないように、<b>顔のアップ・見上げ・真上から・高い位置から・肩越し・後ろ姿</b>など、今までにない角度を入れてある。<br>★が優先。背景つきのものは、その背景の画像も添付する。Flow で一番大きいサイズで書き出してね。</div>
+<h1>{ {"first": "前半用の", "second": "後半用の", "all": "前半・後半の"}[MODE] }追加画像 {len(IMGS)}枚</h1><div class="note">単調にならないように、<b>顔のアップ・見上げ・真上から・高い位置から・肩越し・後ろ姿</b>など、今までにない角度を入れてある。<br>★が優先。背景つきのものは、その背景の画像も添付する。Flow で一番大きいサイズで書き出してね。</div>
 {cards}</main><script>function cp(b){{const p=b.previousElementSibling;(navigator.clipboard?navigator.clipboard.writeText(p.innerText):Promise.reject()).then(()=>{{b.textContent='コピーしました';setTimeout(()=>b.textContent='コピー',1500)}}).catch(()=>{{const r=document.createRange();r.selectNodeContents(p);const s=getSelection();s.removeAllRanges();s.addRange(r);}})}}</script></body></html>'''
 open(OUT, "w", encoding="utf-8").write(page); print(len(IMGS))
