@@ -6,5 +6,5 @@ const browserExecutable = process.env.REMOTION_BROWSER || null;
 const serveUrl = await bundle({ entryPoint: path.join(__dirname, "src", "index.ts"), publicDir: path.join(__dirname, process.env.PUB || ".pub_kz3") });
 const composition = await selectComposition({ serveUrl, id: process.env.COMP || "NintendoEpisode", inputProps: {}, browserExecutable });
 for (const t of process.argv.slice(3)) { const f = Math.round(parseFloat(t) * 30);
-  await renderStill({ serveUrl, composition, frame: f, output: path.join(out, `s${String(f).padStart(6, "0")}.jpg`), imageFormat: "jpeg", jpegQuality: 70, scale: .5, browserExecutable }); }
+  await renderStill({ serveUrl, composition, frame: f, output: path.join(out, `s${String(f).padStart(6, "0")}.jpg`), imageFormat: "jpeg", jpegQuality: Number(process.env.SQ || 70), scale: Number(process.env.SS || .5), browserExecutable }); }
 fs.rmSync(serveUrl, { recursive: true, force: true }); console.log("OK");

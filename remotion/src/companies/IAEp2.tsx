@@ -28,7 +28,9 @@ const useFont = () => {
 type KB = { z?: [number, number]; o?: [number, number]; dx?: number };   // push from z0 to z1 around origin o (in %), drift dx px
 // o = the focus point (in % of the picture); it is brought toward the frame centre as far as the zoom allows (no edges show)
 const kbStyle = (k: number, kb: KB = {}) => {
-  const [z0, z1] = kb.z ?? [1.0, 1.12], [ox, oy] = kb.o ?? [50, 50], e = ease(Math.min(1, Math.max(0, k))), z = z0 + (z1 - z0) * e;
+  const [rz0, rz1] = kb.z ?? [1.0, 1.12], [ox, oy] = kb.o ?? [50, 50], e = ease(Math.min(1, Math.max(0, k)));
+  // 2026-11-19: the pictures are 1376 px wide, so big digital zooms went soft. Scale now stays within 1.0-1.12 (push or pull keeps its direction).
+  const span = Math.max(.05, Math.min(.12, Math.abs(rz1 - rz0) || .06)), z0 = rz1 >= rz0 ? 1 : 1 + span, z1 = rz1 >= rz0 ? 1 + span : 1, z = z0 + (z1 - z0) * e;
   const lim = (v: number, m: number) => Math.max(-m, Math.min(m, v));
   const tx = lim(-(ox / 100 - .5) * 1920 * z, (z - 1) * 960) + (kb.dx ?? 0) * e, ty = lim(-(oy / 100 - .5) * 1080 * z, (z - 1) * 540);
   return { transform: `translate(${tx}px, ${ty}px) scale(${z})`, transformOrigin: "50% 50%" };
@@ -64,10 +66,10 @@ const acting = (u: number, act: Act = "none") => {
 // a set (background) + a character: the camera move drives the character fully and the set at 35 % (depth)
 type Cam = { z?: [number, number]; pan?: number; o?: [number, number] };
 const Scene: React.FC<{ u: number; d: number; bg?: string; studio?: boolean; cam?: Cam; ch?: { n: string; h: number; x?: number; y?: number; act?: Act; flip?: boolean }; dim?: number; glow?: string; children?: React.ReactNode }> = ({ u, d, bg, studio, cam = {}, ch, dim = 0, glow, children }) => {
-  const k = ease(Math.min(1, u / d)), [z0, z1] = cam.z ?? [1, 1.15], z = z0 + (z1 - z0) * k, pan = (cam.pan ?? 0) * k;
+  const k = ease(Math.min(1, u / d)), [rz0, rz1] = cam.z ?? [1, 1.15], z0 = 1, z1 = 1 + Math.max(0, Math.min(.12, rz1 - rz0)), z = z0 + (z1 - z0) * k, pan = (cam.pan ?? 0) * k * .6;
   const a = ch ? acting(u, ch.act) : null;
   return <AbsoluteFill>
-    {bg ? <AbsoluteFill style={kbStyle(k, { z: [1.05 + (z0 - 1) * .4, 1.05 + (z1 - 1) * .4], o: cam.o ?? [50, 55], dx: pan * .35 })}><Img src={src(bg)} style={{ width: 1920, height: 1080, objectFit: "cover", filter: `brightness(${1 - dim}) blur(${ch ? 1.2 : 0}px)` }} /></AbsoluteFill> : <Studio warm={studio} />}
+    {bg ? <AbsoluteFill style={kbStyle(k, { z: [1.05 + (z0 - 1) * .4, 1.05 + (z1 - 1) * .4], o: cam.o ?? [50, 55], dx: pan * .35 })}><Img src={src(bg)} style={{ width: 1920, height: 1080, objectFit: "cover", filter: `brightness(${1 - dim})` }} /></AbsoluteFill> : <Studio warm={studio} />}
     {ch && a && <AbsoluteFill style={{ transform: `translateX(${pan}px) scale(${z})`, transformOrigin: cam.o ? `${cam.o[0]}% ${cam.o[1]}%` : `${((ch.x ?? 960) / 19.2)}% ${((ch.y ?? 1040) / 10.8)}%` }}>
       <div style={{ position: "absolute", left: (ch.x ?? 960) - ch.h * .28, top: (ch.y ?? 1040) - ch.h * .035, width: ch.h * .56, height: ch.h * .07, borderRadius: "50%", background: "rgba(0,0,0,.45)", filter: "blur(14px)" }} />
       <Img src={src(`${ch.n}.png`)} style={{ position: "absolute", left: ch.x ?? 960, top: (ch.y ?? 1040) + a.ty, height: ch.h, transform: `translate(-50%,-100%) rotate(${a.r}deg) scaleX(${ch.flip ? -1 : 1}) scaleY(${a.sy})`, transformOrigin: "50% 100%", opacity: fin(u, 0, .3) }} />
@@ -397,7 +399,6 @@ export const IAEp2: React.FC<{ intro?: boolean; full?: boolean }> = ({ intro, fu
       return k === i ? <AbsoluteFill key={k} style={{ opacity: (s.fadeIn ? fin(t - s.a, 0, s.fadeIn) : 1) * (s.fadeOut ? fout(t, b, s.fadeOut) : 1) }}>{s.r(t - s.a, d)}<ToneLayer tone={s.tone} /></AbsoluteFill> : null;
     })}
     <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 58%, rgba(0,0,0,.5) 100%)", pointerEvents: "none" }} />
-    <AbsoluteFill style={{ opacity: .06, mixBlendMode: "overlay" }}><svg width={1920} height={1080}><filter id="gr"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves={2} seed={f % 24} /></filter><rect width={1920} height={1080} filter="url(#gr)" /></svg></AbsoluteFill>
     {!intro && <Study u={t} a={at(31) + .3} d={5} text="Brickman, Coates & Janoff-Bulman (1978)" sub="Lottery winners and accident victims" />}
     {full && <Study u={t} a={shift(195.2)} d={5} text="Kahneman & Deaton (2010)" sub="High income improves evaluation of life but not emotional well-being" />}
     {full && <Study u={t} a={shift(372.8)} d={5} text="Killingsworth, Kahneman & Mellers (2023)" sub="Income and emotional well-being: a conflict resolved" />}
