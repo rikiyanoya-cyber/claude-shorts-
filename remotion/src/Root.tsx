@@ -14,6 +14,7 @@ import { ConsoleRace, RACE_FRAMES } from "./companies/ConsoleRace";
 import { SpotEpisode, SPOT_TEST_END, SPOT_FRAMES } from "./companies/SpotEpisode";
 import { SpotThumb } from "./companies/SpotThumb";
 import { WrongCarStills, WC_S5, WC_S7_END, WrongCarEpisode, WC_END, WrongCarCover, WrongCarStory, WrongCarStory1Video, WC_STORY1_LEN } from "./companies/WrongCar";
+import { IAEp2, IA2_PART1_END } from "./companies/IAEp2";
 import { Fam1Episode, FAM1_SAMPLE_END, FAM1_FRAMES } from "./companies/Fam1Episode";
 
 export const Root: React.FC = () => {
@@ -72,6 +73,7 @@ export const Root: React.FC = () => {
       <Composition id="McdOpening" component={McdOpening} width={1920} height={1080} fps={30} durationInFrames={MCD_FRAMES} />
       <Composition id="McdEpisode" component={McdEpisode} width={1920} height={1080} fps={30} durationInFrames={MCD_EP_FRAMES} />
       <Composition id="NikeEpisode" component={NikeEpisode} width={1920} height={1080} fps={30} durationInFrames={NIKE_EP_FRAMES} />
+      <Composition id="IAEp2Part1" component={IAEp2} width={1920} height={1080} fps={30} durationInFrames={Math.round(IA2_PART1_END * 30)} />
       <Composition id="SpotEpisode" component={SpotEpisode} width={1920} height={1080} fps={30} durationInFrames={SPOT_FRAMES} />
       <Composition id="WrongCarEpisode" component={WrongCarEpisode} width={1080} height={1920} fps={30} durationInFrames={Math.round(WC_END * 30)} />
       <Composition id="WrongCarStory1Video" component={WrongCarStory1Video} width={1080} height={1920} fps={30} durationInFrames={WC_STORY1_LEN * 30} />
