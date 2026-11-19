@@ -204,17 +204,17 @@ type Shot = { a: number; b?: number; r: (u: number, d: number) => React.ReactNod
 const SH: Shot[] = [
   // hook
   { a: 0, video: true, r: (u, d) => <Clip n="M1.mp4" k={u / d} kb={{ z: [1.25, 1.6], o: [50, 60] }} /> },
-  { a: 3.2, tone: "warm", r: (u, d) => <><Still n="M1_last.jpg" k={u / d} kb={{ z: [1.9, 2.1], o: [60, 60] }} dim={.4} /><Words u={u} b={d} y={260} size={210} sub="A YEAR"><G><Count u={u} a={0} to={75000} pre="$" d={.6} /></G></Words></> },
+  { a: 3.2, tone: "warm", r: (u, d) => <><Still n="R2_jar.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 55] }} dim={.35} /><Words u={u} b={d} y={180} size={210} sub="A YEAR"><G><Count u={u} a={0} to={75000} pre="$" d={.6} /></G></Words></> },
   { a: at(3) - .05, video: true, r: (u, d) => <Clip n="M2.mp4" k={u / d} from={.5} kb={{ z: [1.2, 1.5], o: [62, 45], dx: -120 }} /> },
-  { a: at(4) - .1, r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.0, 1.0] }} ch={{ n: "P10_think", h: 900, x: 700, act: "tilt" }} /> },
+  { a: at(4) - .1, r: (u, d) => <Still n="R1_paper.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [55, 45] }} /> },
   { a: at(5) - .05, r: (u, d) => <><Studio /><Words u={u} b={d} y={360} size={210}>ONLY <span style={{ opacity: .3 }}>HALF</span> <G>TRUE</G></Words></> },
   { a: at(6) - .1, r: (u, d) => <><Still n="M11_two_balloons.jpg" k={u / d} kb={{ z: [1.5, 1.9], o: [50, 38] }} dim={.3} /><Words u={u} b={d} y={700} size={110}>PAY <G>×2</G> = HAPPINESS <G>×2</G>?</Words></> },
   // the dream: wide -> the home -> the car -> grocery -> phone
   { a: at(7) - .1, tone: "warm", r: (u, d) => <Scene u={u} d={d} studio cam={{ z: [1.0, 1.25], pan: -140 }} ch={{ n: "P1_dream_a", h: 900, x: 1060, y: 1060, act: "nod" }} /> },
   { a: 17.0, tone: "warm", r: (u, d) => <Still n="B9_house.jpg" k={u / d} kb={{ z: [1.6, 1.9], o: [44, 55], dx: 80 }} /> },
-  { a: 18.05, tone: "warm", r: (u, d) => <Still n="B9_house.jpg" k={u / d} kb={{ z: [2.2, 2.4], o: [70, 60] }} /> },
+  { a: 18.05, tone: "warm", r: (u, d) => <Still n="R3_car.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 60] }} /> },
   { a: 19.5, tone: "warm", r: (u, d) => <Still n="F3_basket.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [55, 50], dx: -80 }} /> },
-  { a: 21.6, tone: "warm", r: (u, d) => <Still n="F3_basket.jpg" k={u / d} kb={{ z: [1.9, 1.9], o: [64, 32] }} /> },
+  { a: 21.6, tone: "warm", r: (u, d) => <Still n="R4_cafe.jpg" k={u / d} kb={{ z: [1.1, 1.0], o: [55, 45] }} /> },
   { a: at(9) - .05, r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.2, 1.5], o: [50, 30] }} ch={{ n: "P5_phone_worried", h: 1000, y: 1090, act: "shake" }} glow="rgba(255,210,150,.6)" /> },
   // the first job, the first apartment
   { a: at(10) - .1, tone: "work", r: (u, d) => <Still n="B2_office.jpg" k={u / d} kb={{ z: [1.3, 1.55], o: [86, 60], dx: -140 }} /> },
@@ -222,21 +222,21 @@ const SH: Shot[] = [
   { a: at(12) - .05, r: (u, d) => <Still n="B1_apt1.jpg" k={u / d} kb={{ z: [1.0, 1.0] }} /> },
   { a: 34.85, r: (u, d) => <Still n="F5_pillow.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [52, 45] }} /> },
   { a: 38.0, r: (u, d) => <Still n="G1_faucet.jpg" k={u / d} kb={{ z: [1.4, 1.6], o: [55, 50] }} /> },
-  { a: 40.3, r: (u, d) => <Still n="G1_faucet.jpg" k={u / d} kb={{ z: [3.0, 3.2], o: [59, 64] }} /> },
+  { a: 40.3, r: (u, d) => <Still n="R5_cup.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [30, 50] }} /> },
   { a: 42.9, r: (u, d) => <Still n="G2_shoe.jpg" k={u / d} kb={{ z: [1.3, 1.5], o: [50, 60], dx: 120 }} /> },
-  { a: 44.3, r: (u, d) => <Still n="G2_shoe.jpg" k={u / d} kb={{ z: [3.0, 3.2], o: [52, 78] }} /> },
+  { a: 44.3, r: (u, d) => <Still n="R6_sole_hole.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 40] }} /> },
   { a: at(16) - .1, tone: "sad", r: (u, d) => <Scene u={u} d={d} bg="B1_apt1.jpg" cam={{ z: [1.0, 1.3], pan: 150 }} dim={.3} ch={{ n: "P7_shoe", h: 820, x: 980, y: 1050, act: "droop" }} /> },
   // three times as much
   { a: at(17) - .1, tone: "warm", r: (u, d) => <Scene u={u} d={d} studio cam={{ z: [1.4, 1.7] }} ch={{ n: "P1_dream_b", h: 1000, x: 960, y: 1100, act: "nod" }} /> },
-  { a: 51.1, tone: "warm", r: (u, d) => <><Still n="M1_last.jpg" k={u / d} kb={{ z: [1.9, 2.2], o: [55, 62] }} dim={.35} /><Words u={u} a={0} b={d} y={250} size={300}><G>×3</G></Words></> },
+  { a: 51.1, tone: "warm", r: (u, d) => <><Still n="R7_piggies.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [60, 60] }} dim={.25} /><Words u={u} a={0} b={d} y={150} size={260}><G>×3</G></Words></> },
   { a: at(19) - .05, tone: "warm", r: (u, d) => <Still n="M3_gift.jpg" k={u / d} kb={{ z: [1.8, 2.3], o: [50, 63] }} /> },
   { a: at(20) - .05, tone: "warm", r: (u, d) => <Still n="B10_apt3.jpg" k={u / d} kb={{ z: [1.5, 1.9], o: [64, 52], dx: -120 }} /> },
-  { a: at(21) - .05, tone: "warm", r: (u, d) => <Scene u={u} d={d} studio cam={{ z: [1.6, 1.6] }} ch={{ n: "P1_dream_a", h: 1000, x: 960, y: 1180 }} /> },
+  { a: at(21) - .05, tone: "warm", r: (u, d) => <Still n="R8_beam.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 40] }} /> },
   // work, the first raise
   { a: at(22) - .2, tone: "work", r: (u, d) => <Scene u={u} d={d} bg="B2_office.jpg" cam={{ z: [1.0, 1.2], pan: -160, o: [80, 60] }} dim={.45} ch={{ n: "P2_laptop", h: 820, x: 900, y: 1060, act: "sigh" }} /> },
   { a: 63.4, tone: "work", r: (u, d) => <Still n="F6_folders.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [42, 45], dx: 90 }} /> },
   { a: 65.0, r: (u, d) => <Still n="F7_calendar.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [40, 50] }} /> },
-  { a: 68.5, tone: "warm", video: true, r: (u, d) => <><Clip n="M1.mp4" k={u / d} from={1.0} kb={{ z: [1.4, 1.7], o: [50, 60] }} /><Words u={u} a={.1} b={d} y={150} size={120}>FIRST <G>RAISE</G></Words></> },
+  { a: 68.5, tone: "warm", r: (u, d) => <><Still n="R9_raise.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [62, 40] }} /><Words u={u} a={.1} b={d} y={130} size={120}>FIRST <G>RAISE</G></Words></> },
   { a: 69.8, tone: "warm", r: (u, d) => <Still n="F8_gift_open.jpg" k={u / d} kb={{ z: [1.0, 1.3], o: [50, 38] }} /> },
   { a: 72.35, tone: "warm", r: (u, d) => <Still n="B8_apt2.jpg" k={u / d} kb={{ z: [2.0, 2.2], o: [76, 56], dx: 100 }} /> },
   { a: at(24) - .2, tone: "warm", video: true, r: (u, d) => <Clip n="V1.mp4" k={u / d} from={1.3} flip kb={{ z: [1.2, 1.45], o: [88, 58] }} /> },
@@ -255,13 +255,13 @@ const SH: Shot[] = [
   { a: at(35) - .05, tone: "sad", r: (u, d) => <Still n="F11_bored_breakfast.jpg" k={u / d} kb={{ z: [1.0, 1.18], o: [55, 40], dx: -60 }} /> },
   { a: at(36) + 2.1, tone: "sad", r: (u, d) => <Still n="B8_apt2.jpg" k={u / d} kb={{ z: [1.3, 1.6], o: [25, 60], dx: 160 }} /> },
   { a: at(38) - .1, video: true, r: (u, d) => <Clip n="M5.mp4" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 58] }} /> },
-  { a: at(40) - .05, r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.5, 1.8], o: [50, 38] }} ch={{ n: "P10_think", h: 900, y: 1060, act: "tilt" }} /> },
+  { a: at(40) - .05, r: (u, d) => <Still n="R11_bored_presents.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [25, 55] }} /> },
   // only 22 people
   { a: at(41) - .1, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={129.9 - at(41) + .1} b={d} y={170} size={170} sub="IN THE STUDY">ONLY <G>22</G> PEOPLE</Words>
     <svg width={1920} height={1080} style={{ position: "absolute" }}>{Array.from({ length: 22 }, (_, i) => { const x = 960 + (i % 11 - 5) * 110, y = 720 + Math.floor(i / 11) * 150, o = fin(u, .6 + i * .04, .2);
       return <g key={i} opacity={o} fill="#e9e6ee"><circle cx={x} cy={y - 40} r={26} /><rect x={x - 30} y={y - 10} width={60} height={80} rx={26} /></g>; })}</svg></> },
   { a: at(42) - .05, tone: "study", r: (u, d) => <><Still n="K2_winners_jump.jpg" k={u / d} kb={{ z: [1.0, 1.0] }} dim={.7} /><Words u={u} a={.4} b={d} y={760} size={110}>SMALL STUDY,<br /><G>FAMOUS FINDING</G></Words></> },
-  { a: at(43) - .05, r: (u, d) => <Still n="M5_last.jpg" k={u / d} kb={{ z: [1.3, 1.7], o: [55, 55], dx: -120 }} /> },
+  { a: at(43) - .05, r: (u, d) => <Still n="R12_treadmill.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 55] }} /> },
   { a: at(44) + .9, b: 144.6, fadeOut: .6, tone: "work", r: (u, d) => <Still n="B2_office.jpg" k={u / d} kb={{ z: [1.3, 1.7], o: [86, 60] }} /> },
 ];
 export const IA2_PART1_END = 144.6;
@@ -298,7 +298,7 @@ const SH2: Shot[] = [
   { a: 254.9, r: (u, d) => <Still n="G4_car_smoke.jpg" k={u / d} kb={{ z: [1.6, 1.9], o: [38, 45] }} /> },
   { a: 258.6, tone: "sad", r: (u, d) => <Still n="G3_bills.jpg" k={u / d} kb={{ z: [1.7, 2.1], o: [50, 55], dx: -80 }} /> },
   // income triples
-  { a: 264.4, tone: "warm", video: true, r: (u, d) => <><Clip n="M1.mp4" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 60] }} /><Words u={u} a={1.4} b={d} y={150} size={220}><G>×3</G></Words></> },
+  { a: 264.4, tone: "warm", r: (u, d) => <><Still n="R22_raise2.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [35, 40] }} /><Words u={u} a={1.4} b={d} y={40} size={170}><G>×3</G></Words></> },
   { a: 267.55, tone: "warm", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.3, 1.7], o: [50, 30] }} ch={{ n: "P6_amazed", h: 950, y: 1080 }} glow="rgba(255,220,160,.65)" /> },
   { a: 270.9, tone: "sad", r: (u, d) => <Still n="B1_apt1.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [50, 50] }} dim={.25} /> },
   { a: 275.6, tone: "warm", r: (u, d) => <Still n="N6_bags.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [48, 45], dx: 90 }} /> },
