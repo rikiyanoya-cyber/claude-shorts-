@@ -175,20 +175,35 @@ const SH: Shot[] = [
   { a: at(44) + .9, b: 144.55, fadeOut: .8, tone: "work", r: (u, d) => <Still n="B2_office.jpg" k={u / d} kb={{ z: [1.3, 1.7], o: [86, 60] }} /> },
 ];
 export const IA2_PART1_END = 144.6;
+// the new opening (user's line, 2026-11-19): "Your alarm went off in the dark this morning, and you got up for a paycheck.
+// But here's the question: if that paycheck doubled, would you be twice as happy?" — 8.75 s + 0.55 s breath.
+// It is placed before the old opening, and the old line 6 (the same question) is cut out at the splice (11.34-14.65 s).
+export const IA2_OPEN = 9.3;
+const INTRO: Shot[] = [
+  { a: 0, tone: "sad", r: (u, d) => <Still n="V2_bed_first.jpg" k={u / d} kb={{ z: [2.8, 3.0], o: [72, 50] }} /> },
+  { a: 0.85, tone: "sad", video: true, r: (u, d) => <Clip n="V2.mp4" k={u / d} from={1.4} kb={{ z: [1.4, 1.7], o: [56, 45] }} /> },
+  { a: 2.15, tone: "work", r: (u, d) => <Scene u={u} d={d} bg="B2_office.jpg" cam={{ z: [1.0, 1.15], pan: -120, o: [80, 60] }} dim={.45} ch={{ n: "P2_laptop", h: 820, x: 900, y: 1060, act: "sigh" }} /> },
+  { a: 3.1, r: (u, d) => <Still n="M6_wallet.jpg" k={u / d} kb={{ z: [2.5, 2.8], o: [60, 56] }} /> },
+  { a: 3.95, r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.5, 1.7], o: [50, 30] }} ch={{ n: "P10_think", h: 900, y: 1060, act: "tilt" }} /> },
+  { a: 5.4, r: (u, d) => <><Still n="M11_two_balloons.jpg" k={u / d} kb={{ z: [1.5, 1.9], o: [50, 38] }} dim={.3} />
+    <Words u={u} a={6.4 - 5.4} b={d + 1} y={640} size={120}>PAY <G>×2</G><span style={{ opacity: fin(u, 7.65 - 5.4, .25) }}> = HAPPINESS <G>×2</G>?</span></Words></> },
+];
 
-export const IAEp2: React.FC = () => {
+
+export const IAEp2: React.FC<{ intro?: boolean }> = ({ intro }) => {
+  const SH_ = intro ? INTRO : SH, END_ = intro ? IA2_OPEN : IA2_PART1_END;
   useFont();
   const f = useCurrentFrame(), t = f / FPS;
-  const i = SH.findIndex((s, k) => t >= s.a && t < (s.b ?? SH[k + 1]?.a ?? IA2_PART1_END));
+  const i = SH_.findIndex((s, k) => t >= s.a && t < (s.b ?? SH_[k + 1]?.a ?? END_));
   return <AbsoluteFill style={{ background: "#000" }}>
-    {SH.map((s, k) => {
-      const b = s.b ?? SH[k + 1]?.a ?? IA2_PART1_END, d = b - s.a;
+    {SH_.map((s, k) => {
+      const b = s.b ?? SH_[k + 1]?.a ?? END_, d = b - s.a;
       if (s.video) return <Sequence key={k} from={Math.round(s.a * FPS)} durationInFrames={Math.max(1, Math.round(d * FPS))}><Shell s={s} d={d} /><ToneLayer tone={s.tone} /></Sequence>;
       return k === i ? <AbsoluteFill key={k} style={{ opacity: (s.fadeIn ? fin(t - s.a, 0, s.fadeIn) : 1) * (s.fadeOut ? fout(t, b, s.fadeOut) : 1) }}>{s.r(t - s.a, d)}<ToneLayer tone={s.tone} /></AbsoluteFill> : null;
     })}
     <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 58%, rgba(0,0,0,.5) 100%)", pointerEvents: "none" }} />
     <AbsoluteFill style={{ opacity: .06, mixBlendMode: "overlay" }}><svg width={1920} height={1080}><filter id="gr"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves={2} seed={f % 24} /></filter><rect width={1920} height={1080} filter="url(#gr)" /></svg></AbsoluteFill>
-    <Study u={t} a={at(31) + .3} d={5} text="Brickman, Coates & Janoff-Bulman (1978)" sub="Lottery winners and accident victims" />
+    {!intro && <Study u={t} a={at(31) + .3} d={5} text="Brickman, Coates & Janoff-Bulman (1978)" sub="Lottery winners and accident victims" />}
   </AbsoluteFill>;
 };
 const Shell: React.FC<{ s: Shot; d: number }> = ({ s, d }) => { const u = useCurrentFrame() / FPS; return <>{s.r(u, d)}</>; };
