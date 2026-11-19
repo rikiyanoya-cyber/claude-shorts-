@@ -262,7 +262,7 @@ const SH: Shot[] = [
       return <g key={i} opacity={o} fill="#e9e6ee"><circle cx={x} cy={y - 40} r={26} /><rect x={x - 30} y={y - 10} width={60} height={80} rx={26} /></g>; })}</svg></> },
   { a: at(42) - .05, tone: "study", r: (u, d) => <><Still n="K2_winners_jump.jpg" k={u / d} kb={{ z: [1.0, 1.0] }} dim={.7} /><Words u={u} a={.4} b={d} y={760} size={110}>SMALL STUDY,<br /><G>FAMOUS FINDING</G></Words></> },
   { a: at(43) - .05, r: (u, d) => <Still n="R12_treadmill.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 55] }} /> },
-  { a: at(44) + .9, b: 144.6, fadeOut: .6, tone: "work", r: (u, d) => <Still n="B2_office.jpg" k={u / d} kb={{ z: [1.3, 1.7], o: [86, 60] }} /> },
+  { a: at(44) + .9, b: 144.6, fadeOut: .6, tone: "work", r: (u, d) => <Still n="R13_senpai_far.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [70, 62] }} /> },
 ];
 export const IA2_PART1_END = 144.6;
 export const IA2_END = 514.0;   // the narration ends at 508.06; 6 s of quiet tail under the end screen
@@ -352,13 +352,13 @@ const SH2: Shot[] = [
   { a: 465.85, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={1.6} b={d} y={260} size={140}>MONEY → HAPPY<span style={{ color: "#9fd3ff" }}>?</span></Words><Words u={u} a={4.5} b={d} y={500} size={140}>HAPPY → MONEY<span style={{ color: "#9fd3ff" }}>?</span></Words></> },
   { a: 472.7, video: true, r: (u, d) => <Clip n="M11.mp4" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 40] }} /> },
   // the answer
-  { a: 476.6, r: (u, d) => <><Still n="M11_two_balloons.jpg" k={u / d} kb={{ z: [1.5, 1.8], o: [50, 38] }} dim={.3} /><Words u={u} a={.4} b={d} y={680} size={120}>PAY <G>×2</G> = HAPPINESS <G>×2</G>?</Words></> },
+  { a: 476.6, r: (u, d) => <><Still n="R39_payslip_q.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 40] }} dim={.25} /><Words u={u} a={.4} b={d} y={850} size={110}>PAY <G>×2</G> = HAPPINESS <G>×2</G>?</Words></> },
   { a: 480.0, b: 483.3, r: (u, d) => <><Studio /><Words u={u} a={.75} b={d} y={260} size={260}>NO.</Words><Words u={u} a={2.0} b={d} y={580} size={120}>BUT <G>NOT ZERO</G>.</Words></> },
-  { a: 483.3, tone: "warm", r: (u, d) => <Still n="F12_proud.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [55, 40] }} /> },
-  { a: 486.9, video: true, r: (u, d) => <><Clip n="M7.mp4" k={u / d} from={1.0} kb={{ z: [1.4, 1.6], o: [50, 58] }} /><Words u={u} a={.3} b={d} y={140} size={110}>MONEY <G>SOFTENS PAIN</G></Words></> },
+  { a: 483.3, tone: "warm", r: (u, d) => <Still n="R40_coin_light.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 40] }} /> },
+  { a: 486.9, r: (u, d) => <><Still n="R41_cushion.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 60] }} /><Words u={u} a={.3} b={d} y={140} size={110}>MONEY <G>SOFTENS PAIN</G></Words></> },
   { a: 489.35, r: (u, d) => <><Studio /><Words u={u} b={d} y={330} size={190}><G>RATIO</G>, NOT AMOUNT</Words></> },
-  { a: 492.15, tone: "sad", r: (u, d) => <Still n="M8_last.jpg" k={u / d} kb={{ z: [1.4, 1.7], o: [50, 55] }} /> },
-  { a: 495.0, tone: "sad", r: (u, d) => <Still n="N1_senpai_sigh.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [50, 45] }} /> },
+  { a: 492.15, tone: "sad", r: (u, d) => <Still n="R42_coin_cloud.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [48, 62] }} /> },
+  { a: 495.0, tone: "sad", r: (u, d) => <Still n="R43_senpai_coffee.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [45, 45] }} /> },
   { a: 498.5, tone: "warm", r: (u, d) => <Still n="B9_house.jpg" k={u / d} kb={{ z: [1.4, 1.5], o: [45, 55] }} /> },
   { a: 499.35, tone: "warm", r: (u, d) => <Still n="B7_parking.jpg" k={u / d} kb={{ z: [1.6, 1.7], o: [50, 62] }} /> },
   { a: 500.25, tone: "warm", r: (u, d) => <Still n="N4_senpai_walk.jpg" k={u / d} kb={{ z: [1.6, 1.7], o: [30, 30] }} /> },
