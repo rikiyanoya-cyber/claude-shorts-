@@ -31,8 +31,8 @@ def pose(keys, scene, roles):
     blocks = "\n".join(C[k] for k in keys)
     return (f"{roles}\n{blocks}\nScene: {scene}\nKeep the face, hair shape, hair colour and body proportions exactly as in the reference images.\n{STYLE}\n{NAVY_BG}")
 
-def r1(k):   # reference roles for one character
-    return f"Image 1 = {k} front view (face and hair). Image 2 = {k} full-body view (body shape and proportions). Use them for this character only."
+def r1(k):   # reference roles for one character: the lineup is always attached, the sheet when it exists
+    return f"Image 1 = the approved 3D lineup (the 3D look; {k} is the character named below). Image 2, if attached = {k}'s reference sheet (face, hair and proportions). Use them for this one character only."
 
 LOC = {
  "B1": ("SET_APT1", "first cheap apartment", "Props only: a small plain window frame floating on the backdrop showing tiny distant city lights, a small sink with a faucet on frame-left, one bare light bulb hanging from above.", "Light: one dim warm bulb light from above #F2B45A."),
@@ -96,13 +96,13 @@ P = [
  ("P15", "BLONDE 出ていく", False, ["BLONDE"], "5:25〜5:27", "BLONDE walks toward frame-right pulling a small suitcase, head down, side view, full body."),
 ]
 SECTIONS.append(("P", "2. キャラのポーズ（紺の背景・切り抜いて重ねる用）", [
- (i, t, st, files(f"S（{keys[0]}）の正面", f"S（{keys[0]}）の全身"), w, [("画像", pose(keys, sc, r1(keys[0])))]) for i, t, st, keys, w, sc in P] + [
- ("P16", "当選者たち、ふつうの顔に戻る", False, "S3・S4・S5 の正面（3枚）", "1:44〜1:52",
+ (i, t, st, f"3Dの5人の並び＋{keys[0]}の設定画（作った場合）", w, [("画像", pose(keys, sc, r1(keys[0])))]) for i, t, st, keys, w, sc in P] + [
+ ("P16", "当選者たち、ふつうの顔に戻る", False, "3Dの5人の並び", "1:44〜1:52",
   [("画像", pose(["BLONDE", "RED", "BOB"], "BLONDE stands on the left, RED in the middle, BOB on the right, side by side, arms down, plain ordinary slightly bored faces, holding nothing. Exactly three characters. Full bodies.",
-    "Image 1 = BLONDE (face and hair). Image 2 = RED (face and hair). Image 3 = BOB (face and hair). Each image is for that one character only."))]),
- ("K2", "当選者たち、喜んで跳ねる（動画V3の元）", True, "S3・S4・S5 の正面（3枚）", "1:40〜1:44",
+    "Image 1 = the approved 3D lineup (the 3D look; BLONDE is 2nd, RED 3rd and BOB 4th from the left). Use exactly these three characters."))]),
+ ("K2", "当選者たち、喜んで跳ねる（動画V3の元）", True, "3Dの5人の並び", "1:40〜1:44",
   [("画像", pose(["BLONDE", "RED", "BOB"], "BLONDE on the left, RED in the middle, BOB on the right jump with joy, arms raised, together holding one big oversized prize check with a clean blank surface. Exactly three characters. Full bodies.",
-    "Image 1 = BLONDE (face and hair). Image 2 = RED (face and hair). Image 3 = BOB (face and hair). Each image is for that one character only."))]),
+    "Image 1 = the approved 3D lineup (the 3D look; BLONDE is 2nd, RED 3rd and BOB 4th from the left). Use exactly these three characters."))]),
 ]))
 SECTIONS.append(("G", "3. 小物（紺の背景）", [(k, v[0], k in ("G1", "G4"), "3Dの5人の並び（画風の参考）", v[1], [("画像", "Image 1 = the approved lineup (the 3D look only, copy no character).\n" + prop(v[2]))]) for k, v in PROPS.items()]))
 
@@ -111,24 +111,24 @@ def comp(char_keys, loc, scene, roles):
     return (f"{roles}\n{blocks}\n{loc_block(loc)}\nScene: {scene}\nKeep the set exactly as in the set image: navy studio, props, positions, colours and light. "
             f"Keep the character's face, hair and proportions exactly as in the character images. Light the character with the room's light.\n{STYLE}\nAspect ratio 16:9, highest resolution.")
 V = [
- ("V1", "昇給の夜、買い物袋を持って歩く", True, "B4・S1正面・S1全身", "1:14〜", comp(["YOU"], "B4", "YOU walks between the street lamps toward frame-right holding one shopping bag, big happy smile, side view, on the navy floor in the lower third.",
-   "Image 1 = the set (props, layout and light). Image 2 = YOU front view (face and hair). Image 3 = YOU full body (proportions)."),
+ ("V1", "昇給の夜、買い物袋を持って歩く", True, "B4＋3Dの5人の並び＋S1の設定画（作った場合）", "1:14〜", comp(["YOU"], "B4", "YOU walks between the street lamps toward frame-right holding one shopping bag, big happy smile, side view, on the navy floor in the lower third.",
+   "Image 1 = the set (props, layout and light). Image 2 = the approved 3D lineup (the 3D look and YOU). Image 3, if attached = YOU's reference sheet (face, hair and proportions)."),
    "YOU walks steadily from left to right between the lamps, swinging the shopping bag slightly, a light bounce in each step. The camera stays still. The lamps and the set stay exactly the same for the whole clip."),
- ("V2", "暗い朝、目覚ましでため息", False, "B5・S1正面・S1全身", "1:28〜", comp(["YOU"], "B5", "YOU lies in the bed under the blanket, eyes open, looking at the ceiling.",
-   "Image 1 = the set (props, layout and light). Image 2 = YOU front view (face and hair). Image 3 = YOU full body (proportions)."),
+ ("V2", "暗い朝、目覚ましでため息", False, "B5＋3Dの5人の並び＋S1の設定画（作った場合）", "1:28〜", comp(["YOU"], "B5", "YOU lies in the bed under the blanket, eyes open, looking at the ceiling.",
+   "Image 1 = the set (props, layout and light). Image 2 = the approved 3D lineup (the 3D look and YOU). Image 3, if attached = YOU's reference sheet (face, hair and proportions)."),
    "The alarm clock glows a little brighter, then YOU slowly sits up in bed and lets out one long tired sigh, shoulders dropping. The camera stays still. The room stays dark and unchanged."),
  ("V3", "宝くじの当選者が跳ねる", True, "K2（できた画像をそのまま使う）", "1:40〜", None,
    "The three characters jump up and down with joy, arms raised, holding the big blank check; colourful confetti falls around them. The camera stays still. Their faces and hair stay the same for the whole clip."),
  ("V4", "車が動かない朝", False, "G4（できた画像をそのまま使う）", "4:15〜", None,
    "The small car shakes a little as the engine fails to start, then a puff of grey smoke rises from the open hood and drifts up. The camera stays still and the car keeps its shape."),
- ("V5", "パートナーが出ていく", True, "B8・S3正面・S3全身", "5:25〜", comp(["BLONDE"], "B8", "BLONDE walks toward the plain door on the far right pulling a small suitcase, head down, side view, in the lower third of the frame.",
-   "Image 1 = the set (props, layout and light). Image 2 = BLONDE front view (face and hair). Image 3 = BLONDE full body (proportions)."),
+ ("V5", "パートナーが出ていく", True, "B8＋3Dの5人の並び＋S3の設定画（作った場合）", "5:25〜", comp(["BLONDE"], "B8", "BLONDE walks toward the plain door on the far right pulling a small suitcase, head down, side view, in the lower third of the frame.",
+   "Image 1 = the set (props, layout and light). Image 2 = the approved 3D lineup (the 3D look and BLONDE). Image 3, if attached = BLONDE's reference sheet (face, hair and proportions)."),
    "BLONDE slowly walks to the door pulling the suitcase without looking back and leaves the frame. The camera stays still. The apartment stays exactly the same, quiet and still."),
- ("V6", "先輩が車の中で動かない", True, "B7・S2正面・S2全身", "6:48〜", comp(["SENPAI"], "B7", "SENPAI sits in the driver's seat of the dark sedan, seen through its open side window, engine off, one hand resting on the steering wheel, staring ahead.",
-   "Image 1 = the set (the car, the lamp and the light). Image 2 = SENPAI front view (face and hair). Image 3 = SENPAI full body (proportions)."),
+ ("V6", "先輩が車の中で動かない", True, "B7＋3Dの5人の並び＋S2の設定画（作った場合）", "6:48〜", comp(["SENPAI"], "B7", "SENPAI sits in the driver's seat of the dark sedan, seen through its open side window, engine off, one hand resting on the steering wheel, staring ahead.",
+   "Image 1 = the set (the car, the lamp and the light). Image 2 = the approved 3D lineup (the 3D look and SENPAI). Image 3, if attached = SENPAI's reference sheet (face, hair and proportions)."),
    "SENPAI stays almost still, staring ahead, then his shoulders rise and fall in one slow heavy sigh. Faint raindrops slide down the car window. The camera stays still. His face and hair stay the same for the whole clip."),
- ("V7", "ゆっくり飲むコーヒーの朝", True, "B10・S1正面・S1全身", "7:02〜", comp(["YOU"], "B10", "YOU stands by the window frame holding a coffee mug with both hands, eyes closed, calm small smile, three-quarter view, in the lower third of the frame.",
-   "Image 1 = the set (props, layout and light). Image 2 = YOU front view (face and hair). Image 3 = YOU full body (proportions)."),
+ ("V7", "ゆっくり飲むコーヒーの朝", True, "B10＋3Dの5人の並び＋S1の設定画（作った場合）", "7:02〜", comp(["YOU"], "B10", "YOU stands by the window frame holding a coffee mug with both hands, eyes closed, calm small smile, three-quarter view, in the lower third of the frame.",
+   "Image 1 = the set (props, layout and light). Image 2 = the approved 3D lineup (the 3D look and YOU). Image 3, if attached = YOU's reference sheet (face, hair and proportions)."),
    "Soft steam rises from the mug; YOU slowly lifts it and takes one calm sip; the sunlight gently brightens. The camera stays still. The room stays the same."),
 ]
 
