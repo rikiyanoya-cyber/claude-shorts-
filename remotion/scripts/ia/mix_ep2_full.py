@@ -38,7 +38,10 @@ EV = [(3.2, 'coins', -13), (30.15, 'wahwah', -13), (51.1, 'sparkle', -14), (68.5
 TVOFF = 509.0   # the picture switches off here (IA2_TVOFF): BGM cuts with it, silence after
 for t, n, db in EV: put(n, vt(t), db)
 # BGM: fixed 26 dB under the voice, looped with 4 s crossfades, dipped 10 dB around the key-line pauses
-bg = ld(f'{W}/bgm.mp3'); Y = 4 * SR; loop = bg.copy()
+bg = ld(f'{W}/bgm.mp3'); Y = 4 * SR
+# drop the track's own fade-out (last second still within 6 dB of the median level) so the loop seam has no dip
+lv = np.array([rms(bg[i:i + SR]) for i in range(0, len(bg) - SR, SR)]); keep = np.where(lv > np.median(lv) * .5)[0][-1] + 1
+bg = bg[:keep * SR]; loop = bg.copy()
 while len(loop) < N: r_ = np.linspace(0, 1, Y)[:, None]; loop = np.concatenate([loop[:-Y], loop[-Y:] * (1 - r_) + bg[:Y] * r_, bg[Y:]])
 g = np.full(N, 10 ** (-26 / 20) * vr / rms(bg)); tt = np.arange(N) / SR
 for gg, d in GAPS:
