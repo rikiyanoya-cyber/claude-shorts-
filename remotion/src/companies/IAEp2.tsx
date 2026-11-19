@@ -82,13 +82,13 @@ const Scene: React.FC<{ u: number; d: number; bg?: string; studio?: boolean; cam
 type Tone = "work" | "warm" | "sad" | "study" | "none";
 const ToneLayer: React.FC<{ tone?: Tone }> = ({ tone = "none" }) => tone === "none" ? null : <>
   {tone === "warm" && <AbsoluteFill style={{ background: "radial-gradient(ellipse at 55% 45%, rgba(255,170,80,.28) 0%, rgba(255,140,60,.08) 55%, rgba(0,0,0,0) 100%)", mixBlendMode: "screen" }} />}
-  {tone === "work" && <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(40,80,160,.25), rgba(0,10,40,.35))", mixBlendMode: "multiply" }} />}
-  {tone === "sad" && <AbsoluteFill style={{ backdropFilter: "saturate(.45) brightness(.82)", WebkitBackdropFilter: "saturate(.45) brightness(.82)", background: "rgba(20,30,60,.18)" }} />}
+  {tone === "work" && <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(60,90,170,.12), rgba(0,10,40,.18))", mixBlendMode: "multiply" }} />}
+  {tone === "sad" && <AbsoluteFill style={{ backdropFilter: "saturate(.85) brightness(.88)", WebkitBackdropFilter: "saturate(.85) brightness(.88)" }} />}
   {tone === "study" && <AbsoluteFill style={{ background: "rgba(10,16,40,.18)" }} />}
 </>;
 // the plain navy studio for character-only shots (same look as the sets)
 const Studio: React.FC<{ warm?: boolean }> = ({ warm }) => (
-  <AbsoluteFill style={{ background: `radial-gradient(ellipse at 50% 42%, ${warm ? "#2a2f52" : "#1a2d5e"} 0%, #0c1b44 48%, #050b22 100%)` }}>
+  <AbsoluteFill style={{ background: `radial-gradient(ellipse at 50% 42%, ${warm ? "#1d2f5c" : "#143064"} 0%, #0D2349 55%, #0a1c3c 100%)` }}>
     <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 96%, rgba(242,180,90,.18) 0%, rgba(242,180,90,0) 45%)" }} />
   </AbsoluteFill>
 );
@@ -302,24 +302,24 @@ const SH2: Shot[] = [
   { a: 267.55, tone: "warm", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.3, 1.7], o: [50, 30] }} ch={{ n: "P6_amazed", h: 950, y: 1080 }} glow="rgba(255,220,160,.65)" /> },
   { a: 270.9, tone: "sad", r: (u, d) => <Still n="B1_apt1.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [50, 50] }} dim={.25} /> },
   { a: 275.6, tone: "warm", r: (u, d) => <Still n="N6_bags.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [48, 45], dx: 90 }} /> },
-  { a: 278.6, tone: "warm", r: (u, d) => <Still n="N6_bags.jpg" k={u / d} kb={{ z: [1.9, 2.1], o: [50, 30] }} /> },
+  { a: 278.6, tone: "warm", r: (u, d) => <Still n="R24_card_pay.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [45, 45] }} /> },
   { a: 281.7, tone: "warm", r: (u, d) => <Still n="N7_restaurant.jpg" k={u / d} kb={{ z: [1.2, 1.45], o: [52, 45] }} /> },
-  { a: 283.35, video: true, r: (u, d) => <Clip n="M7.mp4" k={u / d} from={1.5} kb={{ z: [1.4, 1.6], o: [50, 58] }} /> },
-  { a: 287.8, tone: "warm", r: (u, d) => <Still n="N7_restaurant.jpg" k={u / d} kb={{ z: [2.0, 2.2], o: [60, 30] }} /> },
-  { a: 289.3, video: true, r: (u, d) => <Clip n="M3.mp4" k={u / d} kb={{ z: [1.9, 2.1], o: [50, 64] }} /> },
-  { a: 294.95, r: (u, d) => <Still n="M1_last.jpg" k={u / d} kb={{ z: [1.6, 1.9], o: [55, 60], dx: -90 }} /> },
+  { a: 283.35, r: (u, d) => <Still n="R25_sleep.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 45] }} /> },
+  { a: 287.8, tone: "warm", r: (u, d) => <Still n="R26_phone_pay.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [55, 45] }} /> },
+  { a: 289.3, r: (u, d) => <Still n="R27_gift_small.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 60] }} /> },
+  { a: 294.95, r: (u, d) => <Still n="R28_pile_balloon.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 70] }} /> },
   // ratio, not amount
   { a: 298.1, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={.3} b={d} y={330} size={200}><G>RATIO</G>, NOT AMOUNT</Words></> },
   { a: 303.5, b: 315.55, r: (u, d) => <Ratio u={u} s1={1.6} s2={5.4} eq={6.6} /> },
   { a: 315.55, r: (u, d) => <><Studio /><Words u={u} b={d} y={300} size={150}>PAY <G>×3</G> ≠ HAPPINESS <G>×3</G></Words></> },
-  { a: 318.75, video: true, r: (u, d) => <Clip n="M5.mp4" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 58] }} /> },
+  { a: 318.75, r: (u, d) => <Still n="R29_two_sparks.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 60] }} /> },
   // the hardest stretch
   { a: 322.7, tone: "warm", r: (u, d) => <Still n="N8_sofa.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [48, 45] }} /> },
   { a: 325.25, tone: "sad", video: true, r: (u, d) => <Clip n="V5.mp4" k={u / d} kb={{ z: [1.0, 1.15], o: [70, 55] }} /> },
   { a: 326.9, tone: "sad", r: (u, d) => <Still n="N9_alone_high.jpg" k={u / d} kb={{ z: [1.0, 1.25], o: [68, 50] }} /> },
   { a: 330.75, tone: "sad", r: (u, d) => <Still n="G5_takeout.jpg" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 55] }} /> },
   { a: 333.85, tone: "sad", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.0, 1.25], pan: 100 }} ch={{ n: "P8_table_alone", h: 760, x: 960, y: 1060, act: "droop" }} /> },
-  { a: 337.4, tone: "sad", r: (u, d) => <Still n="G5_takeout.jpg" k={u / d} kb={{ z: [2.2, 2.4], o: [50, 50] }} /> },
+  { a: 337.4, tone: "sad", r: (u, d) => <Still n="R30_takeout_door.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [70, 55] }} /> },
   { a: 340.3, tone: "sad", r: (u, d) => <Still n="N2_you_sad.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [50, 42] }} /> },
   { a: 344.45, tone: "sad", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.2, 1.45], o: [50, 30] }} ch={{ n: "P12_senpai_coffee", h: 900, y: 1070, act: "droop" }} /> },
   { a: 348.8, tone: "sad", video: true, r: (u, d) => <Clip n="V6.mp4" k={u / d} kb={{ z: [1.2, 1.9], o: [45, 55] }} /> },
@@ -330,14 +330,14 @@ const SH2: Shot[] = [
   { a: 368.4, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={.1} b={d} y={200} size={120}>"<G>IT PLATEAUS</G>"</Words><Words u={u} a={2.3} b={d} y={520} size={120}>"<span style={{ color: "#9fd3ff" }}>IT KEEPS RISING</span>"</Words></> },
   { a: 372.6, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={.2} b={d} y={330} size={130} sub="WITH A NEUTRAL THIRD PARTY">BOTH SIDES, <G>ONE DATASET</G></Words></> },
   { a: 379.05, b: 396.9, r: (u, d) => <Three u={u} low={.4} most={10.9} top={13.5} /> },
-  { a: 396.9, tone: "sad", r: (u, d) => <Still n="M8_last.jpg" k={u / d} kb={{ z: [1.3, 1.7], o: [50, 55] }} /> },
-  { a: 402.7, tone: "sad", r: (u, d) => <><Still n="P15_blonde_leaves.jpg" k={u / d} kb={{ z: [1.0, 1.06], o: [50, 50] }} dim={.6} /><Words u={u} a={.05} b={d} y={420} size={150}>A BREAKUP.</Words></> },
-  { a: 403.65, tone: "sad", r: (u, d) => <><Still n="V6_first.jpg" k={u / d} kb={{ z: [1.3, 1.35], o: [45, 55] }} dim={.6} /><Words u={u} a={.05} b={d} y={420} size={150}>GRIEF.</Words></> },
-  { a: 404.4, tone: "sad", r: (u, d) => <><Still n="N2_you_sad.jpg" k={u / d} kb={{ z: [1.0, 1.05], o: [50, 45] }} dim={.6} /><Words u={u} a={.05} b={d} y={420} size={150}>MENTAL ILLNESS.</Words></> },
-  { a: 406.05, tone: "sad", r: (u, d) => <Still n="M8_last.jpg" k={u / d} kb={{ z: [1.9, 2.0], o: [50, 52] }} /> },
+  { a: 396.9, r: (u, d) => <Still n="R33_bookmark.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 55] }} /> },
+  { a: 402.7, tone: "sad", r: (u, d) => <><Still n="P15_blonde_leaves.jpg" k={u / d} kb={{ z: [1.0, 1.06], o: [50, 50] }} dim={.35} /><Words u={u} a={.05} b={d} y={860} size={150}>A BREAKUP.</Words></> },
+  { a: 403.65, tone: "sad", r: (u, d) => <><Still n="R31_grief_chair.jpg" k={u / d} kb={{ z: [1.0, 1.04], o: [50, 45] }} dim={.35} /><Words u={u} a={.05} b={d} y={860} size={150}>GRIEF.</Words></> },
+  { a: 404.4, tone: "sad", r: (u, d) => <><Still n="R32_raincloud.jpg" k={u / d} kb={{ z: [1.0, 1.04], o: [50, 40] }} dim={.35} /><Words u={u} a={.05} b={d} y={860} size={150}>MENTAL ILLNESS.</Words></> },
+  { a: 406.05, tone: "sad", r: (u, d) => <Still n="R34_coin_heart.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [55, 60] }} /> },
   // spending differently
-  { a: 408.0, r: (u, d) => <Still n="M6_wallet.jpg" k={u / d} kb={{ z: [1.4, 1.7], o: [58, 56], dx: 80 }} /> },
-  { a: 411.75, r: (u, d) => <Still n="M3_gift.jpg" k={u / d} kb={{ z: [1.4, 1.2], o: [50, 63] }} dim={.25} /> },
+  { a: 408.0, r: (u, d) => <Still n="R35_jars.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [55, 50] }} /> },
+  { a: 411.75, r: (u, d) => <Still n="R36_piggy_pedestal.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 50] }} /> },
   { a: 415.85, r: (u, d) => <><Studio /><Words u={u} a={2.4} b={d} y={330} size={150}>SHRINK THE <G>SMALL</G><br />DAILY FRICTIONS</Words></> },
   { a: 419.8, tone: "warm", r: (u, d) => <Still n="N10_box.jpg" k={u / d} kb={{ z: [1.5, 1.7], o: [36, 50] }} /> },
   { a: 422.05, tone: "warm", video: true, r: (u, d) => <Clip n="V7.mp4" k={u / d} kb={{ z: [1.4, 1.75], o: [52, 45] }} /> },
@@ -348,9 +348,9 @@ const SH2: Shot[] = [
   { a: 438.25, tone: "study", video: true, r: (u, d) => <><Clip n="M9.mp4" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 55] }} /><Words u={u} a={3.0} b={d} y={150} size={140}>REAL, BUT <G>MODEST</G></Words></> },
   { a: 444.4, b: 454.35, r: (u, d) => <Five u={u} b={.5} gap={7.0} /> },
   { a: 454.35, video: true, r: (u, d) => <Clip n="M10.mp4" k={u / d} kb={{ z: [1.3, 1.55], o: [50, 55] }} /> },
-  { a: 460.0, r: (u, d) => <><Still n="M10_last.jpg" k={u / d} kb={{ z: [1.6, 1.9], o: [50, 58] }} dim={.4} /><Words u={u} a={1.4} b={d} y={180} size={150}><G>$35K</G> – <G>$125K</G></Words></> },
+  { a: 460.0, r: (u, d) => <><Still n="R37_houses.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 65] }} dim={.15} /><Words u={u} a={1.4} b={d} y={180} size={150}><G>$35K</G> – <G>$125K</G></Words></> },
   { a: 465.85, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={1.6} b={d} y={260} size={140}>MONEY → HAPPY<span style={{ color: "#9fd3ff" }}>?</span></Words><Words u={u} a={4.5} b={d} y={500} size={140}>HAPPY → MONEY<span style={{ color: "#9fd3ff" }}>?</span></Words></> },
-  { a: 472.7, video: true, r: (u, d) => <Clip n="M11.mp4" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 40] }} /> },
+  { a: 472.7, r: (u, d) => <Still n="R38_walk_together.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 65] }} /> },
   // the answer
   { a: 476.6, r: (u, d) => <><Still n="R39_payslip_q.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 40] }} dim={.25} /><Words u={u} a={.4} b={d} y={850} size={110}>PAY <G>×2</G> = HAPPINESS <G>×2</G>?</Words></> },
   { a: 480.0, b: 483.3, r: (u, d) => <><Studio /><Words u={u} a={.75} b={d} y={260} size={260}>NO.</Words><Words u={u} a={2.0} b={d} y={580} size={120}>BUT <G>NOT ZERO</G>.</Words></> },
@@ -398,7 +398,7 @@ export const IAEp2: React.FC<{ intro?: boolean; full?: boolean }> = ({ intro, fu
       if (s.video) return <Sequence key={k} from={Math.round(s.a * FPS)} durationInFrames={Math.max(1, Math.round(d * FPS))}><Shell s={s} d={d} /><ToneLayer tone={s.tone} /></Sequence>;
       return k === i ? <AbsoluteFill key={k} style={{ opacity: (s.fadeIn ? fin(t - s.a, 0, s.fadeIn) : 1) * (s.fadeOut ? fout(t, b, s.fadeOut) : 1) }}>{s.r(t - s.a, d)}<ToneLayer tone={s.tone} /></AbsoluteFill> : null;
     })}
-    <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 58%, rgba(0,0,0,.5) 100%)", pointerEvents: "none" }} />
+    <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 62%, rgba(0,0,0,.22) 100%)", pointerEvents: "none" }} />
     {!intro && <Study u={t} a={at(31) + .3} d={5} text="Brickman, Coates & Janoff-Bulman (1978)" sub="Lottery winners and accident victims" />}
     {full && <Study u={t} a={shift(195.2)} d={5} text="Kahneman & Deaton (2010)" sub="High income improves evaluation of life but not emotional well-being" />}
     {full && <Study u={t} a={shift(372.8)} d={5} text="Killingsworth, Kahneman & Mellers (2023)" sub="Income and emotional well-being: a conflict resolved" />}
