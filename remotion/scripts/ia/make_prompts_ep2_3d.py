@@ -5,29 +5,27 @@
 # usage: python3 make_prompts_ep2_3d.py <out.html>
 import html, sys
 
-STYLE = ("STYLE: stylized 3D animated-film character render, soft matte clay-like material, smooth rounded simple shapes, "
-         "clean minimal look, soft even studio light with gentle soft shadows, the same 3D look in every image. "
-         "Palette: body white #F4F4F2, background navy #0B2352, warm lamp light #F2B45A.")
-ENV_STYLE = ("STYLE: stylized 3D animated-film environment, soft matte clay-like materials, smooth rounded simple shapes, "
-             "clean minimal set with few objects, cinematic but calm, the same 3D look in every image. "
-             "Palette: deep navy night #0B2352, warm lamp light #F2B45A, cool moonlight #8FA6D6.")
-BODY = ("a smooth plain white rounded body with no clothing and no texture, a large round white head, two small solid black dot eyes, "
-        "a tiny thin curved line for a mouth, small round ears, short stubby rounded arms and legs with simple rounded hands and feet, about 3 heads tall")
+STYLE = ("STYLE: the exact 3D look of the attached lineup image: smooth matte white vinyl-toy characters, soft rounded shapes, sculpted clay-like hair, "
+         "soft top light with gentle shadows, clean and minimal, the same look in every image. Palette: bodies off-white #ECEBEE, background navy #0B2352, warm accent light #F2B45A.")
+ENV_STYLE = ("STYLE: a minimal 3D set in the same look as the attached lineup image: a seamless dark navy studio floor and backdrop #0B2352 that fades into darkness, "
+             "only a few simple rounded matte props in soft muted colours, soft light, lots of empty space, clean and calm. Every set in this video uses this same navy studio.")
+BODY = ("a smooth matte off-white rounded body with no clothing, a large round head, two small black dot eyes, a small simple mouth, "
+        "short rounded arms and legs, about 2.5 heads tall, exactly like the characters in the attached lineup image")
 C = {
- "YOU": f"YOU (the main character): {BODY}; short swooping light-brown hair #AC7A55 with a soft wave lifting up on his right side.",
- "SENPAI": f"SENPAI (older coworker): {BODY}, slightly taller than YOU; short neat dark hair #2B2F3A parted on the side; small black rectangular glasses.",
- "BLONDE": f"BLONDE (the partner): {BODY}; long straight golden-blonde hair #F4CC60 falling past the shoulders, center part.",
- "RED": f"RED: {BODY}; short bouncy curly orange-red hair #C44824 made of round curls.",
- "BOB": f"BOB: {BODY}; chin-length dark-brown bob haircut #512D17 with soft side-swept bangs.",
+ "YOU": f"YOU (the main character, 1st from the left in the lineup): {BODY}; short swept light-brown hair #B78F6F with a wave lifting up on top.",
+ "BLONDE": f"BLONDE (the partner, 2nd from the left in the lineup): {BODY}; long straight golden-blonde hair #E3C06A falling past the shoulders.",
+ "RED": f"RED (3rd from the left in the lineup): {BODY}; short curly orange-red hair #C2502E made of small round curls.",
+ "BOB": f"BOB (4th from the left in the lineup): {BODY}; dark-brown bob haircut #5A3A2A at chin length.",
+ "SENPAI": f"SENPAI (the older coworker, 5th from the left in the lineup): {BODY}; short neat black hair #2E2E30.",
 }
 NAVY_BG = "Background: plain solid dark navy #0B2352, nothing else in the frame, no text. 16:9, highest resolution."
 
 def sheet(key, extra=""):
-    return (f"Create a character reference sheet in 3D of ONE character, the same character in every view.\n"
-            f"Image 1 = the character design (head and body shape, hair shape and colour, face) ONLY. Turn this flat drawing into the 3D style below and keep the design identical.\n"
+    return (f"Create a 3D character reference sheet of ONE character from the attached lineup, the same character in every view.\n"
+            f"Image 1 = the approved lineup (the 3D look and the character designs). Use only the character described below.\n"
             f"{C[key]}{extra}\n"
-            f"Layout: left, a front close-up of the face with a neutral expression; right, four full-body views side by side at equal height with the tops of the heads and the feet aligned: front, three-quarter, true side profile, back. Relaxed standing pose, arms slightly away from the body, hands visible.\n"
-            f"Plain flat mid-grey background #9097A6, flat even lighting, no scenery, no text, no labels.\n{STYLE}\nAspect ratio 16:9, highest resolution.")
+            f"Layout: left, a front close-up of the face with a neutral expression; right, four full-body views side by side at equal height with the tops of the heads and the feet aligned: front, three-quarter, true side profile, back. Relaxed standing pose, arms slightly away from the body.\n"
+            f"Plain flat mid-grey background #9097A6, flat even light, nothing else, no text, no labels.\n{STYLE}\nAspect ratio 16:9, highest resolution.")
 
 def pose(keys, scene, roles):
     blocks = "\n".join(C[k] for k in keys)
@@ -37,23 +35,23 @@ def r1(k):   # reference roles for one character
     return f"Image 1 = {k} front view (face and hair). Image 2 = {k} full-body view (body shape and proportions). Use them for this character only."
 
 LOC = {
- "B1": ("LOC_APT1_NIGHT", "first cheap apartment", "A small cheap studio apartment. Layout: a tiny kitchen corner on frame-left with a small sink and faucet; a single window on the back wall showing distant city lights; a narrow bed along the right wall; thin plain walls; a worn wooden floor. Anchor props: one bare light bulb hanging from the ceiling in the center, a small round wall clock above the sink.", "Light state NIGHT: the bare bulb gives a dim warm light #F2B45A from above, cool blue city light through the window."),
- "B2": ("LOC_OFFICE_NIGHT", "the office at night", "An open-plan office. Layout: rows of simple desks with dark computer monitors running from frame-left into the distance; big windows across the back wall showing a city at night; one desk in the foreground on frame-right. Anchor props: a desk lamp switched on on the foreground desk, a potted plant at the end of the first row.", "Light state NIGHT: the only warm light is the desk lamp on the foreground desk; the rest of the room is dark navy with cool window light."),
- "B3": ("LOC_GROCERY_NIGHT", "grocery store aisle", "A grocery store aisle seen straight down its length. Shelves on both sides filled with simple rounded box and bottle shapes in soft colours and plain fronts; a shopping basket on the floor in the foreground.", "Light state NIGHT: even soft white store light from the ceiling, slightly cool."),
- "B4": ("LOC_SIDEWALK_NIGHT", "the walk home", "A quiet city sidewalk running from frame-left to frame-right. Behind it, a row of low shops with lit windows and plain awnings; three street lamps evenly spaced along the sidewalk; a clean flat road in the foreground.", "Light state NIGHT: warm street lamp pools #F2B45A on the pavement, deep navy sky."),
- "B5": ("LOC_BEDROOM_PREDAWN", "bedroom before dawn", "A small bedroom. Layout: a bed against the back wall in the center with a simple blanket; a nightstand on frame-right with a small round alarm clock whose face glows plainly; curtains closed on a window on frame-left.", "Light state PRE-DAWN: dark blue light, the alarm clock face is the only small warm glow."),
- "B6": ("LOC_BREAKROOM_MORNING", "office coffee corner", "A small office break area. Layout: a counter along the back wall with a coffee machine in the center and a row of mugs on its left; a window on frame-right; a tall plant in the left corner.", "Light state MORNING: pale grey-blue morning light from the window on frame-right, soft and tired."),
- "B7": ("LOC_PARKING_NIGHT", "company parking lot", "A company parking lot. Layout: a row of parked cars in simple rounded shapes along the back; in the foreground center one sleek dark luxury sedan facing frame-left; two tall lamp posts on the left and right.", "Light state NIGHT: orange lamp light #F2B45A from the two posts, the rest dark navy, faint wet shine on the ground."),
- "B8": ("LOC_APT2_NIGHT", "the new big quiet apartment", "A spacious modern apartment. Layout: a huge window across the back wall showing the city at night; a long sofa on frame-left facing the window; a dining table with two chairs on frame-right; an entrance door on the far right wall.", "Light state NIGHT: one warm pendant lamp over the dining table #F2B45A, the rest lit by cool city light from the window; quiet and a little lonely."),
- "B9": ("LOC_HOUSE_NIGHT", "senpai's nice house", "A nice two-story house seen from the street. Layout: the house in the center with warm lit windows, a neat lawn in front, a short path to the door, a nice car in the driveway on frame-right.", "Light state NIGHT: warm light from the windows #F2B45A, deep navy sky."),
- "B10": ("LOC_APT3_MORNING", "small apartment near work, morning", "A bright small apartment. Layout: a big window on frame-right with morning sun; a small table under the window with one coffee mug on it; a simple shelf with a plant on frame-left.", "Light state MORNING: soft warm sunlight entering from the window on frame-right, calm and peaceful."),
+ "B1": ("SET_APT1", "first cheap apartment", "Props only: a small plain window frame floating on the backdrop showing tiny distant city lights, a small sink with a faucet on frame-left, one bare light bulb hanging from above.", "Light: one dim warm bulb light from above #F2B45A."),
+ "B2": ("SET_OFFICE", "the office at night", "Props only: one simple desk with a closed laptop and a small desk lamp on frame-right, two more plain desks fading into the dark behind it.", "Light: the desk lamp is the only warm light, everything else dark navy."),
+ "B3": ("SET_GROCERY", "grocery shelf", "Props only: one short shelf on frame-left with a few rounded boxes and bottles in soft muted colours with plain fronts, a small shopping basket on the floor.", "Light: soft cool white light from above."),
+ "B4": ("SET_STREET", "the walk home", "Props only: two simple street lamps standing on the navy floor, evenly spaced, a thin pale line on the floor as the edge of a sidewalk.", "Light: two warm pools of lamp light #F2B45A on the floor."),
+ "B5": ("SET_BEDROOM", "bedroom before dawn", "Props only: a simple bed in the center with a plain blanket, a small nightstand on frame-right with a round alarm clock whose face glows plainly.", "Light: dark blue pre-dawn light, the clock face is the only small warm glow."),
+ "B6": ("SET_COFFEE", "office coffee corner", "Props only: a short counter in the center with a simple coffee machine and three plain mugs.", "Light: pale grey-blue morning light from frame-right."),
+ "B7": ("SET_PARKING", "parking lot at night", "Props only: one sleek dark rounded sedan in the center facing frame-left, one tall lamp post on frame-left.", "Light: orange lamp light #F2B45A from the post, faint shine on the floor."),
+ "B8": ("SET_APT2", "the new big quiet apartment", "Props only: a large plain window frame on the backdrop showing city lights, a long low sofa on frame-left, a small dining table with two chairs on frame-right, a plain door on the far right.", "Light: one warm pendant lamp above the table #F2B45A, cool light from the window."),
+ "B9": ("SET_HOUSE", "senpai's nice house", "Props only: a simple two-story rounded house model in the center with warm lit windows, a small car beside it on frame-right.", "Light: warm window light #F2B45A, the rest dark navy."),
+ "B10": ("SET_APT3", "small apartment near work, morning", "Props only: a plain window frame on frame-right with soft sunlight, a small round table under it with one coffee mug.", "Light: soft warm morning sunlight from frame-right, the navy studio slightly brighter."),
 }
 def loc_block(k):
     i, name, lay, light = LOC[k]
-    return f"LOCATION {i} ({name}): {lay} {light}"
+    return f"SET {i} ({name}), in the seamless dark navy studio: {lay} {light}"
 def master(k):
-    return (f"Create an EMPTY 3D environment, no people and no characters.\n{loc_block(k)}\n"
-            f"View: wide establishing shot from a three-quarter angle at eye level. Keep the lower third of the frame clear and plain so characters can stand there later. Signs, screens and labels stay blank.\n{ENV_STYLE}\nAspect ratio 16:9, highest resolution.")
+    return (f"Image 1 = the approved lineup (the 3D look only, copy no character).\nCreate an EMPTY minimal 3D set, no characters.\n{loc_block(k)}\n"
+            f"View: wide shot, slightly from the side, at eye level. The lower third of the frame is open navy floor where characters will stand. Screens and labels stay blank.\n{ENV_STYLE}\nAspect ratio 16:9, highest resolution.")
 
 PROPS = {
  "G1": ("dripping faucet", "0:37", "a small kitchen faucet with one round drop of water falling from it, close-up"),
@@ -66,19 +64,19 @@ PROPS = {
 def prop(desc):
     return f"One object only, centered: {desc}.\n{STYLE}\nBackground: plain solid dark navy #0B2352, nothing else in the frame, no text. 16:9, highest resolution."
 
-A_LINE = "2Dの4人の並び（今回送ってくれた画像）"
+A_LINE = "3Dの5人の並び（正典）"
 def files(*names): return "、".join(names)
 
 SECTIONS = []
 SECTIONS.append(("S", "0. 正典（キャラ設定画）— 最初に作って承認する", [
  ("S1", "主人公 YOU の設定画", True, A_LINE, "全編の参照のもと", [("画像", sheet("YOU"))]),
- ("S2", "先輩 SENPAI の設定画（新キャラ）", True, A_LINE + "（体と顔の形の参考）", "先輩が出る全カットの参照", [("画像", sheet("SENPAI", " He is a NEW character who shares the same body and face design as the characters in Image 1."))]),
+ ("S2", "先輩 SENPAI の設定画", True, A_LINE, "先輩が出る全カットの参照", [("画像", sheet("SENPAI"))]),
  ("S3", "BLONDE（パートナー）の設定画", True, A_LINE, "5:25、宝くじ", [("画像", sheet("BLONDE"))]),
  ("S4", "RED の設定画", False, A_LINE, "宝くじの場面", [("画像", sheet("RED"))]),
  ("S5", "BOB の設定画", False, A_LINE, "宝くじの場面", [("画像", sheet("BOB"))]),
 ]))
 SECTIONS.append(("B", "1. 場所のマスター背景（キャラなし・10枚）", [
- (k, f"{LOC[k][1]}（{LOC[k][0]}）", k in ("B1", "B2", "B4", "B6", "B7", "B8"), "なし（文字だけで作る）。2枚目以降は、できたB1を画風の参考に付けてもいい（Image 1 = style only）",
+ (k, f"{LOC[k][1]}（{LOC[k][0]}）", k in ("B1", "B2", "B4", "B6", "B7", "B8"), "3Dの並び（画風の参考）。2枚目以降は、できたB1も付けると揃う",
   {"B1": "0:32〜0:48", "B2": "1:01〜1:07、2:24〜", "B3": "0:18〜0:23", "B4": "1:14〜1:20（動画V1）", "B5": "1:28〜1:33（動画V2）", "B6": "2:44〜2:51、8:15", "B7": "6:48〜6:57（動画V6）", "B8": "4:24〜、5:26〜5:43（動画V5）", "B9": "2:31〜2:36", "B10": "7:02〜7:07（動画V7）"}[k],
   [("画像", master(k))]) for k in LOC]))
 P = [
@@ -106,31 +104,31 @@ SECTIONS.append(("P", "2. キャラのポーズ（紺の背景・切り抜いて
   [("画像", pose(["BLONDE", "RED", "BOB"], "BLONDE on the left, RED in the middle, BOB on the right jump with joy, arms raised, together holding one big oversized prize check with a clean blank surface. Exactly three characters. Full bodies.",
     "Image 1 = BLONDE (face and hair). Image 2 = RED (face and hair). Image 3 = BOB (face and hair). Each image is for that one character only."))]),
 ]))
-SECTIONS.append(("G", "3. 小物（紺の背景）", [(k, v[0], k in ("G1", "G4"), "S1（画風の参考として。Image 1 = style only, copy no character）", v[1], [("画像", "Image 1 = 3D style reference only, copy no character.\n" + prop(v[2]))]) for k, v in PROPS.items()]))
+SECTIONS.append(("G", "3. 小物（紺の背景）", [(k, v[0], k in ("G1", "G4"), "3Dの5人の並び（画風の参考）", v[1], [("画像", "Image 1 = the approved lineup (the 3D look only, copy no character).\n" + prop(v[2]))]) for k, v in PROPS.items()]))
 
 def comp(char_keys, loc, scene, roles):
     blocks = "\n".join(C[k] for k in char_keys)
-    return (f"{roles}\n{blocks}\n{loc_block(loc)}\nScene: {scene}\nKeep the room exactly as in the location image: layout, furniture, props, colours and lighting. "
+    return (f"{roles}\n{blocks}\n{loc_block(loc)}\nScene: {scene}\nKeep the set exactly as in the set image: navy studio, props, positions, colours and light. "
             f"Keep the character's face, hair and proportions exactly as in the character images. Light the character with the room's light.\n{STYLE}\nAspect ratio 16:9, highest resolution.")
 V = [
- ("V1", "昇給の夜、買い物袋を持って歩く", True, "B4・S1正面・S1全身", "1:14〜", comp(["YOU"], "B4", "YOU walks along the sidewalk toward frame-right holding one shopping bag, big happy smile, side view, standing on the sidewalk in the lower third.",
-   "Image 1 = the location (room, layout and light). Image 2 = YOU front view (face and hair). Image 3 = YOU full body (proportions)."),
-   "YOU walks steadily from left to right along the sidewalk, swinging the shopping bag slightly, a light bounce in each step. The camera stays still. The street, lamps and shops stay exactly the same for the whole clip."),
+ ("V1", "昇給の夜、買い物袋を持って歩く", True, "B4・S1正面・S1全身", "1:14〜", comp(["YOU"], "B4", "YOU walks between the street lamps toward frame-right holding one shopping bag, big happy smile, side view, on the navy floor in the lower third.",
+   "Image 1 = the set (props, layout and light). Image 2 = YOU front view (face and hair). Image 3 = YOU full body (proportions)."),
+   "YOU walks steadily from left to right between the lamps, swinging the shopping bag slightly, a light bounce in each step. The camera stays still. The lamps and the set stay exactly the same for the whole clip."),
  ("V2", "暗い朝、目覚ましでため息", False, "B5・S1正面・S1全身", "1:28〜", comp(["YOU"], "B5", "YOU lies in the bed under the blanket, eyes open, looking at the ceiling.",
-   "Image 1 = the location (room, layout and light). Image 2 = YOU front view (face and hair). Image 3 = YOU full body (proportions)."),
+   "Image 1 = the set (props, layout and light). Image 2 = YOU front view (face and hair). Image 3 = YOU full body (proportions)."),
    "The alarm clock glows a little brighter, then YOU slowly sits up in bed and lets out one long tired sigh, shoulders dropping. The camera stays still. The room stays dark and unchanged."),
  ("V3", "宝くじの当選者が跳ねる", True, "K2（できた画像をそのまま使う）", "1:40〜", None,
    "The three characters jump up and down with joy, arms raised, holding the big blank check; colourful confetti falls around them. The camera stays still. Their faces and hair stay the same for the whole clip."),
  ("V4", "車が動かない朝", False, "G4（できた画像をそのまま使う）", "4:15〜", None,
    "The small car shakes a little as the engine fails to start, then a puff of grey smoke rises from the open hood and drifts up. The camera stays still and the car keeps its shape."),
- ("V5", "パートナーが出ていく", True, "B8・S3正面・S3全身", "5:25〜", comp(["BLONDE"], "B8", "BLONDE walks toward the entrance door on the right pulling a small suitcase, head down, side view, in the lower third of the frame.",
-   "Image 1 = the location (room, layout and light). Image 2 = BLONDE front view (face and hair). Image 3 = BLONDE full body (proportions)."),
+ ("V5", "パートナーが出ていく", True, "B8・S3正面・S3全身", "5:25〜", comp(["BLONDE"], "B8", "BLONDE walks toward the plain door on the far right pulling a small suitcase, head down, side view, in the lower third of the frame.",
+   "Image 1 = the set (props, layout and light). Image 2 = BLONDE front view (face and hair). Image 3 = BLONDE full body (proportions)."),
    "BLONDE slowly walks to the door pulling the suitcase without looking back and leaves the frame. The camera stays still. The apartment stays exactly the same, quiet and still."),
- ("V6", "先輩が車の中で動かない", True, "B7・S2正面・S2全身", "6:48〜", comp(["SENPAI"], "B7", "SENPAI sits in the driver's seat of the sleek dark luxury sedan, seen through the open side window, engine off, one hand resting on the steering wheel, staring ahead.",
-   "Image 1 = the location (parking lot, the car and light). Image 2 = SENPAI front view (face, hair and glasses). Image 3 = SENPAI full body (proportions)."),
-   "SENPAI stays almost still, staring ahead, then his shoulders rise and fall in one slow heavy sigh. Faint raindrops slide down the car window. The camera stays still. His face and glasses stay the same for the whole clip."),
- ("V7", "ゆっくり飲むコーヒーの朝", True, "B10・S1正面・S1全身", "7:02〜", comp(["YOU"], "B10", "YOU stands by the sunny window holding a coffee mug with both hands, eyes closed, calm small smile, three-quarter view, in the lower third of the frame.",
-   "Image 1 = the location (room, layout and light). Image 2 = YOU front view (face and hair). Image 3 = YOU full body (proportions)."),
+ ("V6", "先輩が車の中で動かない", True, "B7・S2正面・S2全身", "6:48〜", comp(["SENPAI"], "B7", "SENPAI sits in the driver's seat of the dark sedan, seen through its open side window, engine off, one hand resting on the steering wheel, staring ahead.",
+   "Image 1 = the set (the car, the lamp and the light). Image 2 = SENPAI front view (face and hair). Image 3 = SENPAI full body (proportions)."),
+   "SENPAI stays almost still, staring ahead, then his shoulders rise and fall in one slow heavy sigh. Faint raindrops slide down the car window. The camera stays still. His face and hair stay the same for the whole clip."),
+ ("V7", "ゆっくり飲むコーヒーの朝", True, "B10・S1正面・S1全身", "7:02〜", comp(["YOU"], "B10", "YOU stands by the window frame holding a coffee mug with both hands, eyes closed, calm small smile, three-quarter view, in the lower third of the frame.",
+   "Image 1 = the set (props, layout and light). Image 2 = YOU front view (face and hair). Image 3 = YOU full body (proportions)."),
    "Soft steam rises from the mug; YOU slowly lifts it and takes one calm sip; the sunlight gently brightens. The camera stays still. The room stays the same."),
 ]
 
@@ -142,8 +140,8 @@ for k, name, items in SECTIONS:
     body += f'<h2 id="{k}">{html.escape(name)}</h2>' + "".join(card(*it) for it in items)
 body += '<h2 id="V">4. 動画（Pollo・5秒・音なし・ロゴなしで書き出す）</h2>'
 body += "".join(card(i, t, st, a, w, ([("① 動画の最初のコマになる画像（Flowで作る）", ip)] if ip else []) + [("② Pollo の動画プロンプト（動きだけ。①の画像を入れて使う）", vp)]) for i, t, st, a, w, ip, vp in V)
-NOTE = """<b>作る順番（この順を守るとズレない）</b><br>
-① S1〜S5 の設定画を作って、気に入ったものを決める（決めた設定画が「正典」。あとで別のが良く見えても、正典を基準にする）。<br>
+NOTE = """<b>作る順番（この順を守るとズレない）</b><br>正典は送ってくれた3Dの5人の並び（左から YOU／BLONDE／RED／BOB／SENPAI）。毎回これを添付する。<br>背景はぜんぶ「同じ紺のスタジオ＋小物1〜3個」だけにしてある（場面ごとに部屋を作らない）。<br>
+① （できれば）S1〜S5 の設定画を作って、気に入ったものを決める（決めた設定画が「正典」。あとで別のが良く見えても、正典を基準にする）。<br>
 ② できた設定画を制作部に送る → 正面・全身などに切り分けた参照画像を返す（参照は1枚1役のほうがズレにくい）。<br>
 ③ B の背景（キャラなし）→ P のポーズ → G の小物。<br>
 ④ 動画は、まず①の画像を Flow で作って、気に入ったものだけを Pollo で動かす。<br><br>
