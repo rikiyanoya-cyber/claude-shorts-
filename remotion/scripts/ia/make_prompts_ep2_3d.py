@@ -64,6 +64,37 @@ PROPS = {
 def prop(desc):
     return f"One object only, centered: {desc}.\n{STYLE}\nBackground: plain solid dark navy #0B2352, nothing else in the frame, no text. 16:9, highest resolution."
 
+
+# ---- money & happiness symbols (2026-11-19): what the narration says, shown as objects in the same navy studio ----
+def symbol(desc):
+    return (f"Image 1 = the approved set B1 (the navy studio, the 3D look and the light only; copy none of its props).\n"
+            f"In the seamless dark navy studio, one simple symbolic scene, no characters: {desc}\n"
+            f"Coins have plain smooth faces, paper money and cards are plain and blank, nothing has letters, numbers or symbols printed on it. "
+            f"Centered, lots of empty navy space around it.\n{ENV_STYLE}\nAspect ratio 16:9, highest resolution.")
+M = [
+ ("M1", "お金の山が育つ", True, "0:02「$75,000 a year」／1:07 昇給", "three stacks of round gold coins in the center, short, medium and tall from left to right, warm light on the gold #F2B45A.",
+  "The coin stacks grow taller one coin at a time with small soft bounces. The camera stays still. The studio stays the same."),
+ ("M2", "幸せの風船が止まる", True, "0:05「more money stops making you happier」", "a stack of gold coins on the left; on the right, a soft yellow round balloon with a simple smiling face tied to the floor by a string, floating at a fixed height.",
+  "Coins keep piling up on the left while the smiling balloon rises a little and then stops, gently bobbing at the same height. The camera stays still."),
+ ("M3", "すぐ色あせるプレゼント", True, "1:20「the feeling quietly faded」", "a shiny wrapped gift box glowing warmly with small sparkles around it, on the navy floor.",
+  "The warm glow and sparkles slowly fade until the gift box is a plain dull grey box. The camera slowly pushes in a little. Nothing else changes."),
+ ("M4", "宝くじの大当たり", True, "1:35「won major lottery prizes」", "a big plain golden ticket shape lying on the floor with a burst of soft colourful confetti frozen in the air above it.",
+  "Confetti bursts up from the golden ticket and slowly falls down around it. The camera stays still."),
+ ("M5", "上がり続ける床（慣れ）", False, "2:00「When your baseline jumps overnight」", "a short staircase of soft rounded steps rising toward frame-right, a small warm spotlight circle on the lowest step.",
+  "The warm spotlight circle slides up one step, then the next, and each step it leaves turns dull. The camera stays still."),
+ ("M6", "薄い財布と最初の給料", False, "0:29「Your first paycheck wasn't much」", "a thin worn wallet lying open with a single plain paper bill and two small coins beside it.", None),
+ ("M7", "お金の傘", True, "4:01「misfortune hurts more」／8:06「Money is best at softening pain」", "a small umbrella made of a big plain gold coin as its canopy, standing on the floor; grey raindrops fall around it and the floor under it stays dry.",
+  "Grey rain falls steadily around the coin umbrella; the drops slide off the gold canopy and the floor under it stays dry. The camera stays still."),
+ ("M8", "お金が届かない痛み", True, "6:39「Some suffering is simply beyond the reach of money」", "a cracked grey heart-shaped stone sitting on the floor in a pool of cool light, a few gold coins lying around it untouched.",
+  "Gold coins drop from above and bounce away around the cracked grey heart without touching it; the heart stays exactly the same. The camera stays still."),
+ ("M9", "天秤（関係はあるけど小さい）", False, "7:20「real, but modest」", "a simple balance scale: on the left pan a tall stack of gold coins, on the right pan a small soft yellow smiling ball; the scale tips only slightly.",
+  "The scale sways gently and settles with only a slight tilt. The camera stays still."),
+ ("M10", "国ごとに違う頭打ち", False, "7:34「varies widely by country」", "a small round matte globe in the center with five gold coin stacks of very different heights standing around it in a half circle.",
+  "The globe turns slowly while the coin stacks rise to their different heights one by one. The camera stays still."),
+ ("M11", "一緒に動く2つの風船（原因とは限らない）", False, "7:47「the two move together. Slightly.」", "two balloons floating side by side: a gold coin-shaped balloon and a soft yellow smiling balloon, their strings loosely tied together.",
+  "The two balloons drift upward together just a little, side by side, then hover. The camera stays still."),
+]
+
 A_LINE = "そのキャラの設定画（作り直すときだけ）"
 def files(*names): return "、".join(names)
 
@@ -75,7 +106,7 @@ SECTIONS.append(("S", "0. 正典（キャラ設定画）— 完成済み（記�
  ("S4", "RED の設定画", False, A_LINE, "宝くじの場面", [("画像", sheet("RED"))]),
  ("S5", "BOB の設定画", False, A_LINE, "宝くじの場面", [("画像", sheet("BOB"))]),
 ]))
-SECTIONS.append(("B", "1. 場所のマスター背景（キャラなし・10枚）", [
+SECTIONS.append(("B", "1. 場所のマスター背景（キャラなし・10枚）— 完成済み（記録用）", [
  (k, f"{LOC[k][1]}（{LOC[k][0]}）", k in ("B1", "B2", "B4", "B6", "B7", "B8"), "YOU_front（画風の参考）。2枚目以降は、できたB1も付けると揃う",
   {"B1": "0:32〜0:48", "B2": "1:01〜1:07、2:24〜", "B3": "0:18〜0:23", "B4": "1:14〜1:20（動画V1）", "B5": "1:28〜1:33（動画V2）", "B6": "2:44〜2:51、8:15", "B7": "6:48〜6:57（動画V6）", "B8": "4:24〜、5:26〜5:43（動画V5）", "B9": "2:31〜2:36", "B10": "7:02〜7:07（動画V7）"}[k],
   [("画像", master(k))]) for k in LOC]))
@@ -104,30 +135,33 @@ SECTIONS.append(("P", "2. キャラのポーズ（紺の背景・切り抜いて
   [("画像", pose(["BLONDE", "RED", "BOB"], "BLONDE on the left, RED in the middle, BOB on the right jump with joy, arms raised, together holding one big oversized prize check with a clean blank surface. Exactly three characters. Full bodies.",
     "Image 1 = BLONDE_front. Image 2 = RED_front. Image 3 = BOB_front. Each image is for that one character only. Use exactly these three characters."))]),
 ]))
-SECTIONS.append(("G", "3. 小物（紺の背景）", [(k, v[0], k in ("G1", "G4"), "YOU_front（画風の参考）", v[1], [("画像", "Image 1 = YOU_front (the 3D look only, copy no character).\n" + prop(v[2]))]) for k, v in PROPS.items()]))
+SECTIONS.append(("G", "3. 小物（紺の背景）", [(k, v[0], k in ("G1", "G4"), "YOU_front＋B1（画風と光の参考）", v[1], [("画像", "Image 1 = YOU_front (the 3D look only, copy no character). Image 2 = the approved set B1 (the studio look and light only).\n" + prop(v[2]))]) for k, v in PROPS.items()]))
+
+SECTIONS.append(("M", "4. お金と幸せのイメージ（キャラなし・同じ紺のスタジオ）", [
+ (i, t, st, "B1（スタジオの見た目と光だけ）", w, [("画像", symbol(d))] + ([("Pollo の動画プロンプト（この画像を入れて動かす・5秒）", v)] if v else [])) for i, t, st, w, d, v in M]))
 
 def comp(char_keys, loc, scene, roles):
     blocks = "\n".join(C[k] for k in char_keys)
     return (f"{roles}\n{blocks}\n{loc_block(loc)}\nScene: {scene}\nKeep the set exactly as in the set image: navy studio, props, positions, colours and light. "
             f"Keep the character's face, hair and proportions exactly as in the character images. Light the character with the room's light.\n{STYLE}\nAspect ratio 16:9, highest resolution.")
 V = [
- ("V1", "昇給の夜、買い物袋を持って歩く", True, "B4＋YOU_face＋YOU_front", "1:14〜", comp(["YOU"], "B4", "YOU walks between the street lamps toward frame-right holding one shopping bag, big happy smile, side view, on the navy floor in the lower third.",
+ ("V1", "昇給の夜、買い物袋を持って歩く", True, "B4（完成した背景）＋YOU_face＋YOU_front", "1:14〜", comp(["YOU"], "B4", "YOU walks between the street lamps toward frame-right holding one shopping bag, big happy smile, side view, on the navy floor in the lower third.",
    "Image 1 = the set (props, layout and light). Image 2 = YOU_face (face and hair). Image 3 = YOU_front (body shape and proportions)."),
    "YOU walks steadily from left to right between the lamps, swinging the shopping bag slightly, a light bounce in each step. The camera stays still. The lamps and the set stay exactly the same for the whole clip."),
- ("V2", "暗い朝、目覚ましでため息", False, "B5＋YOU_face＋YOU_front", "1:28〜", comp(["YOU"], "B5", "YOU lies in the bed under the blanket, eyes open, looking at the ceiling.",
+ ("V2", "暗い朝、目覚ましでため息", False, "B5（完成した背景）＋YOU_face＋YOU_front", "1:28〜", comp(["YOU"], "B5", "YOU lies in the bed under the blanket, eyes open, looking at the ceiling.",
    "Image 1 = the set (props, layout and light). Image 2 = YOU_face (face and hair). Image 3 = YOU_front (body shape and proportions)."),
    "The alarm clock glows a little brighter, then YOU slowly sits up in bed and lets out one long tired sigh, shoulders dropping. The camera stays still. The room stays dark and unchanged."),
  ("V3", "宝くじの当選者が跳ねる", True, "K2（できた画像をそのまま使う）", "1:40〜", None,
    "The three characters jump up and down with joy, arms raised, holding the big blank check; colourful confetti falls around them. The camera stays still. Their faces and hair stay the same for the whole clip."),
  ("V4", "車が動かない朝", False, "G4（できた画像をそのまま使う）", "4:15〜", None,
    "The small car shakes a little as the engine fails to start, then a puff of grey smoke rises from the open hood and drifts up. The camera stays still and the car keeps its shape."),
- ("V5", "パートナーが出ていく", True, "B8＋BLONDE_face＋BLONDE_front", "5:25〜", comp(["BLONDE"], "B8", "BLONDE walks toward the plain door on the far right pulling a small suitcase, head down, side view, in the lower third of the frame.",
+ ("V5", "パートナーが出ていく", True, "B8（完成した背景）＋BLONDE_face＋BLONDE_front", "5:25〜", comp(["BLONDE"], "B8", "BLONDE walks toward the plain door on the far right pulling a small suitcase, head down, side view, in the lower third of the frame.",
    "Image 1 = the set (props, layout and light). Image 2 = BLONDE_face (face and hair). Image 3 = BLONDE_front (body shape and proportions)."),
    "BLONDE slowly walks to the door pulling the suitcase without looking back and leaves the frame. The camera stays still. The apartment stays exactly the same, quiet and still."),
- ("V6", "先輩が車の中で動かない", True, "B7＋SENPAI_face＋SENPAI_front", "6:48〜", comp(["SENPAI"], "B7", "SENPAI sits in the driver's seat of the dark sedan, seen through its open side window, engine off, one hand resting on the steering wheel, staring ahead.",
+ ("V6", "先輩が車の中で動かない", True, "B7（完成した背景）＋SENPAI_face＋SENPAI_front", "6:48〜", comp(["SENPAI"], "B7", "SENPAI sits in the driver's seat of the dark sedan, seen through its open side window, engine off, one hand resting on the steering wheel, staring ahead.",
    "Image 1 = the set (the car, the lamp and the light). Image 2 = SENPAI_face (face and hair). Image 3 = SENPAI_front (body shape and proportions)."),
    "SENPAI stays almost still, staring ahead, then his shoulders rise and fall in one slow heavy sigh. Faint raindrops slide down the car window. The camera stays still. His face, hair and glasses stay the same for the whole clip."),
- ("V7", "ゆっくり飲むコーヒーの朝", True, "B10＋YOU_face＋YOU_front", "7:02〜", comp(["YOU"], "B10", "YOU stands by the window frame holding a coffee mug with both hands, eyes closed, calm small smile, three-quarter view, in the lower third of the frame.",
+ ("V7", "ゆっくり飲むコーヒーの朝", True, "B10（完成した背景）＋YOU_face＋YOU_front", "7:02〜", comp(["YOU"], "B10", "YOU stands by the window frame holding a coffee mug with both hands, eyes closed, calm small smile, three-quarter view, in the lower third of the frame.",
    "Image 1 = the set (props, layout and light). Image 2 = YOU_face (face and hair). Image 3 = YOU_front (body shape and proportions)."),
    "Soft steam rises from the mug; YOU slowly lifts it and takes one calm sip; the sunlight gently brightens. The camera stays still. The room stays the same."),
 ]
@@ -136,14 +170,17 @@ def card(i, title, star, att, when, blocks):
     b = "".join(f'<div class="lab">{html.escape(l)}</div><div class="pr"><pre>{html.escape(t)}</pre><button onclick="cp(this)">コピー</button></div>' for l, t in blocks)
     return f'<section class="card"><h3><span class="id">{i}</span> {html.escape(title)}{" <span class=star>★</span>" if star else ""}</h3><p class="meta">添付：{html.escape(att)}<br>使う場所：{html.escape(when)}</p>{b}</section>'
 body = ""
-for k, name, items in SECTIONS:
+SECTIONS.sort(key=lambda x: {"P":0,"G":1,"M":2,"B":8,"S":9}[x[0]])
+for k, name, items in [x for x in SECTIONS if x[0] in "PGM"]:
     body += f'<h2 id="{k}">{html.escape(name)}</h2>' + "".join(card(*it) for it in items)
-body += '<h2 id="V">4. 動画（Pollo・5秒・音なし・ロゴなしで書き出す）</h2>'
+body += '<h2 id="V">5. キャラの動画（Pollo・5秒・音なし・ロゴなしで書き出す）</h2>'
 body += "".join(card(i, t, st, a, w, ([("① 動画の最初のコマになる画像（Flowで作る）", ip)] if ip else []) + [("② Pollo の動画プロンプト（動きだけ。①の画像を入れて使う）", vp)]) for i, t, st, a, w, ip, vp in V)
+for k, name, items in [x for x in SECTIONS if x[0] in "BS"]:
+    body += f'<h2 id="{k}">{html.escape(name)}</h2>' + "".join(card(*it) for it in items)
 NOTE = """<b>作る順番（この順を守るとズレない）</b><br>正典は完成した5人の設定画。添付するのは制作部が切り分けた参照画像（例：YOU_face＝顔と髪、YOU_front＝全身の正面）。カードに書いてある名前のファイルを付ける。<br>背景はぜんぶ「同じ紺のスタジオ＋小物1〜3個」だけにしてある（場面ごとに部屋を作らない）。<br>
 ① 設定画（S1〜S5）は完成。あとで別の絵が良く見えても、設定画を基準にする。<br>② 参照画像（顔・正面・斜め・横・後ろ）は制作部が切り分け済み。<br>
-③ B の背景（キャラなし）→ P のポーズ → G の小物。<br>
-④ 動画は、まず①の画像を Flow で作って、気に入ったものだけを Pollo で動かす。<br><br>
+③ 背景（B）は完成。次は P のポーズ → G の小物 → M のお金と幸せのイメージ。<br>
+④ 動画は、まず画像を Flow で作って、気に入ったものだけを Pollo で動かす（M は画像のカードに動画のプロンプトも付いている）。<br>・画像は Flow で選べる一番大きいサイズ（2K／4K）で書き出す。<br><br>
 <b>守ること</b><br>
 ・プロンプトは書き換えずにそのまま貼る（言い換えるとズレる）。直したいときは1回に1か所だけ。<br>
 ・ズレ始めたら、前の結果ではなく、最初に決めた設定画を添付し直す。<br>
@@ -164,7 +201,7 @@ h3{{font-size:16px;margin:0 0 4px}} .id{{color:var(--acc);font-weight:700}} .sta
 button{{position:absolute;right:8px;bottom:8px;border:0;border-radius:6px;padding:5px 12px;background:var(--acc);color:#fff;font-size:13px}}
 .note{{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14px}}
 </style></head><body><main><h1>The Invisible Audience 第2本　3D版プロンプト</h1><div class="note">{NOTE}</div>
-<nav><a href="#S">0 設定画</a><a href="#B">1 背景</a><a href="#P">2 ポーズ</a><a href="#G">3 小物</a><a href="#V">4 動画</a></nav>{body}</main>
+<nav><a href="#P">2 ポーズ</a><a href="#G">3 小物</a><a href="#M">4 お金と幸せ</a><a href="#V">5 キャラ動画</a><a href="#B">1 背景（済）</a><a href="#S">0 設定画（済）</a></nav>{body}</main>
 <script>function cp(b){{const p=b.previousElementSibling;(navigator.clipboard?navigator.clipboard.writeText(p.innerText):Promise.reject()).then(()=>{{b.textContent='コピーしました';setTimeout(()=>b.textContent='コピー',1500)}}).catch(()=>{{const r=document.createRange();r.selectNodeContents(p);const s=getSelection();s.removeAllRanges();s.addRange(r);}})}}</script></body></html>"""
 open(sys.argv[1], "w", encoding="utf-8").write(page)
 print("cards", sum(len(s[2]) for s in SECTIONS) + len(V))
