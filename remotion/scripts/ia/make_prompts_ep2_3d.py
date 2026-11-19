@@ -5,18 +5,18 @@
 # usage: python3 make_prompts_ep2_3d.py <out.html>
 import html, sys
 
-STYLE = ("STYLE: the exact 3D look of the attached lineup image: smooth matte white vinyl-toy characters, soft rounded shapes, sculpted clay-like hair, "
+STYLE = ("STYLE: the exact 3D look of the attached character reference images: smooth matte white vinyl-toy characters, soft rounded shapes, sculpted clay-like hair, "
          "soft top light with gentle shadows, clean and minimal, the same look in every image. Palette: bodies off-white #ECEBEE, background navy #0B2352, warm accent light #F2B45A.")
-ENV_STYLE = ("STYLE: a minimal 3D set in the same look as the attached lineup image: a seamless dark navy studio floor and backdrop #0B2352 that fades into darkness, "
+ENV_STYLE = ("STYLE: a minimal 3D set in the same 3D look as the characters: a seamless dark navy studio floor and backdrop #0B2352 that fades into darkness, "
              "only a few simple rounded matte props in soft muted colours, soft light, lots of empty space, clean and calm. Every set in this video uses this same navy studio.")
 BODY = ("a smooth matte off-white rounded body with no clothing, a large round head, two small black dot eyes, a small simple mouth, "
-        "short rounded arms and legs, about 2.5 heads tall, exactly like the characters in the attached lineup image")
-C = {
- "YOU": f"YOU (the main character, 1st from the left in the lineup): {BODY}; short swept light-brown hair #B78F6F with a wave lifting up on top.",
- "BLONDE": f"BLONDE (the partner, 2nd from the left in the lineup): {BODY}; long straight golden-blonde hair #E3C06A falling past the shoulders.",
- "RED": f"RED (3rd from the left in the lineup): {BODY}; short curly orange-red hair #C2502E made of small round curls.",
- "BOB": f"BOB (4th from the left in the lineup): {BODY}; dark-brown bob haircut #5A3A2A at chin length.",
- "SENPAI": f"SENPAI (the older coworker, 5th from the left in the lineup): {BODY}; short neat black hair #2E2E30.",
+        "short rounded arms and legs, about 2.5 heads tall, exactly like the attached character reference images")
+C = {   # matches the approved 3D sheets (2026-11-19)
+ "YOU": f"YOU (the main character): {BODY}; short caramel-brown hair #B98563 swept up into a big soft wave on top.",
+ "BLONDE": f"BLONDE (the partner): {BODY}; long straight golden-yellow hair #E7B54A falling past the shoulders, center part.",
+ "RED": f"RED: {BODY}; orange-red hair #D0612F made of many small round ball-shaped curls.",
+ "BOB": f"BOB: {BODY}; dark-brown bob haircut #5B3322 at chin length with a side part.",
+ "SENPAI": f"SENPAI (the older coworker): {BODY}; short neat dark navy-black hair #2F3442 with a side part; thin black rectangular glasses.",
 }
 NAVY_BG = "Background: plain solid dark navy #0B2352, nothing else in the frame, no text. 16:9, highest resolution."
 
@@ -31,8 +31,8 @@ def pose(keys, scene, roles):
     blocks = "\n".join(C[k] for k in keys)
     return (f"{roles}\n{blocks}\nScene: {scene}\nKeep the face, hair shape, hair colour and body proportions exactly as in the reference images.\n{STYLE}\n{NAVY_BG}")
 
-def r1(k):   # reference roles for one character: the lineup is always attached, the sheet when it exists
-    return f"Image 1 = the approved 3D lineup (the 3D look; {k} is the character named below). Image 2, if attached = {k}'s reference sheet (face, hair and proportions). Use them for this one character only."
+def r1(k):   # one job per reference image: the cut-outs made from the approved sheets
+    return f"Image 1 = {k}_face (face and hair). Image 2 = {k}_front (body shape and proportions). Use them for this one character only."
 
 LOC = {
  "B1": ("SET_APT1", "first cheap apartment", "Props only: a small plain window frame floating on the backdrop showing tiny distant city lights, a small sink with a faucet on frame-left, one bare light bulb hanging from above.", "Light: one dim warm bulb light from above #F2B45A."),
@@ -50,7 +50,7 @@ def loc_block(k):
     i, name, lay, light = LOC[k]
     return f"SET {i} ({name}), in the seamless dark navy studio: {lay} {light}"
 def master(k):
-    return (f"Image 1 = the approved lineup (the 3D look only, copy no character).\nCreate an EMPTY minimal 3D set, no characters.\n{loc_block(k)}\n"
+    return (f"Image 1 = YOU_front (the 3D look only, copy no character).\nCreate an EMPTY minimal 3D set, no characters.\n{loc_block(k)}\n"
             f"View: wide shot, slightly from the side, at eye level. The lower third of the frame is open navy floor where characters will stand. Screens and labels stay blank.\n{ENV_STYLE}\nAspect ratio 16:9, highest resolution.")
 
 PROPS = {
@@ -68,7 +68,7 @@ A_LINE = "3Dの5人の並び（正典）"
 def files(*names): return "、".join(names)
 
 SECTIONS = []
-SECTIONS.append(("S", "0. 正典（キャラ設定画）— 最初に作って承認する", [
+SECTIONS.append(("S", "0. 正典（キャラ設定画）— 完成済み（記録用。作り直すときだけ使う）", [
  ("S1", "主人公 YOU の設定画", True, A_LINE, "全編の参照のもと", [("画像", sheet("YOU"))]),
  ("S2", "先輩 SENPAI の設定画", True, A_LINE, "先輩が出る全カットの参照", [("画像", sheet("SENPAI"))]),
  ("S3", "BLONDE（パートナー）の設定画", True, A_LINE, "5:25、宝くじ", [("画像", sheet("BLONDE"))]),
@@ -76,7 +76,7 @@ SECTIONS.append(("S", "0. 正典（キャラ設定画）— 最初に作って�
  ("S5", "BOB の設定画", False, A_LINE, "宝くじの場面", [("画像", sheet("BOB"))]),
 ]))
 SECTIONS.append(("B", "1. 場所のマスター背景（キャラなし・10枚）", [
- (k, f"{LOC[k][1]}（{LOC[k][0]}）", k in ("B1", "B2", "B4", "B6", "B7", "B8"), "3Dの並び（画風の参考）。2枚目以降は、できたB1も付けると揃う",
+ (k, f"{LOC[k][1]}（{LOC[k][0]}）", k in ("B1", "B2", "B4", "B6", "B7", "B8"), "YOU_front（画風の参考）。2枚目以降は、できたB1も付けると揃う",
   {"B1": "0:32〜0:48", "B2": "1:01〜1:07、2:24〜", "B3": "0:18〜0:23", "B4": "1:14〜1:20（動画V1）", "B5": "1:28〜1:33（動画V2）", "B6": "2:44〜2:51、8:15", "B7": "6:48〜6:57（動画V6）", "B8": "4:24〜、5:26〜5:43（動画V5）", "B9": "2:31〜2:36", "B10": "7:02〜7:07（動画V7）"}[k],
   [("画像", master(k))]) for k in LOC]))
 P = [
@@ -96,15 +96,15 @@ P = [
  ("P15", "BLONDE 出ていく", False, ["BLONDE"], "5:25〜5:27", "BLONDE walks toward frame-right pulling a small suitcase, head down, side view, full body."),
 ]
 SECTIONS.append(("P", "2. キャラのポーズ（紺の背景・切り抜いて重ねる用）", [
- (i, t, st, f"3Dの5人の並び＋{keys[0]}の設定画（作った場合）", w, [("画像", pose(keys, sc, r1(keys[0])))]) for i, t, st, keys, w, sc in P] + [
- ("P16", "当選者たち、ふつうの顔に戻る", False, "3Dの5人の並び", "1:44〜1:52",
+ (i, t, st, f"{keys[0]}_face と {keys[0]}_front", w, [("画像", pose(keys, sc, r1(keys[0])))]) for i, t, st, keys, w, sc in P] + [
+ ("P16", "当選者たち、ふつうの顔に戻る", False, "BLONDE_front・RED_front・BOB_front", "1:44〜1:52",
   [("画像", pose(["BLONDE", "RED", "BOB"], "BLONDE stands on the left, RED in the middle, BOB on the right, side by side, arms down, plain ordinary slightly bored faces, holding nothing. Exactly three characters. Full bodies.",
-    "Image 1 = the approved 3D lineup (the 3D look; BLONDE is 2nd, RED 3rd and BOB 4th from the left). Use exactly these three characters."))]),
- ("K2", "当選者たち、喜んで跳ねる（動画V3の元）", True, "3Dの5人の並び", "1:40〜1:44",
+    "Image 1 = BLONDE_front. Image 2 = RED_front. Image 3 = BOB_front. Each image is for that one character only. Use exactly these three characters."))]),
+ ("K2", "当選者たち、喜んで跳ねる（動画V3の元）", True, "BLONDE_front・RED_front・BOB_front", "1:40〜1:44",
   [("画像", pose(["BLONDE", "RED", "BOB"], "BLONDE on the left, RED in the middle, BOB on the right jump with joy, arms raised, together holding one big oversized prize check with a clean blank surface. Exactly three characters. Full bodies.",
-    "Image 1 = the approved 3D lineup (the 3D look; BLONDE is 2nd, RED 3rd and BOB 4th from the left). Use exactly these three characters."))]),
+    "Image 1 = BLONDE_front. Image 2 = RED_front. Image 3 = BOB_front. Each image is for that one character only. Use exactly these three characters."))]),
 ]))
-SECTIONS.append(("G", "3. 小物（紺の背景）", [(k, v[0], k in ("G1", "G4"), "3Dの5人の並び（画風の参考）", v[1], [("画像", "Image 1 = the approved lineup (the 3D look only, copy no character).\n" + prop(v[2]))]) for k, v in PROPS.items()]))
+SECTIONS.append(("G", "3. 小物（紺の背景）", [(k, v[0], k in ("G1", "G4"), "YOU_front（画風の参考）", v[1], [("画像", "Image 1 = YOU_front (the 3D look only, copy no character).\n" + prop(v[2]))]) for k, v in PROPS.items()]))
 
 def comp(char_keys, loc, scene, roles):
     blocks = "\n".join(C[k] for k in char_keys)
@@ -112,23 +112,23 @@ def comp(char_keys, loc, scene, roles):
             f"Keep the character's face, hair and proportions exactly as in the character images. Light the character with the room's light.\n{STYLE}\nAspect ratio 16:9, highest resolution.")
 V = [
  ("V1", "昇給の夜、買い物袋を持って歩く", True, "B4＋3Dの5人の並び＋S1の設定画（作った場合）", "1:14〜", comp(["YOU"], "B4", "YOU walks between the street lamps toward frame-right holding one shopping bag, big happy smile, side view, on the navy floor in the lower third.",
-   "Image 1 = the set (props, layout and light). Image 2 = the approved 3D lineup (the 3D look and YOU). Image 3, if attached = YOU's reference sheet (face, hair and proportions)."),
+   "Image 1 = the set (props, layout and light). Image 2 = YOU_face (face and hair). Image 3 = YOU_front (body shape and proportions)."),
    "YOU walks steadily from left to right between the lamps, swinging the shopping bag slightly, a light bounce in each step. The camera stays still. The lamps and the set stay exactly the same for the whole clip."),
  ("V2", "暗い朝、目覚ましでため息", False, "B5＋3Dの5人の並び＋S1の設定画（作った場合）", "1:28〜", comp(["YOU"], "B5", "YOU lies in the bed under the blanket, eyes open, looking at the ceiling.",
-   "Image 1 = the set (props, layout and light). Image 2 = the approved 3D lineup (the 3D look and YOU). Image 3, if attached = YOU's reference sheet (face, hair and proportions)."),
+   "Image 1 = the set (props, layout and light). Image 2 = YOU_face (face and hair). Image 3 = YOU_front (body shape and proportions)."),
    "The alarm clock glows a little brighter, then YOU slowly sits up in bed and lets out one long tired sigh, shoulders dropping. The camera stays still. The room stays dark and unchanged."),
  ("V3", "宝くじの当選者が跳ねる", True, "K2（できた画像をそのまま使う）", "1:40〜", None,
    "The three characters jump up and down with joy, arms raised, holding the big blank check; colourful confetti falls around them. The camera stays still. Their faces and hair stay the same for the whole clip."),
  ("V4", "車が動かない朝", False, "G4（できた画像をそのまま使う）", "4:15〜", None,
    "The small car shakes a little as the engine fails to start, then a puff of grey smoke rises from the open hood and drifts up. The camera stays still and the car keeps its shape."),
  ("V5", "パートナーが出ていく", True, "B8＋3Dの5人の並び＋S3の設定画（作った場合）", "5:25〜", comp(["BLONDE"], "B8", "BLONDE walks toward the plain door on the far right pulling a small suitcase, head down, side view, in the lower third of the frame.",
-   "Image 1 = the set (props, layout and light). Image 2 = the approved 3D lineup (the 3D look and BLONDE). Image 3, if attached = BLONDE's reference sheet (face, hair and proportions)."),
+   "Image 1 = the set (props, layout and light). Image 2 = BLONDE_face (face and hair). Image 3 = BLONDE_front (body shape and proportions)."),
    "BLONDE slowly walks to the door pulling the suitcase without looking back and leaves the frame. The camera stays still. The apartment stays exactly the same, quiet and still."),
  ("V6", "先輩が車の中で動かない", True, "B7＋3Dの5人の並び＋S2の設定画（作った場合）", "6:48〜", comp(["SENPAI"], "B7", "SENPAI sits in the driver's seat of the dark sedan, seen through its open side window, engine off, one hand resting on the steering wheel, staring ahead.",
-   "Image 1 = the set (the car, the lamp and the light). Image 2 = the approved 3D lineup (the 3D look and SENPAI). Image 3, if attached = SENPAI's reference sheet (face, hair and proportions)."),
-   "SENPAI stays almost still, staring ahead, then his shoulders rise and fall in one slow heavy sigh. Faint raindrops slide down the car window. The camera stays still. His face and hair stay the same for the whole clip."),
+   "Image 1 = the set (the car, the lamp and the light). Image 2 = SENPAI_face (face and hair). Image 3 = SENPAI_front (body shape and proportions)."),
+   "SENPAI stays almost still, staring ahead, then his shoulders rise and fall in one slow heavy sigh. Faint raindrops slide down the car window. The camera stays still. His face, hair and glasses stay the same for the whole clip."),
  ("V7", "ゆっくり飲むコーヒーの朝", True, "B10＋3Dの5人の並び＋S1の設定画（作った場合）", "7:02〜", comp(["YOU"], "B10", "YOU stands by the window frame holding a coffee mug with both hands, eyes closed, calm small smile, three-quarter view, in the lower third of the frame.",
-   "Image 1 = the set (props, layout and light). Image 2 = the approved 3D lineup (the 3D look and YOU). Image 3, if attached = YOU's reference sheet (face, hair and proportions)."),
+   "Image 1 = the set (props, layout and light). Image 2 = YOU_face (face and hair). Image 3 = YOU_front (body shape and proportions)."),
    "Soft steam rises from the mug; YOU slowly lifts it and takes one calm sip; the sunlight gently brightens. The camera stays still. The room stays the same."),
 ]
 
@@ -140,9 +140,8 @@ for k, name, items in SECTIONS:
     body += f'<h2 id="{k}">{html.escape(name)}</h2>' + "".join(card(*it) for it in items)
 body += '<h2 id="V">4. 動画（Pollo・5秒・音なし・ロゴなしで書き出す）</h2>'
 body += "".join(card(i, t, st, a, w, ([("① 動画の最初のコマになる画像（Flowで作る）", ip)] if ip else []) + [("② Pollo の動画プロンプト（動きだけ。①の画像を入れて使う）", vp)]) for i, t, st, a, w, ip, vp in V)
-NOTE = """<b>作る順番（この順を守るとズレない）</b><br>正典は送ってくれた3Dの5人の並び（左から YOU／BLONDE／RED／BOB／SENPAI）。毎回これを添付する。<br>背景はぜんぶ「同じ紺のスタジオ＋小物1〜3個」だけにしてある（場面ごとに部屋を作らない）。<br>
-① （できれば）S1〜S5 の設定画を作って、気に入ったものを決める（決めた設定画が「正典」。あとで別のが良く見えても、正典を基準にする）。<br>
-② できた設定画を制作部に送る → 正面・全身などに切り分けた参照画像を返す（参照は1枚1役のほうがズレにくい）。<br>
+NOTE = """<b>作る順番（この順を守るとズレない）</b><br>正典は完成した5人の設定画。添付するのは制作部が切り分けた参照画像（例：YOU_face＝顔と髪、YOU_front＝全身の正面）。カードに書いてある名前のファイルを付ける。<br>背景はぜんぶ「同じ紺のスタジオ＋小物1〜3個」だけにしてある（場面ごとに部屋を作らない）。<br>
+① 設定画（S1〜S5）は完成。あとで別の絵が良く見えても、設定画を基準にする。<br>② 参照画像（顔・正面・斜め・横・後ろ）は制作部が切り分け済み。<br>
 ③ B の背景（キャラなし）→ P のポーズ → G の小物。<br>
 ④ 動画は、まず①の画像を Flow で作って、気に入ったものだけを Pollo で動かす。<br><br>
 <b>守ること</b><br>
