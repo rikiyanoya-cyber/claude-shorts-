@@ -243,7 +243,7 @@ const SH: Shot[] = [
   // it fades
   { a: at(26) - .1, video: true, r: (u, d) => <Clip n="M3.mp4" k={u / d} kb={{ z: [2.0, 2.2], o: [50, 64] }} /> },
   { a: at(27) - .05, tone: "sad", r: (u, d) => <Still n="F9_object.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [30, 70], dx: 60 }} /> },
-  { a: at(28) - .1, tone: "sad", video: true, r: (u, d) => <Clip n="V2.mp4" k={u / d} kb={{ z: [1.3, 1.9], o: [56, 45] }} /> },
+  { a: at(28) - .1, tone: "sad", r: (u, d) => <Still n="B5_bedroom.jpg" k={u / d} kb={{ z: [1.2, 1.5], o: [62, 52], dx: -80 }} /> },
   // the lottery study
   { a: at(30) - .05, tone: "study", r: (u, d) => <><Studio /><Words u={u} b={d} y={340} size={260}><G>1978</G></Words></> },
   { a: at(31) - .05, video: true, r: (u, d) => <><Clip n="M4.mp4" k={u / d} kb={{ z: [1.2, 1.6], o: [50, 60] }} /><Words u={u} a={97.6 - at(31) + .05} b={d} y={130} size={150} sub="LOTTERY WINNERS"><G>22</G></Words></> },
@@ -329,7 +329,7 @@ const SH2: Shot[] = [
   { a: 372.6, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={.2} b={d} y={330} size={130} sub="WITH A NEUTRAL THIRD PARTY">BOTH SIDES, <G>ONE DATASET</G></Words></> },
   { a: 379.05, b: 396.9, r: (u, d) => <Three u={u} low={.4} most={10.9} top={13.5} /> },
   { a: 396.9, tone: "sad", r: (u, d) => <Still n="M8_last.jpg" k={u / d} kb={{ z: [1.3, 1.7], o: [50, 55] }} /> },
-  { a: 402.7, tone: "sad", r: (u, d) => <><Still n="N8_sofa.jpg" k={u / d} kb={{ z: [1.0, 1.05], o: [50, 50] }} dim={.6} /><Words u={u} a={.05} b={d} y={420} size={150}>A BREAKUP.</Words></> },
+  { a: 402.7, tone: "sad", r: (u, d) => <><Still n="P15_blonde_leaves.jpg" k={u / d} kb={{ z: [1.0, 1.06], o: [50, 50] }} dim={.6} /><Words u={u} a={.05} b={d} y={420} size={150}>A BREAKUP.</Words></> },
   { a: 403.65, tone: "sad", r: (u, d) => <><Still n="V6_first.jpg" k={u / d} kb={{ z: [1.3, 1.35], o: [45, 55] }} dim={.6} /><Words u={u} a={.05} b={d} y={420} size={150}>GRIEF.</Words></> },
   { a: 404.4, tone: "sad", r: (u, d) => <><Still n="N2_you_sad.jpg" k={u / d} kb={{ z: [1.0, 1.05], o: [50, 45] }} dim={.6} /><Words u={u} a={.05} b={d} y={420} size={150}>MENTAL ILLNESS.</Words></> },
   { a: 406.05, tone: "sad", r: (u, d) => <Still n="M8_last.jpg" k={u / d} kb={{ z: [1.9, 2.0], o: [50, 52] }} /> },
