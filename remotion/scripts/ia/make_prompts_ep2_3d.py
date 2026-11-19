@@ -111,23 +111,23 @@ def comp(char_keys, loc, scene, roles):
     return (f"{roles}\n{blocks}\n{loc_block(loc)}\nScene: {scene}\nKeep the set exactly as in the set image: navy studio, props, positions, colours and light. "
             f"Keep the character's face, hair and proportions exactly as in the character images. Light the character with the room's light.\n{STYLE}\nAspect ratio 16:9, highest resolution.")
 V = [
- ("V1", "昇給の夜、買い物袋を持って歩く", True, "B4＋3Dの5人の並び＋S1の設定画（作った場合）", "1:14〜", comp(["YOU"], "B4", "YOU walks between the street lamps toward frame-right holding one shopping bag, big happy smile, side view, on the navy floor in the lower third.",
+ ("V1", "昇給の夜、買い物袋を持って歩く", True, "B4＋YOU_face＋YOU_front", "1:14〜", comp(["YOU"], "B4", "YOU walks between the street lamps toward frame-right holding one shopping bag, big happy smile, side view, on the navy floor in the lower third.",
    "Image 1 = the set (props, layout and light). Image 2 = YOU_face (face and hair). Image 3 = YOU_front (body shape and proportions)."),
    "YOU walks steadily from left to right between the lamps, swinging the shopping bag slightly, a light bounce in each step. The camera stays still. The lamps and the set stay exactly the same for the whole clip."),
- ("V2", "暗い朝、目覚ましでため息", False, "B5＋3Dの5人の並び＋S1の設定画（作った場合）", "1:28〜", comp(["YOU"], "B5", "YOU lies in the bed under the blanket, eyes open, looking at the ceiling.",
+ ("V2", "暗い朝、目覚ましでため息", False, "B5＋YOU_face＋YOU_front", "1:28〜", comp(["YOU"], "B5", "YOU lies in the bed under the blanket, eyes open, looking at the ceiling.",
    "Image 1 = the set (props, layout and light). Image 2 = YOU_face (face and hair). Image 3 = YOU_front (body shape and proportions)."),
    "The alarm clock glows a little brighter, then YOU slowly sits up in bed and lets out one long tired sigh, shoulders dropping. The camera stays still. The room stays dark and unchanged."),
  ("V3", "宝くじの当選者が跳ねる", True, "K2（できた画像をそのまま使う）", "1:40〜", None,
    "The three characters jump up and down with joy, arms raised, holding the big blank check; colourful confetti falls around them. The camera stays still. Their faces and hair stay the same for the whole clip."),
  ("V4", "車が動かない朝", False, "G4（できた画像をそのまま使う）", "4:15〜", None,
    "The small car shakes a little as the engine fails to start, then a puff of grey smoke rises from the open hood and drifts up. The camera stays still and the car keeps its shape."),
- ("V5", "パートナーが出ていく", True, "B8＋3Dの5人の並び＋S3の設定画（作った場合）", "5:25〜", comp(["BLONDE"], "B8", "BLONDE walks toward the plain door on the far right pulling a small suitcase, head down, side view, in the lower third of the frame.",
+ ("V5", "パートナーが出ていく", True, "B8＋BLONDE_face＋BLONDE_front", "5:25〜", comp(["BLONDE"], "B8", "BLONDE walks toward the plain door on the far right pulling a small suitcase, head down, side view, in the lower third of the frame.",
    "Image 1 = the set (props, layout and light). Image 2 = BLONDE_face (face and hair). Image 3 = BLONDE_front (body shape and proportions)."),
    "BLONDE slowly walks to the door pulling the suitcase without looking back and leaves the frame. The camera stays still. The apartment stays exactly the same, quiet and still."),
- ("V6", "先輩が車の中で動かない", True, "B7＋3Dの5人の並び＋S2の設定画（作った場合）", "6:48〜", comp(["SENPAI"], "B7", "SENPAI sits in the driver's seat of the dark sedan, seen through its open side window, engine off, one hand resting on the steering wheel, staring ahead.",
+ ("V6", "先輩が車の中で動かない", True, "B7＋SENPAI_face＋SENPAI_front", "6:48〜", comp(["SENPAI"], "B7", "SENPAI sits in the driver's seat of the dark sedan, seen through its open side window, engine off, one hand resting on the steering wheel, staring ahead.",
    "Image 1 = the set (the car, the lamp and the light). Image 2 = SENPAI_face (face and hair). Image 3 = SENPAI_front (body shape and proportions)."),
    "SENPAI stays almost still, staring ahead, then his shoulders rise and fall in one slow heavy sigh. Faint raindrops slide down the car window. The camera stays still. His face, hair and glasses stay the same for the whole clip."),
- ("V7", "ゆっくり飲むコーヒーの朝", True, "B10＋3Dの5人の並び＋S1の設定画（作った場合）", "7:02〜", comp(["YOU"], "B10", "YOU stands by the window frame holding a coffee mug with both hands, eyes closed, calm small smile, three-quarter view, in the lower third of the frame.",
+ ("V7", "ゆっくり飲むコーヒーの朝", True, "B10＋YOU_face＋YOU_front", "7:02〜", comp(["YOU"], "B10", "YOU stands by the window frame holding a coffee mug with both hands, eyes closed, calm small smile, three-quarter view, in the lower third of the frame.",
    "Image 1 = the set (props, layout and light). Image 2 = YOU_face (face and hair). Image 3 = YOU_front (body shape and proportions)."),
    "Soft steam rises from the mug; YOU slowly lifts it and takes one calm sip; the sunlight gently brightens. The camera stays still. The room stays the same."),
 ]
