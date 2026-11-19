@@ -191,6 +191,11 @@ def refs_html(att):
 def card(i, title, star, att, when, blocks):
     b = "".join(f'<div class="lab">{html.escape(l)}</div><div class="pr"><pre>{html.escape(t)}</pre><button onclick="cp(this)">コピー</button></div>' for l, t in blocks)
     return f'<section class="card"><h3><span class="id">{i}</span> {html.escape(title)}{" <span class=star>★</span>" if star else ""}</h3><p class="meta">使う場所：{html.escape(when)}</p>{refs_html(att) or f'<p class="meta">添付：{html.escape(att)}</p>'}{b}</section>'
+ONLY = [x for x in _os.environ.get("ONLY", "").split(",") if x]   # e.g. ONLY=P1,P2 -> a short sheet with just those cards
+if ONLY:
+    SECTIONS = [(k, n, [it for it in items if it[0] in ONLY]) for k, n, items in SECTIONS]
+    SECTIONS = [x for x in SECTIONS if x[2]]
+    V = [v for v in V if v[0] in ONLY]
 body = ""
 SECTIONS.sort(key=lambda x: {"P":0,"G":1,"M":2,"B":8,"S":9}[x[0]])
 for k, name, items in [x for x in SECTIONS if x[0] in "PGM"]:
