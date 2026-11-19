@@ -20,9 +20,9 @@ C = {   # matches the approved 3D sheets (2026-11-19)
 }
 NAVY_BG = "Background: plain solid dark navy #0B2352, nothing else in the frame, no text. 16:9, highest resolution."
 
-def sheet(key, extra=""):
-    return (f"Create a 3D character reference sheet of ONE character from the attached lineup, the same character in every view.\n"
-            f"Image 1 = the approved lineup (the 3D look and the character designs). Use only the character described below.\n"
+def sheet(key, extra=""):   # only for remaking a sheet: the 5-character lineup is blurry and is not used anywhere
+    return (f"Recreate this 3D character reference sheet at higher quality, the same character in every view.\n"
+            f"Image 1 = {key}'s approved reference sheet (keep the design exactly).\n"
             f"{C[key]}{extra}\n"
             f"Layout: left, a front close-up of the face with a neutral expression; right, four full-body views side by side at equal height with the tops of the heads and the feet aligned: front, three-quarter, true side profile, back. Relaxed standing pose, arms slightly away from the body.\n"
             f"Plain flat mid-grey background #9097A6, flat even light, nothing else, no text, no labels.\n{STYLE}\nAspect ratio 16:9, highest resolution.")
@@ -64,7 +64,7 @@ PROPS = {
 def prop(desc):
     return f"One object only, centered: {desc}.\n{STYLE}\nBackground: plain solid dark navy #0B2352, nothing else in the frame, no text. 16:9, highest resolution."
 
-A_LINE = "3Dの5人の並び（正典）"
+A_LINE = "そのキャラの設定画（作り直すときだけ）"
 def files(*names): return "、".join(names)
 
 SECTIONS = []
