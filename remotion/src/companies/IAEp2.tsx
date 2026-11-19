@@ -93,9 +93,9 @@ const Studio: React.FC<{ warm?: boolean }> = ({ warm }) => (
   </AbsoluteFill>
 );
 // big words: white heavy type with a gold accent, top half, a soft dark band behind for phones
-const Words: React.FC<{ u: number; a?: number; b: number; children: React.ReactNode; size?: number; y?: number; sub?: string }> = ({ u, a = .1, b, children, size = 150, y = 230, sub }) => {
+const Words: React.FC<{ u: number; a?: number; b: number; children: React.ReactNode; size?: number; y?: number; x?: number; sub?: string }> = ({ u, a = .1, b, children, size = 150, y = 230, x, sub }) => {
   const o = fin(u, a, .3) * fout(u, b, .3);
-  return <div style={{ position: "absolute", left: 0, right: 0, top: y, textAlign: "center", opacity: o, transform: `translateY(${(1 - fin(u, a, .4)) * 24}px) scale(${1.04 - .04 * fin(u, a, .5)})` }}>
+  return <div style={{ position: "absolute", left: x === undefined ? 0 : x - 400, right: x === undefined ? 0 : 1920 - x - 400, top: y, textAlign: "center", opacity: o, transform: `translateY(${(1 - fin(u, a, .4)) * 24}px) scale(${1.04 - .04 * fin(u, a, .5)})` }}>
     <div style={{ display: "inline-block", fontFamily: NUM, fontWeight: 400, fontSize: size * 1.08, lineHeight: 1.02, color: "#fff", letterSpacing: 3, textShadow: "0 6px 30px rgba(0,0,0,.75), 0 0 2px rgba(0,0,0,.6)" }}>{children}</div>
     {sub && <div style={{ fontFamily: LAB, fontWeight: 700, fontSize: 40, color: "#dfe6ff", marginTop: 16, letterSpacing: 6, textShadow: "0 3px 16px rgba(0,0,0,.8)" }}>{sub}</div>}
   </div>;
@@ -278,17 +278,17 @@ const SH2: Shot[] = [
   { a: 164.5, r: (u, d) => <Still n="B6_coffee.jpg" k={u / d} kb={{ z: [1.2, 1.45], o: [50, 55] }} /> },
   { a: 167.35, tone: "sad", r: (u, d) => <Still n="N1_senpai_sigh.jpg" k={u / d} kb={{ z: [1.0, 1.18], o: [50, 45] }} /> },
   { a: 171.0, tone: "work", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.2, 1.45], o: [50, 40] }} ch={{ n: "P13_senpai_phone", h: 900, x: 960, y: 1080, act: "shake" }} glow="rgba(170,200,255,.5)" /> },
-  { a: 175.15, tone: "sad", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.9, 2.1], o: [60, 30] }} ch={{ n: "P13_senpai_phone", h: 900, x: 960, y: 1080 }} /> },
+  { a: 175.15, tone: "sad", r: (u, d) => <Still n="R17_dinner_phone.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [45, 55] }} /> },
   // two kinds of happiness
-  { a: 177.4, r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.4, 1.75], o: [50, 30] }} ch={{ n: "P10_think", h: 900, y: 1060, act: "tilt" }} /> },
+  { a: 177.4, r: (u, d) => <Still n="R18_bulb.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 35] }} /> },
   { a: 179.4, b: 189.85, r: (u, d) => <><TwoKinds u={u} life={2.7} mood={5.3} flat={99} /><Words u={u} a={.05} b={2.4} y={140} size={110}>TWO KINDS OF <G>HAPPINESS</G></Words></> },
-  { a: 189.85, r: (u, d) => <Still n="M11_two_balloons.jpg" k={u / d} kb={{ z: [1.4, 1.7], o: [50, 38], dx: 80 }} /> },
+  { a: 189.85, r: (u, d) => <Still n="R19_signs.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 50] }} /> },
   { a: 192.8, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={2.2} b={d} y={300} size={240}><G>2010</G></Words></> },
   { a: 194.85, tone: "study", r: (u, d) => <><Studio /><Words u={u} a={2.5} b={d} y={250} size={200} sub="AMERICANS SURVEYED"><G><Count u={u} a={2.5} to={450000} suf="+" d={1.2} /></G></Words></> },
   { a: 200.4, b: 218.1, r: (u, d) => <TwoKinds u={u} life={.4} mood={8.3} flat={12.9} mark={13.2} /> },
   { a: 218.1, b: 231.05, r: (u, d) => <Bracket u={u} mid={4.3} today={8.4} /> },
   { a: 231.05, r: (u, d) => <><Studio /><Words u={u} b={d} y={360} size={210}>ONLY <span style={{ opacity: .3 }}>HALF</span> <G>TRUE</G></Words></> },
-  { a: 233.95, video: true, r: (u, d) => <Clip n="M2.mp4" k={u / d} from={1.2} kb={{ z: [1.3, 1.55], o: [62, 45], dx: 100 }} /> },
+  { a: 233.95, r: (u, d) => <Still n="R20_balloon.jpg" k={u / d} kb={{ z: [1.0, 1.08], o: [50, 55] }} /> },
   { a: 236.7, b: 239.3, r: (u, d) => <><Studio /><Words u={u} a={.7} b={d + 1} y={360} size={170}>ONLY YOUR <G>DAILY MOOD</G></Words></> },
   // misfortune hurts more (after the mid-roll break)
   { a: 239.3, fadeIn: .5, r: (u, d) => <Still n="G3_bills.jpg" k={u / d} kb={{ z: [1.2, 1.4], o: [50, 55] }} /> },
@@ -296,11 +296,11 @@ const SH2: Shot[] = [
   { a: 244.95, tone: "sad", r: (u, d) => <Still n="N5_awake_top.jpg" k={u / d} kb={{ z: [1.0, 1.35], o: [48, 40] }} /> },
   { a: 250.65, video: true, r: (u, d) => <Clip n="V4.mp4" k={u / d} kb={{ z: [1.25, 1.55], o: [40, 50] }} /> },
   { a: 254.9, r: (u, d) => <Still n="G4_car_smoke.jpg" k={u / d} kb={{ z: [1.6, 1.9], o: [38, 45] }} /> },
-  { a: 258.6, tone: "sad", r: (u, d) => <Still n="G3_bills.jpg" k={u / d} kb={{ z: [1.7, 2.1], o: [50, 55], dx: -80 }} /> },
+  { a: 258.6, tone: "sad", r: (u, d) => <Still n="R21_long_bill.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 45] }} /> },
   // income triples
-  { a: 264.4, tone: "warm", r: (u, d) => <><Still n="R22_raise2.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [35, 40] }} /><Words u={u} a={1.4} b={d} y={40} size={170}><G>×3</G></Words></> },
+  { a: 264.4, tone: "warm", r: (u, d) => <><Still n="R22_envelopes3.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 60] }} /><Words u={u} a={1.4} b={d} y={380} size={260} x={1560}><G>×3</G></Words></> },
   { a: 267.55, tone: "warm", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.3, 1.7], o: [50, 30] }} ch={{ n: "P6_amazed", h: 950, y: 1080 }} glow="rgba(255,220,160,.65)" /> },
-  { a: 270.9, tone: "sad", r: (u, d) => <Still n="B1_apt1.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [50, 50] }} dim={.25} /> },
+  { a: 270.9, tone: "sad", r: (u, d) => <Still n="R23_old_room.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [40, 55] }} /> },
   { a: 275.6, tone: "warm", r: (u, d) => <Still n="N6_bags.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [48, 45], dx: 90 }} /> },
   { a: 278.6, tone: "warm", r: (u, d) => <Still n="R24_card_pay.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [45, 45] }} /> },
   { a: 281.7, tone: "warm", r: (u, d) => <Still n="N7_restaurant.jpg" k={u / d} kb={{ z: [1.2, 1.45], o: [52, 45] }} /> },
