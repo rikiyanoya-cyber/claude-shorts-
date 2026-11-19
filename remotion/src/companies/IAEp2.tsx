@@ -271,10 +271,10 @@ const SH2: Shot[] = [
   // the coworker
   { a: 144.6, fadeIn: .5, tone: "work", r: (u, d) => <Still n="N4_senpai_walk.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [35, 45], dx: -80 }} /> },
   { a: 148.0, tone: "warm", r: (u, d) => <><Scene u={u} d={d} studio cam={{ z: [1.0, 1.2], pan: 120 }} ch={{ n: "P11_senpai_key", h: 900, x: 1180, y: 1060, act: "nod" }} /><Words u={u} a={1.0} b={d} y={260} size={200} sub="YOUR PAY"><G>×3</G></Words></> },
-  { a: 151.75, tone: "warm", r: (u, d) => <Still n="B9_house.jpg" k={u / d} kb={{ z: [1.25, 1.5], o: [45, 55], dx: 90 }} /> },
+  { a: 151.75, tone: "warm", r: (u, d) => <Still n="R14_senpai_house.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [40, 55] }} /> },
   { a: 153.9, tone: "warm", r: (u, d) => <Still n="B7_parking.jpg" k={u / d} kb={{ z: [1.4, 1.7], o: [50, 62], dx: -90 }} /> },
-  { a: 156.4, tone: "warm", r: (u, d) => <Scene u={u} d={d} studio cam={{ z: [1.0, 1.3], pan: -120 }} ch={{ n: "P1_dream_b", h: 900, x: 900, y: 1080, act: "nod" }} /> },
-  { a: 160.9, tone: "warm", r: (u, d) => <Still n="N4_senpai_walk.jpg" k={u / d} kb={{ z: [1.9, 2.1], o: [30, 25] }} /> },
+  { a: 156.4, tone: "warm", r: (u, d) => <Still n="R15_list.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 40] }} /> },
+  { a: 160.9, tone: "warm", r: (u, d) => <Still n="R16_trophy.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 50] }} /> },
   { a: 164.5, r: (u, d) => <Still n="B6_coffee.jpg" k={u / d} kb={{ z: [1.2, 1.45], o: [50, 55] }} /> },
   { a: 167.35, tone: "sad", r: (u, d) => <Still n="N1_senpai_sigh.jpg" k={u / d} kb={{ z: [1.0, 1.18], o: [50, 45] }} /> },
   { a: 171.0, tone: "work", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.2, 1.45], o: [50, 40] }} ch={{ n: "P13_senpai_phone", h: 900, x: 960, y: 1080, act: "shake" }} glow="rgba(170,200,255,.5)" /> },
