@@ -32,7 +32,7 @@ const kbStyle = (k: number, kb: KB = {}) => {
   // 2026-11-19: the pictures are 1376 px wide, so big digital zooms went soft. Scale now stays within 1.0-1.12 (push or pull keeps its direction).
   const span = Math.max(.05, Math.min(.12, Math.abs(rz1 - rz0) || .06)), z0 = rz1 >= rz0 ? 1 : 1 + span, z1 = rz1 >= rz0 ? 1 + span : 1, z = z0 + (z1 - z0) * e;
   const lim = (v: number, m: number) => Math.max(-m, Math.min(m, v));
-  const tx = lim(-(ox / 100 - .5) * 1920 * z, (z - 1) * 960) + (kb.dx ?? 0) * e, ty = lim(-(oy / 100 - .5) * 1080 * z, (z - 1) * 540);
+  const tx = lim(-(ox / 100 - .5) * 1920 * z + (kb.dx ?? 0) * e, (z - 1) * 960), ty = lim(-(oy / 100 - .5) * 1080 * z, (z - 1) * 540);
   return { transform: `translate(${tx}px, ${ty}px) scale(${z})`, transformOrigin: "50% 50%" };
 };
 // a full-frame still (sets, props, symbols)
@@ -238,7 +238,7 @@ const SH: Shot[] = [
   { a: 65.0, r: (u, d) => <Still n="F7_calendar.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [40, 50] }} /> },
   { a: 68.5, tone: "warm", r: (u, d) => <><Still n="R9_raise.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [62, 40] }} /><Words u={u} a={.1} b={d} y={130} size={120}>FIRST <G>RAISE</G></Words></> },
   { a: 69.8, tone: "warm", r: (u, d) => <Still n="F8_gift_open.jpg" k={u / d} kb={{ z: [1.0, 1.3], o: [50, 38] }} /> },
-  { a: 72.35, tone: "warm", r: (u, d) => <Still n="B8_apt2.jpg" k={u / d} kb={{ z: [2.0, 2.2], o: [76, 56], dx: 100 }} /> },
+  { a: 72.35, tone: "warm", r: (u, d) => <Still n="M4_ticket.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 55] }} /> },
   { a: at(24) - .2, tone: "warm", video: true, r: (u, d) => <Clip n="V1.mp4" k={u / d} from={1.3} flip kb={{ z: [1.2, 1.45], o: [88, 58] }} /> },
   { a: 75.9, tone: "warm", r: (u, d) => <Still n="F12_proud.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [55, 40] }} /> },
   { a: at(25) + .6, tone: "warm", r: (u, d) => <Still n="M5_stairs.jpg" k={u / d} kb={{ z: [1.4, 1.8], o: [48, 55], dx: -100 }} /> },
@@ -359,11 +359,11 @@ const SH2: Shot[] = [
   { a: 489.35, r: (u, d) => <><Studio /><Words u={u} b={d} y={330} size={190}><G>RATIO</G>, NOT AMOUNT</Words></> },
   { a: 492.15, tone: "sad", r: (u, d) => <Still n="R42_coin_cloud.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [48, 62] }} /> },
   { a: 495.0, tone: "sad", r: (u, d) => <Still n="R43_senpai_coffee.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [45, 45] }} /> },
-  { a: 498.5, tone: "warm", r: (u, d) => <Still n="B9_house.jpg" k={u / d} kb={{ z: [1.4, 1.5], o: [45, 55] }} /> },
-  { a: 499.35, tone: "warm", r: (u, d) => <Still n="B7_parking.jpg" k={u / d} kb={{ z: [1.6, 1.7], o: [50, 62] }} /> },
-  { a: 500.25, tone: "warm", r: (u, d) => <Still n="N4_senpai_walk.jpg" k={u / d} kb={{ z: [1.6, 1.7], o: [30, 30] }} /> },
+  { a: 498.5, tone: "sad", r: (u, d) => <Still n="B9_house.jpg" k={u / d} kb={{ z: [1.0, 1.06], o: [50, 55] }} /> },
+  { a: 499.35, tone: "sad", r: (u, d) => <Still n="R45_senpai_car.jpg" k={u / d} kb={{ z: [1.0, 1.06], o: [40, 50] }} /> },
+  { a: 500.25, tone: "sad", r: (u, d) => <Still n="R46_senpai_desk.jpg" k={u / d} kb={{ z: [1.0, 1.06], o: [50, 40] }} /> },
   { a: 501.55, r: (u, d) => <Still n="N3_two_sigh.jpg" k={u / d} kb={{ z: [1.0, 1.25], o: [50, 45] }} /> },
-  { a: 505.1, b: IA2_END, fadeOut: 1.2, tone: "warm", r: (u, d) => <Still n="N12_window_back.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [55, 45] }} /> },
+  { a: 505.1, b: IA2_END, fadeOut: 1.2, tone: "warm", r: (u, d) => <Still n="R47_ending.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 50] }} /> },
 ];
 
 // the new opening (user's line, 2026-11-19): "Your alarm went off in the dark this morning, and you got up for a paycheck.
