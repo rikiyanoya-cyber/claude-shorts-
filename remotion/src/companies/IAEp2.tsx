@@ -200,7 +200,7 @@ const Five: React.FC<{ u: number; b?: number; gap?: number }> = ({ u, b = 99, ga
 // ---------- the shot list (first half: 0:00-2:24) ----------
 // wide -> close alternation, visible camera moves (push 15-30 %, pans 120-220 px, direction alternates),
 // one still (hold) every 4-5 shots, cuts on the noun the narration names (word times from the narration).
-type CapT = { t: React.ReactNode; y?: number; x?: number; st?: "pop" | "tag" | "stamp" | "type"; a?: number };
+type CapT = { t: React.ReactNode; y?: number; x?: number; sz?: number; st?: "pop" | "tag" | "stamp" | "type"; a?: number };
 // on-screen key words for shots without a graphic (2026-11-19: "more text and effects"). pop = bouncy heavy caps,
 // tag = white label pill, stamp = slammed red box, type = left-to-right reveal.
 const Cap: React.FC<{ c: CapT; u: number; d: number }> = ({ c, u, d }) => {
@@ -214,7 +214,7 @@ const Cap: React.FC<{ c: CapT; u: number; d: number }> = ({ c, u, d }) => {
     return <div style={{ ...pos, opacity: u < a ? 0 : fout(u, d, .2) }}><span style={{ display: "inline-block", transform: `rotate(-6deg) scale(${z})`, fontFamily: NUM, fontSize: 130, letterSpacing: 6, color: "#fff", background: "#D9534A", border: "8px solid #fff", borderRadius: 14, padding: "4px 36px", boxShadow: "0 10px 30px rgba(0,0,0,.5)" }}>{c.t}</span></div>; }
   if (st === "type") return <div style={pos}><span style={{ display: "inline-block", clipPath: `inset(0 ${100 - 100 * Math.min(1, k / .9)}% 0 0)`, fontFamily: NUM, fontSize: 118, letterSpacing: 5, color: "#fff", textShadow: sh }}>{c.t}</span></div>;
   const z = k < .16 ? .4 + .75 * (k / .16) : 1 + .15 * Math.exp(-(k - .16) * 8) * Math.cos((k - .16) * 22);
-  return <div style={pos}><span style={{ display: "inline-block", transform: `scale(${z})`, fontFamily: NUM, fontSize: 128, lineHeight: 1.05, letterSpacing: 3, color: "#fff", textShadow: sh }}>{c.t}</span></div>;
+  return <div style={pos}><span style={{ display: "inline-block", transform: `scale(${z})`, fontFamily: NUM, fontSize: c.sz ?? 128, lineHeight: 1.05, letterSpacing: 3, color: "#fff", textShadow: sh }}>{c.t}</span></div>;
 };
 type Shot = { a: number; b?: number; r: (u: number, d: number) => React.ReactNode; video?: boolean; fadeIn?: number; fadeOut?: number; tone?: Tone; cap?: CapT };
 const SH: Shot[] = [
@@ -312,14 +312,14 @@ const SH2: Shot[] = [
   { cap: { t: <><R>AWAKE</R> OVER A BILL</>, y: 900, st: "pop" }, a: 244.95, tone: "sad", r: (u, d) => <Still n="N5_awake_top.jpg" k={u / d} kb={{ z: [1.0, 1.35], o: [48, 40] }} /> },
   { cap: { t: <>MONEY WAS <R>TIGHT</R></>, y: 70, st: "pop" }, a: 250.65, video: true, r: (u, d) => <Clip n="V4.mp4" k={u / d} kb={{ z: [1.25, 1.55], o: [40, 50] }} /> },
   { cap: { t: <>WON'T START</>, y: 90, st: "stamp" }, a: 254.9, r: (u, d) => <Still n="G4_car_smoke.jpg" k={u / d} kb={{ z: [1.6, 1.9], o: [38, 45] }} /> },
-  { cap: { t: <>THE <R>REPAIR BILL</R></>, y: 380, st: "pop", x: 1500 }, a: 258.6, tone: "sad", r: (u, d) => <Still n="R21_long_bill.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 45] }} /> },
+  { cap: { t: <>THE <R>REPAIR BILL</R></>, y: 640, st: "pop", x: 1480, sz: 100 }, a: 258.6, tone: "sad", r: (u, d) => <Still n="R21_long_bill.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 45] }} /> },
   // income triples
   { a: 264.4, tone: "warm", r: (u, d) => <><Still n="R22_envelopes3.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 60] }} /><Words u={u} a={1.4} b={d} y={380} size={260} x={1560}><G>×3</G></Words></> },
   { cap: { t: <>PAYDAY</>, y: 70, st: "tag" }, a: 267.55, tone: "warm", r: (u, d) => <Scene u={u} d={d} cam={{ z: [1.3, 1.7], o: [50, 30] }} ch={{ n: "P6_amazed", h: 950, y: 1080 }} glow="rgba(255,220,160,.65)" /> },
   { cap: { t: <>THE <G>EXACT FIGURE</G></>, y: 900, st: "pop" }, a: 270.9, tone: "sad", r: (u, d) => <Still n="R23_old_room.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [40, 55] }} /> },
   { cap: { t: <>LIFE GOT <G>EASIER</G></>, y: 70, st: "pop" }, a: 275.6, tone: "warm", r: (u, d) => <Still n="N6_bags.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [48, 45], dx: 90 }} /> },
-  { cap: { t: <>NO <G>PRICE CHECK</G></>, y: 150, st: "pop", x: 1450 }, a: 278.6, tone: "warm", r: (u, d) => <Still n="R24_card_pay.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [45, 45] }} /> },
-  { cap: { t: <>BETTER PLACES</>, y: 70, st: "tag" }, a: 281.7, tone: "warm", r: (u, d) => <Still n="N7_restaurant.jpg" k={u / d} kb={{ z: [1.2, 1.45], o: [52, 45] }} /> },
+  { cap: { t: <>NO <G>PRICE CHECK</G></>, y: 150, st: "pop", x: 1360 }, a: 278.6, tone: "warm", r: (u, d) => <Still n="R24_card_pay.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [45, 45] }} /> },
+  { cap: { t: <>BETTER PLACES</>, y: 160, st: "tag", x: 520 }, a: 281.7, tone: "warm", r: (u, d) => <Still n="N7_restaurant.jpg" k={u / d} kb={{ z: [1.2, 1.45], o: [52, 45] }} /> },
   { cap: { t: <>WORRY: <G>QUIET</G></>, y: 120, st: "pop", x: 480 }, a: 283.35, r: (u, d) => <Still n="R25_sleep.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 45] }} /> },
   { cap: { t: <>THAT PART WAS <G>REAL</G></>, y: 420, st: "pop", x: 420 }, a: 287.8, tone: "warm", r: (u, d) => <Still n="R26_phone_pay.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [55, 45] }} /> },
   { cap: { t: <>JOY: <R>NOT MUCH BIGGER</R></>, y: 70, st: "pop" }, a: 289.3, r: (u, d) => <Still n="R27_gift_small.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [50, 60] }} /> },
@@ -352,13 +352,13 @@ const SH2: Shot[] = [
   { a: 404.4, tone: "sad", r: (u, d) => <><Still n="R32_raincloud.jpg" k={u / d} kb={{ z: [1.0, 1.04], o: [50, 40] }} dim={.35} /><Words u={u} a={.05} b={d} y={860} size={150}>MENTAL ILLNESS.</Words></> },
   { cap: { t: <>MONEY <R>CAN'T FIX</R> IT</>, y: 70, st: "pop" }, a: 406.05, tone: "sad", r: (u, d) => <Still n="R34_coin_heart.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [55, 60] }} /> },
   // spending differently
-  { cap: { t: <>SPEND <G>DIFFERENTLY</G></>, y: 200, st: "pop", x: 1480 }, a: 408.0, r: (u, d) => <Still n="R35_jars.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [55, 50] }} /> },
+  { cap: { t: <>SPEND <G>DIFFERENTLY</G></>, y: 110, st: "pop", x: 1480, sz: 100 }, a: 408.0, r: (u, d) => <Still n="R35_jars.jpg" k={u / d} kb={{ z: [1.0, 1.12], o: [55, 50] }} /> },
   { cap: { t: <>NOT ONE <R>BIG PURCHASE</R></>, y: 150, st: "pop", x: 560 }, a: 411.75, r: (u, d) => <Still n="R36_piggy_pedestal.jpg" k={u / d} kb={{ z: [1.0, 1.1], o: [50, 50] }} /> },
   { a: 415.85, r: (u, d) => <><Studio /><Words u={u} a={2.4} b={d} y={330} size={150}>SHRINK THE <G>SMALL</G><br />DAILY FRICTIONS</Words></> },
   { cap: { t: <>SHORTER <G>COMMUTE</G></>, y: 70, st: "pop" }, a: 419.8, tone: "warm", r: (u, d) => <Still n="N10_box.jpg" k={u / d} kb={{ z: [1.5, 1.7], o: [36, 50] }} /> },
   { cap: { t: <>A SLOW <G>COFFEE</G></>, y: 70, st: "pop" }, a: 422.05, tone: "warm", video: true, r: (u, d) => <Clip n="V7.mp4" k={u / d} kb={{ z: [1.4, 1.75], o: [52, 45] }} /> },
   { cap: { t: <>IT BROKE?</>, y: 70, st: "pop" }, a: 427.2, r: (u, d) => <Still n="G6_laptop.jpg" k={u / d} kb={{ z: [1.3, 1.55], o: [50, 50] }} /> },
-  { cap: { t: <>FIX IT <G>NOW</G></>, y: 180, st: "pop", x: 1500 }, a: 429.25, tone: "warm", r: (u, d) => <Still n="N11_fix.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [55, 50], dx: -70 }} /> },
+  { cap: { t: <>FIX IT <G>NOW</G></>, y: 90, st: "pop", x: 1560, sz: 110 }, a: 429.25, tone: "warm", r: (u, d) => <Still n="N11_fix.jpg" k={u / d} kb={{ z: [1.0, 1.2], o: [55, 50], dx: -70 }} /> },
   { cap: { t: <>A LITTLE <G>BETTER</G></>, y: 70, st: "pop" }, a: 433.7, tone: "warm", r: (u, d) => <Still n="N12_window_back.jpg" k={u / d} kb={{ z: [1.0, 1.15], o: [55, 45] }} /> },
   // the research: real but modest
   { a: 438.25, tone: "study", video: true, r: (u, d) => <><Clip n="M9.mp4" k={u / d} kb={{ z: [1.3, 1.6], o: [50, 55] }} /><Words u={u} a={3.0} b={d} y={150} size={140}>REAL, BUT <G>MODEST</G></Words></> },
