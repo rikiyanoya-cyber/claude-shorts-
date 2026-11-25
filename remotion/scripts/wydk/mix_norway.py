@@ -23,6 +23,8 @@ AGEUP = [34.2, 39.7, 53.5, 82.4]   # the age badge steps up (same chime every ti
 # number counters: soft counter clicks along the same ease-out curve the number uses on screen (start, length)
 COUNTS = [(16.6, 2.0), (46.3, 1.5), (58.7, 1.2), (92.6, 2.0)]
 for t, n, db in EV: put(ld(f'{W}/sfx/{n}.wav'), t, db)
+# tax-list search: the name is typed on screen from 76.4 to 78.0, matching the keystrokes in the owner's typing sound
+put(ld(f'{W}/sfx/typing.wav'), 76.38, -18, False)
 ck = ld(f'{W}/sfx/count.wav')
 for a0, d in COUNTS:
     for k in range(1, 23):

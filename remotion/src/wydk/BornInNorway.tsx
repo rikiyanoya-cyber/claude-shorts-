@@ -166,15 +166,15 @@ const Stamp: React.FC<{ u: number; y: number; children: React.ReactNode }> = ({ 
 };
 // tax list search: a name is typed, the record opens, then a notice shows who looked
 const Tax: React.FC<{ u: number; seen: number }> = ({ u, seen }) => {
-  const name = "Ola Nordmann", typed = name.slice(0, Math.floor(fin(u, .3, 1.0) * name.length));
+  const name = "Ola Nordmann", typed = name.slice(0, Math.floor(interpolate(u, [.3, 1.9], [0, 1], cl) * name.length));
   const row = (y: number, k: string, v: string, a: number) => <div style={{ position: "absolute", left: 120, right: 120, top: y, display: "flex", justifyContent: "space-between", opacity: fin(u, a, .25), fontFamily: F, fontWeight: 800, fontSize: 50, color: "#1b2a33" }}><span>{k}</span><span style={{ color: "#2f6b3b" }}>{v}</span></div>;
   return <>
     <div style={{ position: "absolute", left: 80, right: 80, top: 300, height: 760, borderRadius: 36, background: CREAM, boxShadow: "0 20px 60px rgba(0,0,0,.6)", transform: `scale(${pop(u, .05)})`, opacity: u < .05 ? 0 : 1 }} />
     <div style={{ position: "absolute", left: 0, right: 0, top: 345, textAlign: "center", fontFamily: F, fontWeight: 900, fontSize: 44, letterSpacing: 6, color: RED, opacity: fin(u, .1) }}>PUBLIC TAX LIST</div>
     <div style={{ position: "absolute", left: 130, right: 130, top: 430, height: 110, borderRadius: 55, border: "5px solid #1b2a33", background: "#fff", opacity: fin(u, .15),
       fontFamily: F, fontWeight: 700, fontSize: 50, color: "#1b2a33", lineHeight: "100px", paddingLeft: 40 }}>🔍 {typed}<span style={{ opacity: Math.floor(u * 2.5) % 2 }}>|</span></div>
-    {row(610, "INCOME", "NOK 612,400", 1.5)}{row(710, "WEALTH", "NOK 1,85x,xxx", 1.8)}{row(810, "TAX PAID", "NOK 171,900", 2.1)}
-    <div style={{ position: "absolute", left: 120, right: 120, top: 930, height: 4, background: "#c9bda3", opacity: fin(u, 1.5) }} />
+    {row(610, "INCOME", "NOK 612,400", 2.1)}{row(710, "WEALTH", "NOK 1,85x,xxx", 2.3)}{row(810, "TAX PAID", "NOK 171,900", 2.5)}
+    <div style={{ position: "absolute", left: 120, right: 120, top: 930, height: 4, background: "#c9bda3", opacity: fin(u, 2.1) }} />
     <div style={{ position: "absolute", left: 100, right: 100, top: 1100, borderRadius: 28, background: "#1b2a33", color: "#fff", padding: "30px 36px", boxShadow: `0 0 0 6px ${GOLD}, 0 18px 40px rgba(0,0,0,.6)`,
       opacity: u < seen ? 0 : 1, transform: `translateY(${(1 - fin(u, seen, .35)) * 120}px)`, fontFamily: F, fontWeight: 800, fontSize: 46, lineHeight: 1.3 }}>
       👀 Your neighbor looked you up.<div style={{ fontWeight: 600, fontSize: 38, color: GOLD }}>You can see exactly who.</div></div>
