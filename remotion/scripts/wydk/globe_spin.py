@@ -11,6 +11,7 @@ IN, OUT, ISO = sys.argv[1], sys.argv[2], sys.argv[3]
 TLON, TLAT = float(sys.argv[4]), float(sys.argv[5])
 STOP = float(sys.argv[6]) if len(sys.argv) > 6 else 4.45
 DUR = float(sys.argv[7]) if len(sys.argv) > 7 else 7.0
+MODE = sys.argv[8] if len(sys.argv) > 8 else "spin"   # "out": slow zoom-out from the country (closing shot)
 os.makedirs(OUT, exist_ok=True)
 tex = np.asarray(Image.open(f"{IN}/earth_day_4096.jpg").convert("RGB")).astype(np.float32)
 TH, TW = tex.shape[:2]
@@ -38,6 +39,7 @@ def backdrop():
     vig = np.clip(1.15 - .55 * np.sqrt(((xx - W / 2) / W) ** 2 * 2 + ((yy - H / 2) / H) ** 2 * 2), .35, 1)
     return a * vig[..., None]
 BG = backdrop()
+Image.fromarray(BG.clip(0, 255).astype(np.uint8)).save(f"{OUT}/bg.jpg", quality=94)
 
 yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
 def frame(lon0, lat0, R, red, CX=W / 2, CY=H * .47):
@@ -89,6 +91,11 @@ def pointer(im, t, glow):
 ease = lambda s: 1 - (1 - s) ** 3
 T0, TURNS = .15, 3.2
 ticks = []; prev = None
+if MODE == "out":
+    for i in range(int(DUR * FPS)):
+        z = ease(i / (DUR * FPS - 1)); R = 3000 + (520 - 3000) * z
+        frame(TLON, TLAT - 18 * z, R, 1).convert("RGB").save(f"{OUT}/f{i:04d}.jpg", quality=93)
+    sys.exit(0)
 for i in range(int(DUR * FPS)):
     t = i / FPS
     if t < STOP:

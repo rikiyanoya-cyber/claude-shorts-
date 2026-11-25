@@ -15,6 +15,7 @@ import { SpotEpisode, SPOT_TEST_END, SPOT_FRAMES } from "./companies/SpotEpisode
 import { SpotThumb } from "./companies/SpotThumb";
 import { WrongCarStills, WC_S5, WC_S7_END, WrongCarEpisode, WC_END, WrongCarCover, WrongCarStory, WrongCarStory1Video, WC_STORY1_LEN } from "./companies/WrongCar";
 import { IAEp2, IA2_PART1_END, IA2_OPEN, IA2_FULL_END } from "./companies/IAEp2";
+import { BornInNorway, NO_LEN } from "./wydk/BornInNorway";
 import { Fam1Episode, FAM1_SAMPLE_END, FAM1_FRAMES } from "./companies/Fam1Episode";
 
 export const Root: React.FC = () => {
@@ -73,6 +74,7 @@ export const Root: React.FC = () => {
       <Composition id="McdOpening" component={McdOpening} width={1920} height={1080} fps={30} durationInFrames={MCD_FRAMES} />
       <Composition id="McdEpisode" component={McdEpisode} width={1920} height={1080} fps={30} durationInFrames={MCD_EP_FRAMES} />
       <Composition id="NikeEpisode" component={NikeEpisode} width={1920} height={1080} fps={30} durationInFrames={NIKE_EP_FRAMES} />
+      <Composition id="WydkNorway" component={BornInNorway} width={1080} height={1920} fps={30} durationInFrames={Math.round(NO_LEN * 30)} />
       <Composition id="IAEp2Full" component={IAEp2} width={1920} height={1080} fps={30} durationInFrames={Math.round(IA2_FULL_END * 30)} defaultProps={{ full: true }} />
       <Composition id="IAEp2Intro" component={IAEp2} width={1920} height={1080} fps={30} durationInFrames={Math.round(IA2_OPEN * 30)} defaultProps={{ intro: true }} />
       <Composition id="IAEp2Part1" component={IAEp2} width={1920} height={1080} fps={30} durationInFrames={Math.round(IA2_PART1_END * 30)} />
