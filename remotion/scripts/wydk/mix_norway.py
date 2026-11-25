@@ -21,7 +21,7 @@ EV = [(6.45, 'pop', -18), (24.7, 'pop', -19), (30.8, 'run', -17), (49.9, 'pop', 
       (80.4, 'pop', -17), (18.6, 'coins', -19), (94.6, 'coins', -19)]
 AGEUP = [34.2, 39.7, 53.5, 82.4]   # the age badge steps up (same chime every time)
 # number counters: soft counter clicks along the same ease-out curve the number uses on screen (start, length)
-COUNTS = [(16.6, 2.0), (46.3, 1.5), (59.0, 1.2), (92.6, 2.0)]
+COUNTS = [(16.6, 2.0), (46.3, 1.5), (58.7, 1.2), (92.6, 2.0)]
 for t, n, db in EV: put(ld(f'{W}/sfx/{n}.wav'), t, db)
 ck = ld(f'{W}/sfx/count.wav')
 for a0, d in COUNTS:
