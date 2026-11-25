@@ -31,5 +31,5 @@ line(150, l1, 80, (246, 238, 220))
 fw = 200 if ICON else 0; f2 = ImageFont.truetype(F, 200); tw = ImageDraw.Draw(im).textlength(l2, font=f2); gap = 34 if ICON else 0; gx = (W - (fw + gap + tw)) / 2
 if ICON: flag(gx, 300, fw)
 line(232, l2, 200, (226, 72, 61), x=gx + fw + gap)
-line(1640, l3, 110, (244, 196, 94))
+if l3: line(1640, l3, 110, (244, 196, 94))
 im.convert("RGB").save(out)
