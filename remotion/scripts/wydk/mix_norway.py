@@ -32,5 +32,15 @@ for a0, d in COUNTS:
         p = k / 23; put(ck, a0 + d * (1 - (1 - p) ** (1 / 3)), -21, False)
 up = ld(f'{W}/sfx/ageup.wav')
 for t in AGEUP: put(up, t, -15, False)
-mix = nar + fx
+# channel BGM (fixed for every episode, 2026-11-25): starts after the map opening, fades in, sits low under the voice
+BGM_IN, BGM_DB = 11.2, -23
+bg = ld('/home/user/channel_assets/WYDK_BGM_Picture_Book_Atlas.mp3'); Y = 3 * SR
+lv = np.array([rms(bg[i:i + SR]) for i in range(0, len(bg) - SR, SR)]); bg = bg[:(np.where(lv > np.median(lv) * .5)[0][-1] + 1) * SR]
+loop = bg.copy()
+while len(loop) < N: r_ = np.linspace(0, 1, Y)[:, None]; loop = np.concatenate([loop[:-Y], loop[-Y:] * (1 - r_) + bg[:Y] * r_, bg[Y:]])
+tt = np.arange(N) / SR; i0 = int(BGM_IN * SR)
+g = np.zeros(N); g[i0:] = 10 ** (BGM_DB / 20) * vr / rms(bg)
+g *= np.clip((tt - BGM_IN) / 1.5, 0, 1) * np.clip((N / SR - tt) / 2.0, 0, 1)
+music = np.zeros((N, 2), np.float32); music[i0:] = loop[:N - i0]
+mix = nar + fx + music * g[:, None]
 sf.write(OUT, mix / max(1, np.abs(mix).max() / .95), SR); print('ok')
