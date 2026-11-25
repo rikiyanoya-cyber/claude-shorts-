@@ -31,9 +31,16 @@ const sh = "0 6px 26px rgba(0,0,0,.75), 0 0 3px rgba(0,0,0,.8)";
 
 // painted backdrop (same as the globe opening) with a slow drift
 const Bg: React.FC<{ u: number }> = ({ u }) => <Img src={src("bg.jpg")} style={{ position: "absolute", width: W, height: H, transform: `scale(${1.04 + .012 * Math.sin(u * .4)})` }} />;
-// a generated picture, full frame, gentle push-in (max 3 s on screen)
-const Pic: React.FC<{ n: string; u: number; d: number; o?: [number, number] }> = ({ n, u, d, o = [50, 50] }) =>
-  <Img src={src(`img/${n}.jpg`)} style={{ position: "absolute", width: W, height: H, objectFit: "cover", objectPosition: `${o[0]}% ${o[1]}%`, transform: `scale(${1.02 + .07 * (u / d)})`, transformOrigin: `${o[0]}% ${o[1]}%` }} />;
+// a generated picture, full frame; the camera move alternates per shot (push in, pull out, pan up/down/left/right)
+type Mv = "in" | "out" | "up" | "down" | "left" | "right";
+const Pic: React.FC<{ n: string; u: number; d: number; o?: [number, number]; mv?: Mv }> = ({ n, u, d, o = [50, 50], mv = "in" }) => {
+  const k = interpolate(u / d, [0, 1], [0, 1], { ...cl, easing: Easing.inOut(Easing.sin) });
+  const z = mv === "in" ? 1.04 + .1 * k : mv === "out" ? 1.14 - .1 * k : 1.14;
+  const px = mv === "left" ? 40 - 80 * k : mv === "right" ? -40 + 80 * k : 0, py = mv === "up" ? 60 - 120 * k : mv === "down" ? -60 + 120 * k : 0;
+  return <Img src={src(`img/${n}.jpg`)} style={{ position: "absolute", width: W, height: H, objectFit: "cover", objectPosition: `${o[0]}% ${o[1]}%`, transform: `translate(${px}px, ${py}px) scale(${z})`, transformOrigin: `${o[0]}% ${o[1]}%` }} />;
+};
+// dark band at the top so words read over a picture
+const Shade: React.FC = () => <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(6,14,20,.82) 0%, rgba(6,14,20,.4) 30%, rgba(6,14,20,0) 46%)" }} />;
 const Big: React.FC<{ u: number; a: number; y: number; size: number; color?: string; children: React.ReactNode; font?: string }> = ({ u, a, y, size, color = "#fff", children, font = NUM }) =>
   <div style={{ position: "absolute", left: 0, right: 0, top: y, textAlign: "center", opacity: u < a ? 0 : 1, transform: `scale(${pop(u, a)})` }}>
     <span style={{ fontFamily: font, fontWeight: 900, fontSize: size, lineHeight: 1.02, color, letterSpacing: 2, textShadow: sh }}>{children}</span></div>;
@@ -62,6 +69,11 @@ const OilDrop: React.FC<{ s?: number }> = ({ s = 1 }) => <svg width={220 * s} he
   <defs><radialGradient id="od" cx="35%" cy="55%" r="70%"><stop offset="0" stopColor="#3b3b3b" /><stop offset=".7" stopColor="#0d0d0d" /><stop offset="1" stopColor="#000" /></radialGradient></defs>
   <path d="M110 6 C150 80 210 140 210 190 A100 100 0 0 1 10 190 C10 140 70 80 110 6Z" fill="url(#od)" stroke={GOLD} strokeWidth={6} />
   <ellipse cx="72" cy="185" rx="18" ry="34" fill="#fff" opacity=".35" /></svg>;
+const FundB: React.FC<{ u: number }> = ({ u }) => <>
+  <div style={{ position: "absolute", left: 0, right: 0, top: 330, textAlign: "center", transform: `scale(${pop(u, .05)})`, opacity: u < .05 ? 0 : 1 }}><OilDrop /></div>
+  <Big u={u} a={.15} y={680} size={130} color={GOLD}>SAVED, NOT SPENT</Big>
+  <Big u={u} a={2.4} y={880} size={130}>BIGGEST ON EARTH</Big>
+</>;
 const Fund: React.FC<{ u: number; pension?: boolean }> = ({ u, pension }) => <>
   <div style={{ position: "absolute", left: 0, right: 0, top: 330, textAlign: "center", transform: `scale(${pop(u, .1)})`, opacity: u < .1 ? 0 : 1 }}><OilDrop /></div>
   {pension ? <>
@@ -183,9 +195,11 @@ const Age: React.FC<{ t: number }> = ({ t }) => {
   for (let i = 0; i < AGES.length; i++) if (t >= AGES[i][0]) { const prev = i ? AGES[i - 1][1] : 0; v = Math.round(prev + (AGES[i][1] - prev) * interpolate(t, [AGES[i][0], AGES[i][0] + .5], [0, 1], { ...cl, easing: Easing.out(Easing.cubic) })); a0 = AGES[i][0]; }
   const fresh = t >= 91.1;   // the grandchild: a new life, a new AGE 0 (scene cut, no counting back)
   if (fresh) { v = 0; a0 = 91.1; }
-  const z = 1 + .14 * Math.exp(-(t - a0) * 6);
-  return <div style={{ position: "absolute", left: 56, top: 150, padding: "10px 30px", borderRadius: 22, background: "rgba(10,22,28,.78)", border: `4px solid ${GOLD}`, transform: `scale(${z})`, transformOrigin: "0 0",
-    fontFamily: NUM, fontSize: 74, letterSpacing: 4, color: "#fff" }}>AGE <span style={{ color: GOLD }}>{v}</span></div>;
+  const z = 1 + .14 * Math.exp(-(t - a0) * 6), lv = Math.min(1, v / 80);
+  return <><div style={{ position: "absolute", left: 56, right: 56, top: 112, height: 12, borderRadius: 6, background: "rgba(255,255,255,.18)" }}>
+    <div style={{ width: `${Math.max(2, lv * 100)}%`, height: 12, borderRadius: 6, background: GOLD, boxShadow: `0 0 14px ${GOLD}` }} /></div>
+  <div style={{ position: "absolute", left: 56, top: 150, padding: "10px 30px", borderRadius: 22, background: "rgba(10,22,28,.78)", border: `4px solid ${GOLD}`, transform: `scale(${z})`, transformOrigin: "0 0",
+    fontFamily: NUM, fontSize: 74, letterSpacing: 4, color: "#fff" }}>AGE <span style={{ color: GOLD }}>{v}</span></div></>;
 };
 const Caption: React.FC<{ t: number }> = ({ t }) => {
   const c = (CAPS as [string, number, number][]).find(([, a, b]) => t >= a && t < b);
@@ -198,28 +212,30 @@ const Caption: React.FC<{ t: number }> = ({ t }) => {
 type Sc = { a: number; r: (u: number, d: number) => React.ReactNode; bg?: boolean; age?: boolean };
 const SC: Sc[] = [
   { a: 0, r: (u) => <><Spin t={u} />{u > 6.3 && <OneIn u={u - 6.3} />}</> },
-  { a: 11.2, r: (u, d) => <Pic n="born" u={u} d={d} o={[50, 45]} /> },
+  { a: 11.2, r: (u, d) => <Pic n="born" u={u} d={d} o={[50, 45]} mv="in" /> },
   { a: 13.6, bg: true, age: true, r: (u) => <Money u={u} a={3.0} /> },
-  { a: 19.3, bg: true, age: true, r: (u) => <Fund u={u} /> },
+  { a: 19.3, age: true, r: (u, d) => <><Pic n="coins" u={u} d={d} o={[60, 55]} mv="up" /><Shade /><Big u={u} a={.3} y={310} size={140} color={GOLD}>THE OIL FUND</Big></> },
+  { a: 22.3, bg: true, age: true, r: (u) => <FundB u={u} /> },
   { a: 27.0, bg: true, age: true, r: (u) => <Weeks u={u} dad={3.7} /> },
-  { a: 32.0, age: true, r: (u, d) => <Pic n="dad" u={u} d={d} o={[55, 45]} /> },
-  { a: 34.1, age: true, r: (u, d) => <Pic n="school" u={u} d={d} o={[40, 55]} /> },
+  { a: 32.0, age: true, r: (u, d) => <Pic n="dad" u={u} d={d} o={[55, 45]} mv="left" /> },
+  { a: 34.1, age: true, r: (u, d) => <Pic n="school" u={u} d={d} o={[40, 55]} mv="out" /> },
   { a: 37.0, bg: true, age: true, r: (u) => <Free u={u} /> },
-  { a: 39.6, age: true, r: (u, d) => <Pic n="russ" u={u} d={d} o={[55, 55]} /> },
-  { a: 42.6, bg: true, age: true, r: (u) => <Party u={u} /> },
-  { a: 46.2, bg: true, age: true, r: (u) => <Bus u={u} /> },
+  { a: 39.6, age: true, r: (u, d) => <Pic n="russ" u={u} d={d} o={[55, 55]} mv="in" /> },
+  { a: 42.6, age: true, r: (u, d) => <><Pic n="bonfire" u={u} d={d} o={[50, 60]} mv="down" /><Shade /><Big u={u} a={.2} y={300} size={120} color={RED}>RED OVERALLS</Big><Big u={u} a={.7} y={435} size={128} color={GOLD}>1 MONTH OF PARTY</Big></> },
+  { a: 45.6, bg: true, age: true, r: (u) => <><Confetti u={u} /><Bus u={u - .4} /></> },
   { a: 49.8, bg: true, age: true, r: (u) => <May17 u={u} /> },
-  { a: 53.4, age: true, r: (u, d) => <Pic n="army" u={u} d={d} o={[55, 45]} /> },
+  { a: 51.0, age: true, r: (u, d) => <Pic n="parade" u={u} d={d} o={[50, 60]} mv="right" /> },
+  { a: 53.4, age: true, r: (u, d) => <Pic n="army" u={u} d={d} o={[55, 45]} mv="in" /> },
   { a: 56.4, bg: true, age: true, r: (u) => <Army u={u} cut={2.6} /> },
-  { a: 63.7, bg: true, age: true, r: (u) => <Hours u={u} /> },
-  { a: 66.7, age: true, r: (u, d) => <Pic n="ev" u={u} d={d} o={[45, 55]} /> },
+  { a: 63.7, age: true, r: (u, d) => <><Pic n="office" u={u} d={d} o={[55, 45]} mv="out" /><Shade /><Big u={u} a={.3} y={300} size={190} color={GOLD}>37.5 H</Big><Sub u={u} a={.8} y={520}>A WEEK</Sub></> },
+  { a: 66.7, age: true, r: (u, d) => <Pic n="ev" u={u} d={d} o={[45, 55]} mv="left" /> },
   { a: 69.5, bg: true, age: true, r: (u) => <EvCard u={u} /> },
   { a: 71.8, bg: true, age: true, r: (u) => <Stamp u={u} y={640}>THE CATCH</Stamp> },
-  { a: 73.3, age: true, r: (u, d) => <><Pic n="laptop" u={u} d={d} o={[55, 40]} /><Big u={u} a={.4} y={300} size={120} color={GOLD}>SALARY: PUBLIC</Big></> },
+  { a: 73.3, age: true, r: (u, d) => <><Pic n="laptop" u={u} d={d} o={[55, 40]} mv="in" /><Shade /><Big u={u} a={.4} y={300} size={120} color={GOLD}>SALARY: PUBLIC</Big></> },
   { a: 76.1, bg: true, age: true, r: (u) => <Tax u={u} seen={4.3} /> },
-  { a: 82.3, age: true, r: (u, d) => <Pic n="retire" u={u} d={d} o={[40, 50]} /> },
-  { a: 85.3, bg: true, age: true, r: (u) => <Fund u={u} pension /> },
-  { a: 88.1, r: (u, d) => <Pic n="grandchild" u={u} d={d} o={[45, 55]} /> },
+  { a: 82.3, age: true, r: (u, d) => <Pic n="retire" u={u} d={d} o={[40, 50]} mv="out" /> },
+  { a: 85.3, age: true, r: (u, d) => <><Pic n="pension" u={u} d={d} o={[55, 50]} mv="in" /><Shade /><Big u={u} a={.2} y={300} size={130} color={GOLD}>OIL FUND</Big><Big u={u} a={.8} y={450} size={110}>= YOUR PENSION</Big></> },
+  { a: 88.1, r: (u, d) => <Pic n="grandchild" u={u} d={d} o={[45, 55]} mv="up" /> },
   { a: 91.1, bg: true, r: (u) => <Money u={u} a={1.5} /> },
   { a: 96.9, r: (u) => <EndMap u={u} /> },
   { a: 101.9, r: (u) => <End u={u} /> },
@@ -232,7 +248,8 @@ export const BornInNorway: React.FC = () => {
   const s = SC[i], d = (SC[i + 1]?.a ?? NO_LEN) - s.a, u = t - s.a;
   return <AbsoluteFill style={{ background: "#0a1418" }}>
     {s.bg && <Bg u={t} />}
-    <AbsoluteFill style={{ opacity: fin(u, 0, .12) }}>{s.r(u, d)}</AbsoluteFill>
+    <AbsoluteFill style={{ opacity: fin(u, 0, .1), transform: `scale(${i === 0 ? 1 : 1 + .06 * Math.exp(-u * 14)})` }}>{s.r(u, d)}</AbsoluteFill>
+    {i > 0 && u < .12 && <AbsoluteFill style={{ background: "#fff", opacity: .22 * (1 - u / .12) }} />}
     {(s.age || t >= 91.1 && t < 96.9) && <Age t={t} />}
     <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 60%, rgba(0,0,0,.35) 100%)" }} />
     <Caption t={t} />
