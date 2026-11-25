@@ -13,14 +13,21 @@ def put(x, t, db, pitch=True):
     i = int(t * SR); j = min(N, i + len(x)); fx[i:j] += x[:j - i] * (10 ** (db / 20) * vr / rms(x))
 # roulette: ticks as the globe turns, ding on the stop (same every episode)
 T = json.load(open(f'{W}/spin/ticks.json')); tick = ld(f'{W}/sfx/tick.wav'); ding = ld(f'{W}/sfx/ding.wav')
-for t in T['ticks']: put(tick, t, -16, False)
-put(ding, T['stop'], -8, False)
-# 2026-11-25 research: 10-20 sounds, 4-5 s apart, only on information events (a number, a label, a reveal); light -15..-20 dB, impact -10..-12
-EV = [(6.45, 'pop', -17), (16.6, 'coins', -15), (24.7, 'pop', -17), (30.8, 'xylo', -16), (46.6, 'coins', -15), (49.9, 'pop', -17),
-      (61.4, 'boing', -12), (71.85, 'freeze', -11), (80.4, 'pop', -15), (92.6, 'coins', -15)]
+for t in T['ticks']: put(tick, t, -20, False)
+put(ding, T['stop'], -12, False)
+# 2026-11-25 research: 10-20 sounds, 4-5 s apart, only on information events. The owner made the sounds (anime-like,
+# a little mechanical) and asked for nothing harsh, so everything sits low: light -18..-20 dB, the stamp -16.
+EV = [(6.45, 'pop', -18), (24.7, 'pop', -19), (30.8, 'run', -17), (49.9, 'pop', -19), (61.45, 'stamp', -16), (71.9, 'stamp', -16),
+      (80.4, 'pop', -17), (18.6, 'coins', -19), (94.6, 'coins', -19)]
 AGEUP = [34.2, 39.7, 53.5, 82.4]   # the age badge steps up (same chime every time)
-for t, n, db in EV: put(ld(f'{SFX}/{n}.wav'), t, db)
+# number counters: soft counter clicks along the same ease-out curve the number uses on screen (start, length)
+COUNTS = [(16.6, 2.0), (46.3, 1.5), (59.0, 1.2), (92.6, 2.0)]
+for t, n, db in EV: put(ld(f'{W}/sfx/{n}.wav'), t, db)
+ck = ld(f'{W}/sfx/count.wav')
+for a0, d in COUNTS:
+    for k in range(1, 23):
+        p = k / 23; put(ck, a0 + d * (1 - (1 - p) ** (1 / 3)), -21, False)
 up = ld(f'{W}/sfx/ageup.wav')
-for t in AGEUP: put(up, t, -12, False)
+for t in AGEUP: put(up, t, -15, False)
 mix = nar + fx
 sf.write(OUT, mix / max(1, np.abs(mix).max() / .95), SR); print('ok')
