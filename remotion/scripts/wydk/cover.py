@@ -6,7 +6,9 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 art, out, l1, l2, l3 = sys.argv[1:6]
 W, H = 1080, 1920
 F = "/home/user/claude-shorts-/remotion/.pub_wydk/fonts/Anton.ttf"
-ZOOM, CX, CY = 1.32, .56, .50   # push in on the character + flag so the flag reads at phone size
+import os
+# push in on the character + flag so the flag reads at phone size; ICON=1 adds a flag icon beside the country name
+ZOOM, CX, CY = float(os.environ.get("ZOOM", 1.32)), float(os.environ.get("CX", .56)), float(os.environ.get("CY", .5)); ICON = os.environ.get("ICON", "1") == "1"
 im = Image.open(art).convert("RGB")
 s = max(W / im.width, H / im.height) * ZOOM; im = im.resize((round(im.width * s), round(im.height * s)), Image.LANCZOS)
 x0 = min(max(0, round(im.width * CX - W / 2)), im.width - W); y0 = min(max(0, round(im.height * CY - H / 2)), im.height - H)
@@ -26,7 +28,8 @@ def line(y, text, size, fill, shadow=18, x=None):
     im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(shadow)))
     d = ImageDraw.Draw(im); d.text((x, y), text, font=f, fill=fill, stroke_width=4, stroke_fill=(8, 18, 24))
 line(150, l1, 80, (246, 238, 220))
-fw = 200; f2 = ImageFont.truetype(F, 200); tw = ImageDraw.Draw(im).textlength(l2, font=f2); gx = (W - (fw + 34 + tw)) / 2
-flag(gx, 300, fw); line(232, l2, 200, (226, 72, 61), x=gx + fw + 34)
+fw = 200 if ICON else 0; f2 = ImageFont.truetype(F, 200); tw = ImageDraw.Draw(im).textlength(l2, font=f2); gap = 34 if ICON else 0; gx = (W - (fw + gap + tw)) / 2
+if ICON: flag(gx, 300, fw)
+line(232, l2, 200, (226, 72, 61), x=gx + fw + gap)
 line(1640, l3, 110, (244, 196, 94))
 im.convert("RGB").save(out)
