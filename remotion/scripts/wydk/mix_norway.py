@@ -15,10 +15,12 @@ def put(x, t, db, pitch=True):
 T = json.load(open(f'{W}/spin/ticks.json')); tick = ld(f'{W}/sfx/tick.wav'); ding = ld(f'{W}/sfx/ding.wav')
 for t in T['ticks']: put(tick, t, -16, False)
 put(ding, T['stop'], -8, False)
-EV = [(6.45, 'pop', -16), (16.6, 'coins', -14), (19.4, 'sparkle', -17), (27.1, 'pop', -16), (30.8, 'xylo', -16), (34.2, 'pop', -17),
-      (37.1, 'sparkle', -17), (39.7, 'party', -14), (46.3, 'coins', -14), (49.9, 'pop', -16), (53.5, 'pop', -17), (59.0, 'swish', -17),
-      (61.4, 'boing', -14), (63.8, 'pop', -17), (69.6, 'sparkle', -17), (71.85, 'freeze', -13), (76.2, 'pop', -17), (80.4, 'heart', -15),
-      (82.4, 'pop', -17), (85.4, 'coins', -15), (91.15, 'sparkle', -16), (92.6, 'coins', -15), (101.95, 'pop', -16)]
+# 2026-11-25 research: 10-20 sounds, 4-5 s apart, only on information events (a number, a label, a reveal); light -15..-20 dB, impact -10..-12
+EV = [(6.45, 'pop', -17), (16.6, 'coins', -15), (24.7, 'pop', -17), (30.8, 'xylo', -16), (46.6, 'coins', -15), (49.9, 'pop', -17),
+      (61.4, 'boing', -12), (71.85, 'freeze', -11), (80.4, 'pop', -15), (92.6, 'coins', -15)]
+AGEUP = [34.2, 39.7, 53.5, 82.4]   # the age badge steps up (same chime every time)
 for t, n, db in EV: put(ld(f'{SFX}/{n}.wav'), t, db)
+up = ld(f'{W}/sfx/ageup.wav')
+for t in AGEUP: put(up, t, -12, False)
 mix = nar + fx
 sf.write(OUT, mix / max(1, np.abs(mix).max() / .95), SR); print('ok')
