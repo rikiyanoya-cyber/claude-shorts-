@@ -92,8 +92,8 @@ const Weeks: React.FC<{ u: number; dad: number }> = ({ u, dad }) => {
   const S = 76, G = 12, x0 = (W - (7 * S + 6 * G)) / 2, y0 = 600;
   return <>
     <Big u={u} a={.1} y={330} size={150} color={GOLD}>49 WEEKS</Big>
-    <Sub u={u} a={2.4} y={510}>FULLY PAID</Sub>
-    {Array.from({ length: 49 }, (_, i) => { const r = Math.floor(i / 7), c = i % 7, o = fin(u, .3 + i * .035, .15), isDad = i >= 34 && u > dad + (i - 34) * .04;
+    <Sub u={u} a={.3} y={510}>FULLY PAID</Sub>
+    {Array.from({ length: 49 }, (_, i) => { const r = Math.floor(i / 7), c = i % 7, o = fin(u, .1 + i * .016, .12), isDad = i >= 34 && u > dad + (i - 34) * .04;
       return <div key={i} style={{ position: "absolute", left: x0 + c * (S + G), top: y0 + r * (S + G), width: S, height: S, borderRadius: 16, opacity: o,
         background: isDad ? BLUE : "#F2E6CC", boxShadow: isDad ? `0 0 22px ${BLUE}` : "0 4px 12px rgba(0,0,0,.4)", transform: `scale(${.6 + .4 * o})` }} />; })}
     {u > dad && <Big u={u} a={dad + .2} y={1215} size={100} color={BLUE}>15 FOR DAD</Big>}
@@ -216,10 +216,12 @@ const SC: Sc[] = [
   { a: 13.6, bg: true, age: true, r: (u) => <Money u={u} a={3.0} /> },
   { a: 19.3, age: true, r: (u, d) => <><Pic n="coins" u={u} d={d} o={[60, 55]} mv="up" /><Shade /><Big u={u} a={.3} y={330} size={140} color={GOLD}>THE OIL FUND</Big></> },
   { a: 22.3, bg: true, age: true, r: (u) => <FundB u={u} /> },
-  { a: 27.0, bg: true, age: true, r: (u) => <Weeks u={u} dad={3.7} /> },
+  { a: 27.0, age: true, r: (u, d) => <><Pic n="sofa" u={u} d={d} o={[50, 55]} mv="in" /><Shade /><Big u={u} a={.4} y={330} size={150} color={GOLD}>49 WEEKS OFF</Big></> },
+  { a: 29.5, bg: true, age: true, r: (u) => <Weeks u={u} dad={1.3} /> },
   { a: 32.0, age: true, r: (u, d) => <Pic n="dad" u={u} d={d} o={[55, 45]} mv="left" /> },
   { a: 34.1, age: true, r: (u, d) => <Pic n="school" u={u} d={d} o={[40, 55]} mv="out" /> },
-  { a: 37.0, bg: true, age: true, r: (u) => <Free u={u} /> },
+  { a: 36.0, bg: true, age: true, r: (u) => <Free u={u} /> },
+  { a: 37.9, r: (u, d) => <><Pic n="grad" u={u} d={d} o={[50, 45]} mv="up" /><Shade /><Big u={u} a={.2} y={300} size={130} color={GOLD}>UNIVERSITY: FREE</Big></> },
   { a: 39.6, age: true, r: (u, d) => <Pic n="russ" u={u} d={d} o={[55, 55]} mv="in" /> },
   { a: 42.6, age: true, r: (u, d) => <><Pic n="bonfire" u={u} d={d} o={[50, 60]} mv="down" /><Shade /><Big u={u} a={.2} y={330} size={120} color={RED}>RED OVERALLS</Big><Big u={u} a={.7} y={465} size={128} color={GOLD}>1 MONTH OF PARTY</Big></> },
   { a: 45.6, bg: true, age: true, r: (u) => <><Confetti u={u} /><Bus u={u - .4} /></> },
@@ -227,12 +229,15 @@ const SC: Sc[] = [
   { a: 51.0, age: true, r: (u, d) => <Pic n="parade" u={u} d={d} o={[50, 60]} mv="right" /> },
   { a: 53.4, age: true, r: (u, d) => <Pic n="army" u={u} d={d} o={[55, 45]} mv="in" /> },
   { a: 56.4, bg: true, age: true, r: (u) => <Army u={u} cut={2.6} /> },
+  { a: 61.2, age: true, r: (u, d) => <><Pic n="recruits" u={u} d={d} o={[50, 60]} mv="out" /><Stamp u={u} y={330}>HARD TO GET IN</Stamp></> },
   { a: 63.7, age: true, r: (u, d) => <><Pic n="office" u={u} d={d} o={[55, 45]} mv="out" /><Shade /><Big u={u} a={.3} y={330} size={190} color={GOLD}>37.5 H</Big><Sub u={u} a={.8} y={550}>A WEEK</Sub></> },
   { a: 66.7, age: true, r: (u, d) => <Pic n="ev" u={u} d={d} o={[45, 55]} mv="left" /> },
   { a: 69.5, bg: true, age: true, r: (u) => <EvCard u={u} /> },
   { a: 71.8, bg: true, age: true, r: (u) => <Stamp u={u} y={640}>THE CATCH</Stamp> },
   { a: 73.3, age: true, r: (u, d) => <><Pic n="laptop" u={u} d={d} o={[55, 40]} mv="in" /><Shade /><Big u={u} a={.4} y={330} size={120} color={GOLD}>SALARY: PUBLIC</Big></> },
-  { a: 76.1, bg: true, age: true, r: (u) => <Tax u={u} seen={4.3} /> },
+  { a: 76.1, bg: true, age: true, r: (u) => <Tax u={u} seen={99} /> },
+  { a: 78.9, age: true, r: (u, d) => <Pic n="neighbor" u={u} d={d} o={[35, 50]} mv="in" /> },
+  { a: 80.4, bg: true, age: true, r: (u) => <Tax u={u + 3} seen={3.05} /> },
   { a: 82.3, age: true, r: (u, d) => <Pic n="retire" u={u} d={d} o={[40, 50]} mv="out" /> },
   { a: 85.3, age: true, r: (u, d) => <><Pic n="pension" u={u} d={d} o={[55, 50]} mv="in" /><Shade /><Big u={u} a={.2} y={330} size={130} color={GOLD}>OIL FUND</Big><Big u={u} a={.8} y={480} size={110}>= YOUR PENSION</Big></> },
   { a: 88.1, r: (u, d) => <Pic n="grandchild" u={u} d={d} o={[45, 55]} mv="up" /> },
