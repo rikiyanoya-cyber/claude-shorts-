@@ -128,7 +128,7 @@ def draw_age(fr, t):
         j = max(i for i, (a, _) in enumerate(AGES) if a <= t); a, tgt = AGES[j]; prev = AGES[j - 1][1] if j else tgt
         k = t - a; n = round(prev + (tgt - prev) * ease(k / .6))
     else: return
-    l = badge_layer(n); s = back(k / .35) if k < .6 else 1
+    l = badge_layer(n); s = max(.1, back(k / .35)) if k < .6 else 1
     if abs(s - 1) > .005: l = l.resize((int(l.width * s), int(l.height * s)), Image.BILINEAR)
     fr.alpha_composite(l, (int(30 + 190 - l.width / 2), int(10 + 95 - l.height / 2)))
 
