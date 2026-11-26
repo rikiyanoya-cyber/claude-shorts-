@@ -6,7 +6,9 @@ ld = lambda p: np.frombuffer(subprocess.run(['ffmpeg', '-v', 'error', '-i', p, '
 rms = lambda x: np.sqrt((x[np.abs(x).max(1) > 1e-4] ** 2).mean())
 nar = ld(f'{W}/in/narration.wav'); nar = np.pad(nar, ((0, max(0, N - len(nar))), (0, 0)))[:N]; vr = rms(nar)
 fx = np.zeros((N, 2), np.float32)
+SFX_GAIN = 6   # 2026-11-26 owner: effects need not be that quiet; every effect +6 dB
 def put(x, t, db):
+    db += SFX_GAIN
     i = int(t * SR); j = min(N, i + len(x)); fx[i:j] += x[:j - i] * (10 ** (db / 20) * vr / rms(x))
 E = json.load(open(f'{W}/globe/events.json'))
 tick, ding = ld(f'{SFX}/u_tick.mp3'), ld(f'{SFX}/u_ding.mp3')
