@@ -47,7 +47,7 @@ SHOTS = [
 # text and signs written into the pictures, blurred (768x1376 px)
 CITY_SIGNS = [(0, 1080, 200, 1376), (150, 990, 420, 1090), (380, 700, 460, 840)]   # shop signs on the shared Indore street
 BLUR = {"01_city": CITY_SIGNS, "03_bike": CITY_SIGNS, "11_commute": CITY_SIGNS,
-        "09_bossfight": [(585, 205, 768, 470)], "16b_grandchild": [(150, 590, 330, 640)]}
+        "09_bossfight": [(585, 205, 768, 470)], "16b_grandchild": [(122, 478, 180, 520), (255, 488, 292, 530)]}
 IMG = {}
 def load(n):
     if n in IMG: return IMG[n]
