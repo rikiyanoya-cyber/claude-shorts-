@@ -81,7 +81,7 @@ def c_1in37(l):
     card(l, (150, 170, 930, 610), seed=11); outlined(l, (540, 250), "OUT OF EVERY", F_HAND(70), fill=INK, sw=0, shadow=False)
     outlined(l, (540, 380), "37 BABIES", F_BIG(130), fill=AMBER); outlined(l, (540, 520), "ONE IS BORN HERE", F_HAND(66), fill=INK, sw=0, shadow=False)
 def c_four(l):
-    card(l, (160, 190, 920, 420), seed=12); outlined(l, (540, 305), "4 COUNTRIES, 1 FLAG", F_BIG(84), fill=AMBER)
+    card(l, (160, 190, 920, 420), seed=12); outlined(l, (540, 305), "4 COUNTRIES, 1 FLAG", F_BIG(70), fill=AMBER)
 def c_queens(l):
     card(l, (190, 200, 890, 420), seed=13); outlined(l, (540, 280), "THE EAST", F_HAND(70), fill=INK, sw=0, shadow=False); outlined(l, (540, 365), "QUEENS, NYC", F_BIG(96), fill=AMBER)
 def c_income_a(l):
