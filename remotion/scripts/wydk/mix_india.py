@@ -25,8 +25,8 @@ bg = ld('/home/user/channel_assets/WYDK_BGM_Picture_Book_Atlas.mp3'); Y = 3 * SR
 lv = np.array([rms(bg[i:i + SR]) for i in range(0, len(bg) - SR, SR)]); bg = bg[:(np.where(lv > np.median(lv) * .5)[0][-1] + 1) * SR]
 loop = bg.copy()
 while len(loop) < N: r_ = np.linspace(0, 1, Y)[:, None]; loop = np.concatenate([loop[:-Y], loop[-Y:] * (1 - r_) + bg[:Y] * r_, bg[Y:]])
-t = np.arange(N) / SR; i0 = int(16.05 * SR); g = np.zeros(N); g[i0:] = 10 ** (-23 / 20) * vr / rms(bg)
-g *= np.clip((t - 16.05) / 1.5, 0, 1) * np.clip((END - t) / 2.0, 0, 1)
+t = np.arange(N) / SR; i0 = int(11.1 * SR); g = np.zeros(N); g[i0:] = 10 ** (-23 / 20) * vr / rms(bg)
+g *= np.clip((t - 11.1) / 1.5, 0, 1) * np.clip((END - t) / 2.0, 0, 1)
 mus = np.zeros((N, 2), np.float32); mus[i0:] = loop[:N - i0]
 mix = nar + fx + mus * g[:, None]
 sf.write(OUT, mix / max(1, np.abs(mix).max() / .95), SR); print('ok')

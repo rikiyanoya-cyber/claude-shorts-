@@ -34,10 +34,10 @@ def outlined(layer, xy, text, font, fill=CREAM, stroke=INK, sw=8, anchor="mm", s
     if shadow: rtext(d, (xy[0] + 6, xy[1] + 8), text, font, anchor, fill=INK + (170,), stroke_width=sw, stroke_fill=INK + (170,))
     rtext(d, xy, text, font, anchor, fill=fill + (255,), stroke_width=sw, stroke_fill=stroke + (255,))
 
-GLOBE_END, GLOBE_N = 16.05, 481
+GLOBE_END, GLOBE_N = 11.1, 333
 # ---------- backgrounds: image, start, motion, focus
 SHOTS = [
-    ("02_hospital", 16.05, "in", (.5, .55)), ("03_bike", 22.5, "right", (.5, .6)), ("04_office", 29.05, "in", (.55, .55)),
+    ("01_city", 11.1, "in", (.5, .45)), ("02_hospital", 16.05, "in", (.5, .55)), ("03_bike", 22.5, "right", (.5, .6)), ("04_office", 29.05, "in", (.55, .55)),
     ("05_grandpa", 38.65, "out", (.4, .55)), ("06_bazaar", 43.88, "in", (.45, .5)), ("07_relatives", 53.6, "in", (.5, .5)),
     ("08_exam", 56.24, "out", (.5, .6)), ("09_bossfight", 61.82, "in", (.5, .5)), ("10_missed", 73.5, "in", (.4, .55)),
     ("11_commute", 75.82, "left", (.5, .55)), ("12_aunt", 80.54, "in", (.55, .45)), ("13_wedding", 84.82, "out", (.5, .45)),
@@ -45,8 +45,9 @@ SHOTS = [
     ("16b_grandchild", 106.26, "in", (.45, .5)), ("END", 109.6, "out", (.45, .5)),
 ]
 # text and signs written into the pictures, blurred (768x1376 px)
-BLUR = {"02_hospital": [(130, 375, 318, 435), (0, 465, 95, 515)], "03_bike": [(0, 220, 120, 330), (650, 150, 768, 320), (190, 260, 300, 320), (708, 1072, 768, 1092)],
-        "09_bossfight": [(585, 205, 768, 470)], "11_commute": [(0, 255, 768, 345)], "16b_grandchild": [(150, 590, 330, 640)]}
+CITY_SIGNS = [(0, 1080, 200, 1376), (150, 990, 420, 1090), (380, 700, 460, 840)]   # shop signs on the shared Indore street
+BLUR = {"01_city": CITY_SIGNS, "03_bike": CITY_SIGNS, "11_commute": CITY_SIGNS,
+        "09_bossfight": [(585, 205, 768, 470)], "16b_grandchild": [(150, 590, 330, 640)]}
 IMG = {}
 def load(n):
     if n in IMG: return IMG[n]
@@ -178,8 +179,8 @@ def draw_age(fr, t):
     fr.alpha_composite(l, (int(30 + 190 - l.width / 2), int(10 + 95 - l.height / 2)))
 
 OV = [
-    ("shade_g", shade, 5.3, 16.05, False), ("1in6", c_1in6, 5.42, 10.95, True), ("indore", c_indore, 11.1, 16.05, True),
-    ("shade1", shade, 16.05, 109.6, False),
+    ("shade_g", shade, 5.3, 11.1, False), ("1in6", c_1in6, 5.42, 10.95, True), ("indore", c_indore, 11.1, 16.05, True),
+    ("shade1", shade, 11.1, 109.6, False),
     ("free", c_free, 18.34, 22.5, True), ("free_s", c_free_s, 20.6, 22.5, False), ("r2300", c_2300, 20.94, 22.5, True),
     ("pay", c_pay, 29.89, 38.65, True), ("payusd", c_pay_usd, 31.85, 38.65, True), ("no", c_no, 33.69, 38.65, True),
     ("x0", c_x(0), 36.01, 38.65, True), ("x1", c_x(1), 36.89, 38.65, True), ("x2", c_x(2), 37.77, 38.65, True),
