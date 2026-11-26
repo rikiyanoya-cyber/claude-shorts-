@@ -14,11 +14,11 @@ for t in E['ticks']: put(tick, t, -20)
 put(ding, E['stop1'], -12); put(ding, E['stop2'], -12)
 pop, stamp, coins, click, up = ld(f'{SFX}/u_pop.mp3'), ld(f'{SFX}/u_stamp.mp3'), ld(f'{SFX}/u_coins.mp3'), ld(f'{SFX}/u_click.mp3'), ld(f'{SFX}/ageup.wav')
 # information events only (a number, a card, a stamp), soft
-for t in (6.2, 13.9, 20.2, 26.0, 36.5, 48.95, 51.6, 69.05, 89.4): put(pop, t, -18)
+for t in (6.2, 13.9, 20.2, 26.0, 48.95, 69.6, 89.4): put(pop, t, -18)   # (no pop where an age chime already plays)
 for t in (54.5, 56.9, 60.4, 61.6): put(click, t - .077, -19)       # NYC RULES checks
 put(coins, 29.85, -17); put(coins, 74.1, -17)                      # $80,000 / $126,000
 put(stamp, 75.6 - .4, -15); put(stamp, 88.59 - .4, -15)            # DENIED / ILLEGAL (stamp hit is 0.4 s into the file)
-for t in (45.95, 62.41): put(up, t, -16)                           # age 3, age 22
+for t in (36.43, 43.79, 45.95, 51.47, 60.65, 62.41, 67.45, 76.9, 79.75, 83.07, 87.15): put(up, t, -19)   # every age step (soft)
 # channel BGM: starts after the map (22.2 s), low and fixed
 bg = ld('/home/user/channel_assets/WYDK_BGM_Picture_Book_Atlas.mp3'); Y = 3 * SR
 lv = np.array([rms(bg[i:i + SR]) for i in range(0, len(bg) - SR, SR)]); bg = bg[:(np.where(lv > np.median(lv) * .5)[0][-1] + 1) * SR]

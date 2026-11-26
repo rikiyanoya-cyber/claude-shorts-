@@ -110,9 +110,27 @@ def c_tax(l): card(l, (130, 160, 950, 520), seed=16); outlined(l, (540, 245), "N
 def c_end(l):
     card(l, (110, 560, 970, 1060), seed=21); outlined(l, (540, 680), "WHICH COUNTRY", F_BIG(100), fill=CREAM); outlined(l, (540, 810), "NEXT?", F_BIG(150), fill=AMBER)
     outlined(l, (540, 960), "Tell us in the comments", F_HAND(70), fill=INK, sw=0, shadow=False)
-def age(n):
-    def b(l): age_badge(l, n, 150, 165)   # a sticker on the card's top-left corner, clear of the faces and captions
-    return b
+# AGE badge (2026-11-26 owner: the age should keep moving; label and number must not overlap):
+# a wide amber card, "AGE" in the hand font on the left, the number on the right; it counts up at each step
+AGES = [(22.23, 0), (36.43, 1), (43.79, 2), (45.95, 3), (51.47, 8), (60.65, 12), (62.41, 22), (67.45, 24), (76.9, 25),
+        (79.75, 28), (83.07, 31), (87.15, 33)]
+NEW_LIFE = (93.3, 99.6)   # the grandchild: a new badge at 0 (scene cut, never counted back)
+BADGE = {}
+def badge_layer(n):
+    if n not in BADGE:
+        l = Image.new("RGBA", (380, 190), (0, 0, 0, 0)); card(l, (14, 14, 350, 160), fill=AMBER, seed=5)
+        outlined(l, (100, 90), "AGE", F_HAND(62), fill=INK, sw=0, shadow=False)
+        outlined(l, (250, 92), str(n), F_BIG(84), fill=CREAM, sw=7, shadow=False); BADGE[n] = l
+    return BADGE[n]
+def draw_age(fr, t):
+    if NEW_LIFE[0] <= t < NEW_LIFE[1]: n, k = 0, t - NEW_LIFE[0]
+    elif AGES[0][0] <= t < NEW_LIFE[0]:
+        j = max(i for i, (a, _) in enumerate(AGES) if a <= t); a, tgt = AGES[j]; prev = AGES[j - 1][1] if j else tgt
+        k = t - a; n = round(prev + (tgt - prev) * ease(k / .6))
+    else: return
+    l = badge_layer(n); s = back(k / .35) if k < .6 else 1
+    if abs(s - 1) > .005: l = l.resize((int(l.width * s), int(l.height * s)), Image.BILINEAR)
+    fr.alpha_composite(l, (int(30 + 190 - l.width / 2), int(10 + 95 - l.height / 2)))
 
 OV = [  # (key, builder, start, end, pop)
     ("shade_g", shade, 6.0, 22.2, False), ("1in37", c_1in37, 6.16, 12.8, True), ("four", c_four, 13.84, 17.4, True), ("queens", c_queens, 20.15, 22.2, True),
@@ -124,7 +142,6 @@ OV = [  # (key, builder, start, end, pop)
     ("long", c_long, 66.09, 67.45, True),
     ("rent_a", c_rent_a, 69.01, 76.9, True), ("rent_b", c_rent_b, 74.09, 76.9, True), ("denied", stamp("DENIED", 540, 420, 12), 75.6, 76.9, True),
     ("illegal", stamp("ILLEGAL", 560, 760, -10), 88.59, 89.35, True), ("tax", c_tax, 89.39, 93.3, True),
-    ("age0", age(0), 22.23, 45.95, True), ("age3", age(3), 45.95, 62.41, True), ("age22", age(22), 62.41, 93.3, True), ("age0b", age(0), 93.3, 99.6, True),
     ("end", c_end, 105.6, END, True),
 ]
 # ---------- captions (follow the audio)
@@ -172,5 +189,6 @@ for i in range(n0, n1):
             put(fr, key, bld, t - a, b - a, pop)
             if not key.startswith(('shade', 'age', 'ck', 'inc_s')): low = max(low, L[key][1][3] if L[key][1] else 0)
     caption(fr, t, low - 70)
+    draw_age(fr, t)
     ff.stdin.write(fr.convert("RGB").tobytes())
 ff.stdin.close(); ff.wait(); print("done", n1 - n0)
