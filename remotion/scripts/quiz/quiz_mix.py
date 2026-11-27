@@ -2,8 +2,8 @@
 # Japanese-flavoured SFX: swish on each card, taiko "don" when the place name appears, wooden clock tick-tock each second,
 # BGM (2026-11-27): owner track "Warm Trivia Breeze" (/home/user/quiz_jp/assets, not committed). bgm_light.py is the fallback.
 # a rin bell at time-up, a bright pluck chord when a red box pops. Levels are dB relative to the voice.
-# usage: python3 quiz_mix.py <events.json> <voice.mp3> <bgm.wav> out.wav [jingle.mp3]   (jingle: owner's quiz-question sound, opening only)   (then loudness to -14 LUFS / -1.5 dBTP)
-# loudness: acompressor=threshold=-24dB:ratio=4:attack=3:release=120, then gain to -14 LUFS and alimiter 0.76 at 192 kHz (plain loudnorm lands at -16: the taiko/bell peaks)
+# usage: python3 quiz_mix.py <events.json> <voice.mp3> <bgm.wav> out.wav [jingle.mp3] [timer.mp3]   (jingle: owner's quiz-question sound, opening only)   (then loudness to -14 LUFS / -1.5 dBTP; AAC 192k)
+# loudness: lowpass=f=12000 (the timer clicks overshoot in AAC otherwise), acompressor=threshold=-24dB:ratio=4:attack=3:release=120, then gain to -14 LUFS and alimiter 0.76 at 192 kHz (plain loudnorm lands at -16: the taiko/bell peaks)
 import sys, json, subprocess, numpy as np, soundfile as sf
 EV, VOICE, BGM, OUT = sys.argv[1:5]; SR = 48000
 E = json.load(open(EV)); N = int(E["end"] * SR); t = np.arange(N) / SR
@@ -41,7 +41,11 @@ def pluck_chord():
     return out
 for q in E["seal"]: put(fx, at(swish(), -22), q)
 for q in E["reveal"]: put(fx, at(taiko(), -10), q)
-for j, q in enumerate(E["ticks"]):
+TIMER = sys.argv[6] if len(sys.argv) > 6 else None   # owner's timer sound (Timer02 Timbre1): strong tick on each second at 0.10, 1.10, ...
+if TIMER:
+    tm = ld(TIMER); tn = E.get("tn", 6); seg = tm[int(.0 * SR):int((tn + .1) * SR)].copy(); f = int(.03 * SR); seg[-f:] *= np.linspace(1, 0, f)
+    for q in E["timeup"]: put(fx, at(seg, -16), q - tn - .1)
+for j, q in enumerate([] if TIMER else E["ticks"]):
     tn = E.get("tn", 6); last3 = (j % tn) >= tn - 3
     put(fx, at(wood(2300 if j % 2 == 0 else 1700), -13 if last3 else -17), q)
 for q in E["timeup"]: put(fx, at(rin(), -13), q)
