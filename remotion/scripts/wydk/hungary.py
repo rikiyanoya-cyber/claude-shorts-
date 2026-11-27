@@ -36,13 +36,17 @@ def outlined(layer, xy, text, font, fill=CREAM, stroke=INK, sw=8, anchor="mm", s
 
 FPS = 30; END = 140.0
 GLOBE_END, GLOBE_N = 12.45, 373
-SHOTS = [
+SHOTS = [   # v2 (2026-11-27): about one picture every 4 s
     ("01_city", 12.45, "in", (.5, .45)), ("02_thin_walls", 16.4, "in", (.5, .55)), ("03_name_book", 19.58, "in", (.5, .55)),
-    ("03_name_book", 26.3, "out", (.4, .45)), ("01_city", 32.53, "right", (.5, .62)), ("04_playground", 41.77, "in", (.45, .62)),
-    ("05_complain", 47.71, "in", (.5, .5)), ("06_high_chair", 55.59, "in", (.5, .55)), ("07_two_cakes", 60.98, "out", (.5, .5)),
-    ("08_bath_grandpa", 67.26, "in", (.5, .55)), ("09_bejgli", 75.43, "in", (.45, .5)), ("10_bus", 83.11, "out", (.45, .55)),
-    ("11_late_train", 90.63, "in", (.5, .5)), ("12_moving_out", 96.99, "in", (.5, .55)), ("13_poster", 101.87, "in", (.55, .45)),
-    ("14_palinka", 109.32, "in", (.5, .45)), ("15_bench", 115.96, "out", (.5, .6)), ("16_grandchild_book", 122.89, "in", (.45, .5)),
+    ("G_scroll", 22.58, "out", (.5, .55)), ("A_king", 26.3, "in", (.5, .4)), ("H_attilas", 29.17, "in", (.5, .62)),
+    ("I_stork", 32.53, "in", (.5, .35)), ("B_loan_birds", 34.81, "in", (.5, .55)), ("C_four_kids", 38.33, "out", (.6, .45)),
+    ("04_playground", 41.77, "in", (.45, .62)), ("J_jobs", 47.71, "out", (.5, .45)), ("05_complain", 50.55, "in", (.5, .5)),
+    ("06_high_chair", 55.59, "in", (.5, .55)), ("07_two_cakes", 60.98, "out", (.5, .5)), ("K_aunts", 64.7, "in", (.5, .45)),
+    ("08_bath_grandpa", 67.26, "in", (.5, .55)), ("D_grumpy", 72.95, "in", (.4, .5)), ("09_bejgli", 75.43, "in", (.45, .5)),
+    ("L_sister", 79.59, "in", (.5, .5)), ("10_bus", 83.11, "out", (.45, .55)), ("M_bus_away", 86.31, "in", (.45, .6)),
+    ("11_late_train", 90.63, "in", (.5, .5)), ("E_conductor", 94.19, "in", (.55, .5)), ("12_moving_out", 96.99, "in", (.5, .55)),
+    ("13_poster", 101.87, "in", (.55, .45)), ("F_party", 106.76, "in", (.5, .55)), ("14_palinka", 109.32, "in", (.5, .45)),
+    ("15_bench", 115.96, "out", (.5, .6)), ("N_pastry", 120.25, "in", (.5, .45)), ("16_grandchild_book", 122.89, "in", (.45, .5)),
     ("17_bath_grandchild", 127.13, "in", (.5, .55)), ("END", 131.93, "out", (.5, .55)),
 ]
 BLUR = {}   # owner: no blurring
@@ -106,11 +110,11 @@ def c_burp(l):
     t = Image.new("RGBA", (700, 300), (0, 0, 0, 0)); outlined(t, (350, 150), "BURP!", F_BIG(150), fill=AMBER, sw=10)
     t = t.rotate(10, resample=Image.BICUBIC, expand=True); l.alpha_composite(t, (int(700 - t.width / 2), int(330 - t.height / 2)))
 def c_list(l): card2(l, "OFFICIAL NAME LIST", "4,703 NAMES", 2, AMBER)
-def c_attila(l): card2(l, "YOUR NAME", "ATTILA", 3, AMBER, big_size=140)
-def c_others(l): outlined(l, (540, 590), "+140,000 OTHERS", F_BIG(96), fill=CREAM)
+def c_attila(l): card2(l, "YOUR NAME", "ATTILA", 3, AMBER, y0=1380, big_size=140)   # low: the crowned baby is up top
+def c_others(l): card2(l, "ALSO NAMED ATTILA", "140,000", 22, AMBER, big_size=140)
 def c_loan(l): card2(l, "HAVE 3 KIDS:", "11M FT LOAN", 4, AMBER)
 def c_loan_s(l): strike(l, 250, 385, 830)
-def c_tax(l): card2(l, "HAVE 4 KIDS:", "MOM'S TAX = 0", 5, SAGE, y0=560, big_size=104)
+def c_tax(l): card2(l, "HAVE 4 KIDS:", "MOM'S TAX = 0", 5, SAGE, big_size=104)
 def c_births(l): card2(l, "BABIES BORN LAST YEAR", "72,000", 6, AMBER, big_size=140)
 def c_pay(l):
     card(l, (110, 160, 970, 560), seed=7); outlined(l, (540, 240), "TAKE-HOME, TOGETHER", F_HAND(66), fill=INK, sw=0, shadow=False)
@@ -165,17 +169,17 @@ OV = [
     ("shade_g", shade, 5.7, 12.45, False), ("1in1900", c_1in1900, 5.76, 11.25, True), ("rare", stamp("RARE", 540, 420, -8, 170), 11.32, 12.45, True),
     ("shade1", shade, 12.45, 131.93, False),
     ("debrecen", c_debrecen, 12.48, 16.4, True), ("burp", c_burp, 18.82, 19.58, True),
-    ("list", c_list, 22.58, 26.3, True), ("attila", c_attila, 27.42, 32.53, True), ("others", c_others, 29.41, 32.53, True),
-    ("loan", c_loan, 34.81, 41.77, True), ("loan_s", c_loan_s, 37.49, 41.77, False), ("tax", c_tax, 38.33, 41.77, True),
+    ("list", c_list, 22.58, 26.3, True), ("attila", c_attila, 27.42, 29.17, True), ("others", c_others, 29.41, 32.53, True),
+    ("loan", c_loan, 34.81, 38.33, True), ("loan_s", c_loan_s, 37.49, 38.33, False), ("tax", c_tax, 38.33, 41.77, True),
     ("births", c_births, 43.39, 47.71, True), ("fewest", stamp("FEWEST EVER", 540, 660, -8, 120), 46.07, 47.71, True),
     ("pay", c_pay, 51.75, 55.59, True),
     ("word", c_word, 56.75, 60.98, True), ("hello", c_hello, 58.42, 60.98, True),
-    ("bday", c_bday, 61.54, 67.26, True),
+    ("bday", c_bday, 61.54, 64.7, True),
     ("38", c_38, 71.34, 75.43, True), ("purpose1", stamp("ON PURPOSE", 540, 520, -7, 120), 73.51, 75.43, True),
     ("left", c_left, 86.31, 90.63, True),
     ("late", stamp("LATE", 540, 420, -8, 170), 92.43, 96.99, True),
     ("home", c_home, 99.51, 101.87, True),
-    ("party", c_party, 104.48, 109.32, True), ("won", stamp("THEY WON", 540, 360, -8, 140), 108.52, 109.32, True),
+    ("party", c_party, 104.48, 106.76, True), ("won", stamp("THEY WON", 540, 360, -8, 140), 108.52, 109.32, True),
     ("palinka", c_palinka, 112.36, 115.96, True),
     ("pension", c_pension, 118.12, 122.89, True),
     ("list2", c_list2, 125.37, 127.13, True),
