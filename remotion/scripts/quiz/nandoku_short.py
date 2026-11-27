@@ -11,10 +11,10 @@ CREAM, INK, RED, PAPER2 = (246, 238, 220), (43, 38, 32), (158, 42, 36), (233, 22
 SERIF = "/usr/share/fonts/opentype/noto/NotoSerifCJK-%s.ttc"
 F = lambda w, s: ImageFont.truetype(SERIF % w, s, index=0)
 # timing follows the narration (voice_hook_kohei: A "あなたはわかるかな" B "難読地名クイズ" C "いくつ読めましたか" D "答えはコメント欄で")
-HOOK, QD, OUTRO = 4.1, 7.0, 4.6
+HOOK, QD, OUTRO = 4.1, 6.8, 4.6
 VA, VB = .7, 2.5                   # hook lines start (after the owner's quiz jingle at 0:00)
 VC, VD = .15, 1.6                  # outro lines start (from the outro start)
-T0, TN = 1.0, 6                    # thinking clock: starts at k=1.0, counts TN seconds; time-up at k=T0+TN
+T0, TN = 1.0, 5                    # owner: 5-second limit. thinking clock: starts at k=1.0, counts TN seconds; time-up at k=T0+TN
 END = HOOK + 3 * QD + OUTRO
 ease = lambda s: 1 - (1 - min(1, max(0, s))) ** 3
 def back(s):
@@ -27,6 +27,11 @@ vig = 1 - .10 * (np.hypot((xx - W / 2) / W, (yy - H / 2) / H) * 2) ** 2
 n = np.asarray(Image.fromarray((rng.random((H // 3, W // 3)) * 255).astype(np.uint8)).resize((W, H), Image.BICUBIC), np.float32) / 255
 bg = np.array(CREAM, np.float32)[None, None] * vig[..., None] + (n[..., None] - .5) * 10
 BG = Image.fromarray(bg.clip(0, 255).astype(np.uint8)).convert("RGBA")
+WASHI = "/home/user/quiz_jp/assets/bg_washi.jpg"   # owner's washi paper background (2026-11-27)
+import os
+if os.path.exists(WASHI):
+    im = Image.open(WASHI).convert("RGB"); sc = max(W / im.width, H / im.height)
+    im = im.resize((round(im.width * sc), round(im.height * sc)), Image.LANCZOS); BG = im.crop(((im.width - W) // 2, (im.height - H) // 2, (im.width - W) // 2 + W, (im.height - H) // 2 + H)).convert("RGBA")
 d = ImageDraw.Draw(BG)
 d.rectangle([44, 44, W - 44, H - 44], outline=INK, width=8); d.rectangle([62, 62, W - 62, H - 62], outline=INK, width=2)
 for cx, cy in ((44, 44), (W - 44, 44), (44, H - 44), (W - 44, H - 44)):
@@ -93,7 +98,7 @@ def clock(dr, k):
     a = 2 * math.pi * u; dr.line([(cx, cy), (cx + (R - 26) * math.sin(a), cy - (R - 26) * math.cos(a))], fill=INK, width=9)
     dr.ellipse([cx - 13, cy - 13, cx + 13, cy + 13], fill=INK)
     dr.rounded_rectangle([cx - 26, cy - R - 40, cx + 26, cy - R - 8], 8, fill=INK)   # the stopwatch crown
-    if up: text_c(dr, (690, 1395), "時間です！", F("Black", 84), RED)
+    if up: text_c(dr, (735, 1395), "時間です！", F("Black", 80), RED)
     else:
         text_c(dr, (600, 1410), "のこり", F("Bold", 56), INK)
         text_c(dr, (760, 1387), str(left), F("Black", 150), RED if left <= 3 else INK); text_c(dr, (870, 1410), "秒", F("Bold", 56), INK)
@@ -126,6 +131,6 @@ ff.stdin.close(); ff.wait()
 import json   # sound events for the mix (quiz_mix.py)
 Q = [HOOK + i * QD for i in range(3)]; O = HOOK + 3 * QD
 json.dump({"end": END, "voice": {"A": VA, "B": VB, "C": O + VC, "D": O + VD}, "seal": Q, "reveal": [q + .2 for q in Q],
-           "ticks": [q + T0 + j for q in Q for j in range(TN)], "timeup": [q + T0 + TN for q in Q], "boxes": [O + VD], "jingle": 0.0},
+           "ticks": [q + T0 + j for q in Q for j in range(TN)], "timeup": [q + T0 + TN for q in Q], "tn": TN, "boxes": [O + VD], "jingle": 0.0},
           open(OUT.rsplit(".", 1)[0] + "_events.json", "w"), indent=1)
 print("done", END)

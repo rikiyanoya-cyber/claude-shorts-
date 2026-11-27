@@ -41,7 +41,7 @@ def pluck_chord():
 for q in E["seal"]: put(fx, at(swish(), -22), q)
 for q in E["reveal"]: put(fx, at(taiko(), -10), q)
 for j, q in enumerate(E["ticks"]):
-    last3 = (j % 6) >= 3
+    tn = E.get("tn", 6); last3 = (j % tn) >= tn - 3
     put(fx, at(wood(2300 if j % 2 == 0 else 1700), -13 if last3 else -17), q)
 for q in E["timeup"]: put(fx, at(rin(), -13), q)
 for q in E["boxes"]: put(fx, at(pluck_chord(), -12), q)
