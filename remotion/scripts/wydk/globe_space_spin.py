@@ -59,7 +59,12 @@ def frame(lon0, lat0, R, CX, CY, hi_country, regions, region_alpha):
         lat = np.arcsin(np.clip(cc * math.sin(p0) + np.where(rho > 0, y * sc * math.cos(p0) / np.maximum(rho, 1e-9), 0), -1, 1))
         lon = l0 + np.arctan2(x * sc, rho * math.cos(p0) * cc - y * math.sin(p0) * sc)
     u = ((np.degrees(lon) + 180) % 360) / 360 * (TW - 1); v = (90 - np.degrees(lat)) / 180 * (TH - 1)
-    e = TEX[v.astype(int).clip(0, TH - 1), u.astype(int).clip(0, TW - 1)] * (.5 + .5 * np.sqrt(np.clip(1 - rho * rho, 0, 1)))[..., None]
+    if cfg.get("smooth"):   # bilinear texture lookup: needed for close zooms on small countries (Hungary), else the map looks pixelated
+        u0 = np.floor(u).astype(int).clip(0, TW - 1); v0 = np.floor(v).astype(int).clip(0, TH - 1); fu = (u - u0)[..., None]; fv = (v - v0)[..., None]
+        u1 = (u0 + 1) % TW; v1 = (v0 + 1).clip(0, TH - 1)
+        tx = (TEX[v0, u0] * (1 - fu) + TEX[v0, u1] * fu) * (1 - fv) + (TEX[v1, u0] * (1 - fu) + TEX[v1, u1] * fu) * fv
+    else: tx = TEX[v.astype(int).clip(0, TH - 1), u.astype(int).clip(0, TW - 1)]
+    e = tx * (.5 + .5 * np.sqrt(np.clip(1 - rho * rho, 0, 1)))[..., None]
     img = SPACE.copy()
     if R < 3000:
         glow = Image.new("RGBA", (W, H), (0, 0, 0, 0)); ImageDraw.Draw(glow).ellipse([CX - R - 24, CY - R - 24, CX + R + 24, CY + R + 24], fill=(120, 190, 170, 110))
