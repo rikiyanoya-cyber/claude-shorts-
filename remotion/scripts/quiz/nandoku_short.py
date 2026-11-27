@@ -11,8 +11,8 @@ CREAM, INK, RED, PAPER2 = (246, 238, 220), (43, 38, 32), (158, 42, 36), (233, 22
 SERIF = "/usr/share/fonts/opentype/noto/NotoSerifCJK-%s.ttc"
 F = lambda w, s: ImageFont.truetype(SERIF % w, s, index=0)
 # timing follows the narration (voice_hook_kohei: A "あなたはわかるかな" B "難読地名クイズ" C "いくつ読めましたか" D "答えはコメント欄で")
-HOOK, QD, OUTRO = 3.6, 7.0, 4.6
-VA, VB = .15, 1.95                 # hook lines start
+HOOK, QD, OUTRO = 4.1, 7.0, 4.6
+VA, VB = .7, 2.5                   # hook lines start (after the owner's quiz jingle at 0:00)
 VC, VD = .15, 1.6                  # outro lines start (from the outro start)
 T0, TN = 1.0, 6                    # thinking clock: starts at k=1.0, counts TN seconds; time-up at k=T0+TN
 END = HOOK + 3 * QD + OUTRO
@@ -47,6 +47,10 @@ def header(dr):   # the running title band (same on every question card)
 
 def hook_layer(k):
     l = Image.new("RGBA", (W, H), (0, 0, 0, 0)); dr = ImageDraw.Draw(l)
+    q = back(k / .3) * (1 - ease((k - VA + .1) / .3))   # a big "？" pops with the jingle, then gives way to the line
+    if q > .01:
+        t = Image.new("RGBA", (600, 600), (0, 0, 0, 0)); td = ImageDraw.Draw(t); text_c(td, (300, 300), "？", F("Black", 460), RED)
+        t = t.resize((max(1, int(600 * max(q, .05))), max(1, int(600 * max(q, .05)))), Image.BILINEAR); l.alpha_composite(t, (int(W / 2 - t.width / 2), int(900 - t.height / 2)))
     a = ease((k - VA) / .35)
     text_c(dr, (W / 2, 700 - 30 * (1 - a)), "あなたはわかるかな？？", F("Black", 86), INK + (int(255 * a),))
     s = back((k - VB) / .4) if k > VB else 0
@@ -122,6 +126,6 @@ ff.stdin.close(); ff.wait()
 import json   # sound events for the mix (quiz_mix.py)
 Q = [HOOK + i * QD for i in range(3)]; O = HOOK + 3 * QD
 json.dump({"end": END, "voice": {"A": VA, "B": VB, "C": O + VC, "D": O + VD}, "seal": Q, "reveal": [q + .2 for q in Q],
-           "ticks": [q + T0 + j for q in Q for j in range(TN)], "timeup": [q + T0 + TN for q in Q], "boxes": [VB, O + VD]},
+           "ticks": [q + T0 + j for q in Q for j in range(TN)], "timeup": [q + T0 + TN for q in Q], "boxes": [O + VD], "jingle": 0.0},
           open(OUT.rsplit(".", 1)[0] + "_events.json", "w"), indent=1)
 print("done", END)

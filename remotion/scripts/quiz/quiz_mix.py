@@ -1,7 +1,7 @@
 # 難読地名 Shorts audio (2026-11-27): owner narration (4 lines) + light BGM ducked under the voice + synthesized
 # Japanese-flavoured SFX: swish on each card, taiko "don" when the place name appears, wooden clock tick-tock each second,
 # a rin bell at time-up, a bright pluck chord when a red box pops. Levels are dB relative to the voice.
-# usage: python3 quiz_mix.py <events.json> <voice.mp3> <bgm.wav> out.wav   (then loudness to -14 LUFS / -1.5 dBTP)
+# usage: python3 quiz_mix.py <events.json> <voice.mp3> <bgm.wav> out.wav [jingle.mp3]   (jingle: owner's quiz-question sound, opening only)   (then loudness to -14 LUFS / -1.5 dBTP)
 # loudness: acompressor=threshold=-24dB:ratio=4:attack=3:release=120, then gain to -14 LUFS and alimiter 0.80 at 192 kHz (plain loudnorm lands at -16: the taiko/bell peaks)
 import sys, json, subprocess, numpy as np, soundfile as sf
 EV, VOICE, BGM, OUT = sys.argv[1:5]; SR = 48000
@@ -45,8 +45,9 @@ for j, q in enumerate(E["ticks"]):
     put(fx, at(wood(2300 if j % 2 == 0 else 1700), -13 if last3 else -17), q)
 for q in E["timeup"]: put(fx, at(rin(), -13), q)
 for q in E["boxes"]: put(fx, at(pluck_chord(), -12), q)
+if len(sys.argv) > 5 and "jingle" in E: put(fx, at(ld(sys.argv[5]), -3), E["jingle"])
 # ---- BGM: ~19 dB under the voice, ducked a further 6 dB while someone speaks
-bg = ld(BGM)[:N]; bg = np.pad(bg, (0, N - len(bg)))
+bg = ld(BGM)[:N]; bg = np.pad(bg, (0, N - len(bg))); bg[:int(.6 * SR)] = 0; bg[int(.6 * SR):int(1.2 * SR)] *= np.linspace(0, 1, int(.6 * SR))   # BGM comes in after the jingle
 env = np.convolve((np.abs(voice) > 1e-3).astype(float), np.ones(int(.25 * SR)) / int(.25 * SR), "same").clip(0, 1)
 mus = at(bg, -19) * (1 - .5 * env)
 mix = voice + fx + mus; mix *= np.clip((E["end"] - t) / .4, 0, 1)
