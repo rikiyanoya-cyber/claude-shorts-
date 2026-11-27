@@ -95,6 +95,7 @@ def stamp(text, cx, cy, ang, size=130):
     return b
 def card2(l, title, big, seed, color=AMBER, y0=170, big_size=120):
     card(l, (110, y0, 970, y0 + 330), seed=seed); outlined(l, (540, y0 + 85), title, F_HAND(66), fill=INK, sw=0, shadow=False)
+    outlined(l, (540, y0 + 215), big, F_BIG(big_size), fill=color)
 def c_1in1900(l):
     card(l, (150, 170, 930, 610), seed=11); outlined(l, (540, 250), "ONLY ABOUT", F_HAND(70), fill=INK, sw=0, shadow=False)
     outlined(l, (540, 380), "1 IN 1,900", F_BIG(130), fill=AMBER); outlined(l, (540, 520), "BABIES ON EARTH", F_HAND(62), fill=INK, sw=0, shadow=False)
@@ -127,7 +128,7 @@ def c_palinka(l): card2(l, "HOMEMADE P\u00c1LINKA, TAX-FREE", "UP TO 86 L / YEAR
 def c_pension(l): card2(l, "EVERY FEBRUARY", "+1 PENSION MONTH", 18, SAGE, big_size=92)
 def c_list2(l): card2(l, "THE NAME?", "FROM THE LIST", 19, AMBER, big_size=110)
 def c_happy(l):
-    card(l, (110, 560, 970, 960), seed=20); outlined(l, (540, 680), "THE GREATEST", F_BIG(100), fill=CREAM); outlined(l, (540, 830), "HAPPINESS", F_BIG(130), fill=AMBER)
+    card(l, (110, 170, 970, 570), seed=20); outlined(l, (540, 290), "THE GREATEST", F_BIG(100), fill=CREAM); outlined(l, (540, 440), "HAPPINESS", F_BIG(130), fill=AMBER)
 def c_end(l):
     card(l, (110, 560, 970, 1060), seed=21); outlined(l, (540, 680), "WHICH COUNTRY", F_BIG(100), fill=CREAM); outlined(l, (540, 810), "NEXT?", F_BIG(150), fill=AMBER)
     outlined(l, (540, 960), "Tell us in the comments", F_HAND(70), fill=INK, sw=0, shadow=False)
