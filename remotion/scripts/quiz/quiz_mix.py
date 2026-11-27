@@ -17,7 +17,12 @@ def put(buf, x, t0, g=1.0):
 # ---- narration: the 4 lines cut from the owner's take at its pauses
 v = ld(VOICE); VR = rms(v)
 LINES = {"A": (0.0, 1.75), "B": (2.1, 3.45), "C": (3.9, 5.25), "D": (5.6, 7.39)}
+def trim(x):   # drop leading/trailing silence of a separately generated line
+    nz = np.where(np.abs(x) > 1e-3)[0]; x = x[max(0, nz[0] - int(.02 * SR)):nz[-1] + int(.08 * SR)].copy() if len(nz) else x
+    f = int(.01 * SR); x[:f] *= np.linspace(0, 1, f); x[-f:] *= np.linspace(1, 0, f); return x
 for key, (a, b) in LINES.items():
+    if E.get("voice" + key):   # all-category Shorts: the category line (B) and the outro question (C) come from their own files
+        seg = trim(ld(E["voice" + key])); put(voice, seg * VR / rms(seg) * (rms(v[int(a * SR):int(b * SR)]) / VR), E["voice"][key]); continue
     seg = v[int(a * SR):int(b * SR)].copy(); f = int(.02 * SR); seg[:f] *= np.linspace(0, 1, f); seg[-f:] *= np.linspace(1, 0, f)
     put(voice, seg, E["voice"][key] - .03)
 def at(x, db): return x * 10 ** (db / 20) * VR / rms(x)
