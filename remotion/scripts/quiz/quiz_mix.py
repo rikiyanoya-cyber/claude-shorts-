@@ -48,8 +48,10 @@ for q in E["seal"]: put(fx, at(swish(), -22), q)
 for q in E["reveal"]: put(fx, at(taiko(), -10), q)
 TIMER = sys.argv[6] if len(sys.argv) > 6 else None   # owner's timer sound (Timer02 Timbre1): strong tick on each second at 0.10, 1.10, ...
 if TIMER:
-    tm = ld(TIMER); tn = E.get("tn", 6); seg = tm[int(.0 * SR):int((tn + .1) * SR)].copy(); f = int(.03 * SR); seg[-f:] *= np.linspace(1, 0, f)
-    for q in E["timeup"]: put(fx, at(seg, -16), q - tn - .1)
+    tm = np.frombuffer(subprocess.run(["ffmpeg", "-v", "error", "-i", TIMER, "-af", "lowpass=f=6500", "-f", "f32le", "-ac", "1", "-ar", str(SR), "-"], capture_output=True, check=True).stdout, np.float32).astype(float)   # softened: its sharp clicks overshoot in AAC
+    tn = E.get("tn", 6); seg = tm[int(.0 * SR):int((tn + .1) * SR)].copy(); f = int(.03 * SR); seg[-f:] *= np.linspace(1, 0, f)
+    sg = at(seg, -16); cap = 1.8 * VR; sg = cap * np.tanh(sg / cap)   # tame the tick peaks: they hit the limiter and the AAC encoder then overshoots
+    for q in E["timeup"]: put(fx, sg, q - tn - .1)
 for j, q in enumerate([] if TIMER else E["ticks"]):
     tn = E.get("tn", 6); last3 = (j % tn) >= tn - 3
     put(fx, at(wood(2300 if j % 2 == 0 else 1700), -13 if last3 else -17), q)
@@ -57,7 +59,10 @@ for q in E["timeup"]: put(fx, at(rin(), -13), q)
 for q in E["boxes"]: put(fx, at(pluck_chord(), -12), q)
 if len(sys.argv) > 5 and "jingle" in E: put(fx, at(ld(sys.argv[5]), -3), E["jingle"])
 # ---- BGM: ~19 dB under the voice, ducked a further 6 dB while someone speaks
-bg = ld(BGM)[:N]; bg = np.pad(bg, (0, N - len(bg))); bg[:int(.6 * SR)] = 0; bg[int(.6 * SR):int(1.2 * SR)] *= np.linspace(0, 1, int(.6 * SR))   # BGM comes in after the jingle
+bg0 = ld(BGM); X = int(2 * SR); bg = bg0.copy()
+while len(bg) < N:   # longer episodes: loop the owner's 30 s track with a 2 s crossfade
+    r_ = np.linspace(0, 1, X); bg = np.concatenate([bg[:-X], bg[-X:] * (1 - r_) + bg0[:X] * r_, bg0[X:]])
+bg = bg[:N]; bg[:int(.6 * SR)] = 0; bg[int(.6 * SR):int(1.2 * SR)] *= np.linspace(0, 1, int(.6 * SR))   # BGM comes in after the jingle
 env = np.convolve((np.abs(voice) > 1e-3).astype(float), np.ones(int(.25 * SR)) / int(.25 * SR), "same").clip(0, 1)
 mus = at(bg, -19) * (1 - .5 * env)
 mix = voice + fx + mus; mix *= np.clip((E["end"] - t) / .4, 0, 1)
