@@ -1,8 +1,9 @@
 # 難読地名 Shorts audio (2026-11-27): owner narration (4 lines) + light BGM ducked under the voice + synthesized
 # Japanese-flavoured SFX: swish on each card, taiko "don" when the place name appears, wooden clock tick-tock each second,
+# BGM (2026-11-27): owner track "Warm Trivia Breeze" (/home/user/quiz_jp/assets, not committed). bgm_light.py is the fallback.
 # a rin bell at time-up, a bright pluck chord when a red box pops. Levels are dB relative to the voice.
 # usage: python3 quiz_mix.py <events.json> <voice.mp3> <bgm.wav> out.wav [jingle.mp3]   (jingle: owner's quiz-question sound, opening only)   (then loudness to -14 LUFS / -1.5 dBTP)
-# loudness: acompressor=threshold=-24dB:ratio=4:attack=3:release=120, then gain to -14 LUFS and alimiter 0.80 at 192 kHz (plain loudnorm lands at -16: the taiko/bell peaks)
+# loudness: acompressor=threshold=-24dB:ratio=4:attack=3:release=120, then gain to -14 LUFS and alimiter 0.76 at 192 kHz (plain loudnorm lands at -16: the taiko/bell peaks)
 import sys, json, subprocess, numpy as np, soundfile as sf
 EV, VOICE, BGM, OUT = sys.argv[1:5]; SR = 48000
 E = json.load(open(EV)); N = int(E["end"] * SR); t = np.arange(N) / SR
