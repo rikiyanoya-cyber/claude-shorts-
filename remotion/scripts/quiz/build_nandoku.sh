@@ -1,13 +1,13 @@
 #!/bin/bash
 # 難読地名クイズ Shorts: one command per episode, in the format fixed by the owner on 2026-11-27 (episode ① is the reference).
-# usage: bash build_nandoku.sh <number> <place1> <place2> <place3>
+# usage: bash build_nandoku.sh <part number> <place1> <place2> <place3>   (the part number is shown as "パートN")
 #   e.g. bash build_nandoku.sh 2 十三 放出 御徒町   -> /home/user/quiz_jp/nandoku02/nandoku_quiz_02_phone.mp4
 # Owner assets live in /home/user/quiz_jp/assets (not committed: the sound-library terms forbid redistribution).
 set -e
-N=$(printf %02d "$1"); shift
+P=$1; N=$(printf %02d "$1"); shift
 Q=$(cd "$(dirname "$0")" && pwd); A=/home/user/quiz_jp/assets; D=/home/user/quiz_jp/nandoku$N
 mkdir -p "$D"; cd "$D"
-python3 "$Q/nandoku_short.py" video.mp4 "$1" "$2" "$3"
+python3 "$Q/nandoku_short.py" video.mp4 "$1" "$2" "$3" "$P"
 python3 "$Q/quiz_mix.py" video_events.json "$A/voice_hook_kohei.mp3" "$A/BGM_Warm_Trivia_Breeze.mp3" mix.wav "$A/quiz_question_jingle.mp3" "$A/timer_tick.mp3"
 ffmpeg -v error -y -i mix.wav -af "lowpass=f=12000,acompressor=threshold=-24dB:ratio=4:attack=3:release=120:makeup=1" mix_c.wav
 I=$(ffmpeg -hide_banner -i mix_c.wav -af ebur128 -f null - 2>&1 | grep -A3 Summary | grep " I:" | awk '{print $2}')

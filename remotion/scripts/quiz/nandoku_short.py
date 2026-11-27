@@ -6,6 +6,7 @@ import sys, subprocess, math
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 OUT, QS = sys.argv[1], sys.argv[2:5]
+PART = sys.argv[5] if len(sys.argv) > 5 else ""   # "パート N" on the title band and under the hook box
 W, H, FPS = 1080, 1920, 30
 CREAM, INK, RED, PAPER2 = (246, 238, 220), (43, 38, 32), (158, 42, 36), (233, 222, 198)
 SERIF = "/usr/share/fonts/opentype/noto/NotoSerifCJK-%s.ttc"
@@ -48,7 +49,7 @@ def fit(s, maxw, start, weight="Black"):
 
 def header(dr):   # the running title band (same on every question card)
     dr.rectangle([62, 150, W - 62, 290], fill=INK)
-    text_c(dr, (W / 2, 220), "難読地名クイズ", F("Black", 78), CREAM)
+    text_c(dr, (W / 2, 220), "難読地名クイズ" + (f"　パート{PART}" if PART else ""), F("Black", 70 if PART else 78), CREAM)
 
 def hook_layer(k):
     l = Image.new("RGBA", (W, H), (0, 0, 0, 0)); dr = ImageDraw.Draw(l)
@@ -65,6 +66,8 @@ def hook_layer(k):
         text_c(td, (W / 2, 215), "難読地名", F("Black", 168), CREAM); text_c(td, (W / 2, 370), "クイズ", F("Black", 96), CREAM)
         t = t.resize((max(1, int(W * s)), max(1, int(520 * s))), Image.BILINEAR)
         l.alpha_composite(t, (int(W / 2 - t.width / 2), int(1060 - t.height / 2)))
+    if PART and k > VB + .3:
+        a = ease((k - VB - .3) / .3); text_c(dr, (W / 2, 1400), f"パート{PART}", F("Black", 96), INK + (int(255 * a),))
     return l
 
 def q_layer(i, k):
