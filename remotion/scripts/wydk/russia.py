@@ -40,14 +40,14 @@ GLOBE_END, GLOBE_N = 5.7, 171
 LOOP_T = 110.2   # closing card over the opening globe; the last frame lands on globe frame 0 so the video loops
 SHOTS = [   # (image, start s, move, focus, zoom) — scene numbers from marketing's sheet; 37-38-39-36 close
     ("01", 5.7, "in", (.5, .55)), ("02", 10.65, "in", (.5, .6)), ("03", 12.95, "out", (.5, .6)), ("04", 18.8, "in", (.5, .6)),
-    ("05", 21.25, "in", (.5, .5)), ("06", 23.8, "in", (.5, .42)), ("07", 26.95, "out", (.5, .38)), ("08", 30.05, "in", (.5, .55)),
+    ("05", 21.25, "in", (.5, .5)), ("06", 23.8, "in", (.5, .36)), ("07", 26.95, "out", (.5, .38)), ("08", 30.05, "in", (.5, .55)),
     ("09", 33.1, "in", (.5, .55)), ("10", 35.25, "in", (.5, .6)), ("11", 38.35, "in", (.5, .6)), ("12", 39.4, "in", (.5, .6)),
     ("13", 40.6, "out", (.5, .6)), ("14", 43.0, "in", (.5, .6)), ("15", 46.45, "in", (.5, .55)), ("16", 49.15, "in", (.5, .42)),
     ("17", 54.4, "in", (.5, .55)), ("18", 55.7, "out", (.5, .5)), ("19", 57.45, "in", (.5, .6)), ("20", 60.15, "in", (.6, .55)),
     ("21", 62.1, "in", (.45, .55)), ("22", 64.15, "out", (.5, .55)), ("23", 68.05, "in", (.45, .5)), ("24", 71.5, "in", (.5, .55)),
     ("25", 73.95, "in", (.5, .55)), ("26", 75.4, "out", (.5, .6)), ("27", 77.95, "in", (.5, .6)), ("28", 80.8, "in", (.5, .6)),
     ("29", 82.95, "in", (.5, .42)), ("30", 85.95, "out", (.5, .6)), ("31", 90.15, "in", (.5, .65)), ("32", 91.2, "candle", (.68, .55)),
-    ("33", 92.9, "in", (.5, .36)), ("34", 96.25, "in", (.5, .55)), ("35", 98.15, "in", (.5, .6)),
+    ("33", 92.9, "in", (.5, .28)), ("34", 96.25, "in", (.5, .55)), ("35", 98.15, "in", (.5, .42)),
     ("37", 102.15, "in", (.5, .5)), ("38", 103.75, "in", (.5, .6)), ("39", 105.15, "in", (.5, .55)), ("36", 108.05, "out", (.5, .6)),
     ("LOOP", LOOP_T, "", (.5, .5)),
 ]
@@ -93,7 +93,10 @@ def card3(l, top, big, bottom, seed, color=AMBER, big_size=130):
     outlined(l, (540, Y0 + 180), big, F_BIG(big_size), fill=color); outlined(l, (540, Y0 + 285), bottom, F_HAND(60), fill=INK, sw=0, shadow=False)
 def c_110(l): card3(l, "OUT OF EVERY", "1 IN 110", "babies on Earth", 11, big_size=140)
 def c_tz(l): card2(l, "YOUR COUNTRY HAS", "11 TIME ZONES", 13, big_size=110)
-def c_rub1(l): card2(l, "FOR YOUR PARENTS", "729,000 ₽", 4, big_size=130)
+def money(l, title, big, usd, seed, big_size):   # ruble figure + the dollar value underneath (owner: viewers can't read rubles); 82 RUB = 1 USD, late Nov 2026
+    card(l, (110, Y0, 970, Y0 + 390), seed=seed); outlined(l, (540, Y0 + 98), title, F_HAND(62), fill=INK, sw=0, shadow=False)
+    outlined(l, (540, Y0 + 195), big, F_BIG(big_size), fill=AMBER); outlined(l, (540, Y0 + 310), usd, F_BIG(88), fill=CREAM, sw=8)
+def c_rub1(l): money(l, "FOR YOUR PARENTS", "729,000 ₽", "≈ $8,900", 4, 130)
 def c_ivan(l): card2(l, "YOUR DAD: IVAN", "IVANOVICH", 3, big_size=130)
 def c_yours(l):
     card(l, (110, Y0, 970, Y0 + 290), seed=19); outlined(l, (540, Y0 + 98), "YOUR DAD'S NAME + -OVICH =", F_HAND(62), fill=INK, sw=0, shadow=False)
@@ -102,8 +105,8 @@ def c_switch(l): card2(l, "THE HEATING", "NO SWITCH", 7, BRICK, big_size=130)
 def c_jan7(l): card2(l, "CHRISTMAS", "JAN 7", 10, AMBER, big_size=140)
 def c_10d(l): card2(l, "THE WHOLE COUNTRY", "~10 DAYS OFF", 12, SAGE, big_size=116)
 def c_28(l): card2(l, "PAID VACATION, AT LEAST", "28 DAYS", 14, SAGE, big_size=140)
-def c_74(l): card2(l, "MOST PEOPLE EARN", "74,000 ₽ / MONTH", 15, big_size=96)
-def c_23(l): card2(l, "YOUR PENSION", "23,000 ₽ / MONTH", 16, big_size=96)
+def c_74(l): money(l, "MOST PEOPLE EARN", "74,000 ₽ / MONTH", "≈ $900 / MONTH", 15, 96)
+def c_23(l): money(l, "YOUR PENSION", "23,000 ₽ / MONTH", "≈ $280 / MONTH", 16, 96)
 def c_end(l):
     card(l, (110, 560, 970, 1060), seed=21); outlined(l, (540, 680), "WHICH COUNTRY", F_BIG(100), fill=CREAM); outlined(l, (540, 810), "NEXT?", F_BIG(150), fill=AMBER)
     outlined(l, (540, 960), "Tell us in the comments", F_HAND(70), fill=INK, sw=0, shadow=False)
